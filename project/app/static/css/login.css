@@ -113,3 +113,20 @@ body{
 .bttm_links:hover{
     font-size: 17px;
 }
+
+.reset{
+    background-color: #2686B0;
+    color: #FFFFFF;
+    border-radius: 10px;
+    width: 100%;
+    height: 3em;
+    border: none;
+    transition: .4s;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+}
+
+.reset:hover{
+    color: #e2e2e2;
+    background-color: #2684ad;
+}

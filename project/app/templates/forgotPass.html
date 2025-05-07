@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Forgot password</title>
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{% static 'icons/web-icon-Eclipse.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'images/web-icon-Eclipse.png' %}">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
@@ -18,33 +18,27 @@
     
     <div class="formu">
         <div class="content">
-            <h1 class="login">LOGIN</h1>
+            <h1 class="login">Restablecer Contraseña</h1>
+            <h3 class="fs-6 fw-normal text-secondary m-0">Proporcione la dirección de correo electrónico asociada a su cuenta para recuperar su contraseña.</h3>
             <br>
 
-            <div class="form-group">
-                <label for="exampleInputEmail1">Email address</label>
-                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-              </div>
-              <div class="form-group">
-                <label for="exampleInputPassword1">Contraseña</label>
-                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Ingrese su contraseña">
-              </div>
-
-            <hr class="separation">
-
-            
-           <div class="check">
-                <label class="remember" for="flexCheckDefault">
-                    Remember me  </label>
+            <form style="margin-top: 6%;">
+                <div class="form-group">
+                    <label for="email" class="form-label">Ingrese su correo<span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+                </div>
+    
                 
-                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
-           </div>
+                <button type="submit" class="reset">Restablecer Contraseña</button>
+            </form>
             
-            <a href="{% url 'pass' %}">Forgot password?</a>
+            
+            <hr class="separation">
+            
+            
+            <a href="#">Forgot password?</a>
 
-            <div class="submit">
-                <button type="submit" class="send">Iniciar sesión</button>
-            </div>
+            
            
 
             

@@ -6,4 +6,7 @@ def login (request):
 def policy (request):
     return render(request, 'policy.html')
 
+def forgotpass (request):
+    return render(request, 'forgotPass.html')
+
 # Create your views here.
