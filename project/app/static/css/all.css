@@ -59,6 +59,7 @@ body{
 
 .text{
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     margin-left: 10%;
+    font-family: "Inter", sans-serif;
 }
