@@ -90,6 +90,8 @@ body{
     border: none;
     transition: .4s;
     font-family: "Inter", sans-serif;
+    
+    
 }
 
 .send:hover{
