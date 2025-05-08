@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Politica de privacidad</title>
+    <link rel="icon" type="image/png" href="{% static 'icons/web-icon-Eclipse.png' %}">
     <link rel="stylesheet" href="{% static 'css/all.css' %}">
 </head>
 <body>
@@ -18,7 +19,13 @@
     <div class="policy_title">
 
         <div class="back_btn">
-            <a>Volver</a>
+          
+          <a style="font-family: Inter, sans-serif;text-decoration: none; color: black;" href="{% url 'login' %}" class="bck">
+            <img src="{% static 'icons/left_blk_arrow.png' %}" style="height: 10px;">
+              Volver
+          </a>
+          
+            
         </div>
         <h1 class="policy_h1">Política de privacidad</h1>
         <hr class="separation">
@@ -40,7 +47,7 @@
                 
                   <section>
                     <h2>1. Finalidad del tratamiento de datos personales</h2>
-                    <p>Los datos personales que recabamos a través de nuestro sitio web <a href="http://www.tusitio.com">www.tusitio.com</a> tienen como finalidad:</p>
+                    <p>Los datos personales que recabamos a través de nuestro sitio web tienen como finalidad:</p>
                     <ul>
                       <li>Brindar servicios de monitoreo, análisis y prevención de delitos en zonas específicas.</li>
                       <li>Contactar a clientes o usuarios que soliciten información o cotizaciones.</li>

@@ -11,6 +11,21 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+
+#firebase 
+FIREBASE_API_KEY = config('FIREBASE_API_KEY')
+
+import firebase_admin
+from firebase_admin import credentials
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  
+
+cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
+cred = credentials.Certificate(cred_path)
+
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -130,3 +145,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 RECAPTCHA_PUBLIC_KEY = '6Le8_DErAAAAADo-5P5aRsFEQUN_PY-ZK-VWNaFU'
 RECAPTCHA_PRIVATE_KEY = '6Le8_DErAAAAAK9GtI8lLVSRJdXfn0n5DSqcMjnY'
+RECAPTCHA_SECRET_KEY= '6Le8_DErAAAAAK9GtI8lLVSRJdXfn0n5DSqcMjnY'

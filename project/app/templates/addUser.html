@@ -1,0 +1,16 @@
+{% extends "allTemplate.html" %}
+{% load static %}
+
+{% block titulo %}
+Agregar usuarios
+{% endblock %}
+
+{% block contenido %}
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="email" id="email" placeholder="correo">
+    <input type="text" name="password" id="password" placeholder="contraseña">
+    <button type="submit">Enviar</button>
+</form>
+{% endblock %}
