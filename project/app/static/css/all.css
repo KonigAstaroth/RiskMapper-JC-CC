@@ -64,4 +64,54 @@ body{
     font-family: "Inter", sans-serif;
 }
 
+.dropdown:hover .dropdown-menu{
+    display: block;
+}
 
+.Search{
+    width: 35%;
+    height: 50%;
+    background-color: #2686B0;
+    box-sizing: border-box;
+    margin-top: 2%;
+}
+
+.Searchtitle{
+    color: #FFFFFF;
+    font-family: "Inter", sans-serif;
+    margin-left: 4% !important;
+    font-weight: 700;
+    
+}
+
+.item{
+    color: #6E6E6E;
+    font-family: "Inter", sans-serif;
+    font-weight: 700;
+}
+
+.welcome{
+    margin-top: 2%;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    margin-left: 3%;
+}
+
+.topSearch{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.searchBttn{
+    margin-right: 3%;
+    border: none;
+    width: 20%;
+    border-radius: 15px;
+    background-color: #F4F4F4;
+    text-align: left;
+    color: #838383;
+    font-weight: 600;
+    padding-left: 3%;
+    font-size: 1.2em;
+}
