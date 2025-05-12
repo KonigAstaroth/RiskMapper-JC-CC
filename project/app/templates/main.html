@@ -1,18 +1,60 @@
 {% extends "allTemplate.html" %}
 {% load static %}
 
+
 {% block titulo %}
-inicio
+Inicio
 {% endblock %}
 
 {% block contenido %}
-    <h4 class="welcome">Bienvenido de nuevo </h4>
+    <h4 class="welcome">Bienvenido de nuevo, {{ name }}</h4>
     <div class="Search">
         <br>
         <div class="topSearch">
             <h3 class="Searchtitle">Visualización geográfica</h3>
-            <button class="searchBttn">Buscar</button>
+            <button class="searchBttn" type="submit">Buscar <span><i class="bi bi-search ms-3" style="color: #2686B0;"></i></span></button>
         </div>
+        <br>
+        <h5 class="filters">Filtros</h5>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="inputFilters">
+                <div>
+                    <label for="exampleFormControlInput1" class="label_filters">Fecha</label>
+                </div>
+                
+
+                <label for="exampleFormControlInput1" class="label_filters">Evento</label>
+                <select class="form-select" aria-label="Default select example" name="event" style="font-family: Inter, sans-serif;color: #838383;">
+                    <option selected class="options">Selecciona un tipo de evento</option>
+                    <option value="true" class="options">Otorgar permisos</option>
+                    <option value="false" class="options">Denegar permisos</option>
+                </select>
+                <br>
+                <label for="exampleFormControlInput1" class="label_filters">Ubicación</label>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <input class="form-control" type="text" placeholder="Estado"  id="estado" name="estado">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <input class="form-control" type="text" placeholder="Municipio"  id="municipio" name="municipio">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6" style="margin-top: -3%;">
+                        <input class="form-control" type="text" placeholder="Colonia"  id="colonia" name="colonia">
+                    </div>
+                    <div class="col-md-6" style="margin-top: -3%;">
+                        <input class="form-control" type="text" placeholder="Calle" id="calle" name="calle">
+                    </div>
+                </div>
+                <hr class="separationTwo">
+                <input class="form-control" type="text" placeholder="Latitud"  id="name" name="name">
+                <br>
+                <input class="form-control" type="text" placeholder="Longitud"  id="name" name="name">
+            </div>
+            
+        </form>
         
     </div>
 {% endblock %}

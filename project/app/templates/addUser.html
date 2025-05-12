@@ -7,10 +7,91 @@ Agregar usuarios
 
 {% block contenido %}
 
-<form method="POST">
+{% if success %}
+    <div class="alert alert-success" style="width: 50%; text-align: center; z-index: 999; position: fixed; top: 0; left: 25%;" id="success-alert" role="alert">
+        {{ success }}
+        <script>
+            setTimeout(function() {
+                var successbox = document.getElementById("success-alert");
+                if (successbox) {
+                    successbox.style.transition = "opacity 0.75s";
+                    successbox.style.opacity = "0";
+                    setTimeout(() => successbox.remove(), 500); 
+                }
+            }, 3000); 
+        </script>
+    </div>
+{% endif %}
+
+{% if error %}
+    <div class="alert alert-danger" style="width: 50%; text-align: center ; z-index: 999; position: fixed; top: 0; left: 25%;" id="error-alert" role="alert">
+        {{ error }}
+        <script>
+            setTimeout(function() {
+                var alertBox = document.getElementById("error-alert");
+                if (alertBox) {
+                    alertBox.style.transition = "opacity 0.75s";
+                    alertBox.style.opacity = "0";
+                    setTimeout(() => alertBox.remove(), 500); 
+                }
+            }, 3000); 
+        </script>
+    </div>
+{% endif %}
+
+<div class="addUsers">
+
+    <form method="POST">
     {% csrf_token %}
-    <input type="text" name="email" id="email" placeholder="correo">
-    <input type="text" name="password" id="password" placeholder="contraseña">
-    <button type="submit">Enviar</button>
+    <br>
+    <div class="banner">
+        <h1 class="bann_title">Agregar un nuevo usuario</h1>
+        <button type="submit" class="send">Agregar</button>
+        
+    </div>
+    <div class="addInput">
+        <hr class="separation">
+
+        <div class="input-box">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    
+                    <label for="exampleFormControlInput1" class="form-label">Correo electrónico</label>
+                    <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
+                    
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label for="exampleFormControlInput1" class="form-label">Contraseña</label>
+                    <input class="form-control" type="text" placeholder="Contraseña"  id="password" name="password">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label for="exampleFormControlInput1" class="form-label">Nombre</label>
+                    <input class="form-control" type="text" placeholder="Nombre"  id="name" name="name">
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <label for="exampleFormControlInput1" class="form-label">Apellido</label>
+                    <input class="form-control" type="text" placeholder="Apellido"  id="lastname" name="lastname">
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <select class="form-select"  name="privileges">
+                    <option selected>Seleccionar permisos de administrador</option>
+                    <option value="true">Otorgar permisos</option>
+                    <option value="false">Denegar permisos</option>
+                    </select>
+                </div>
+                
+            </div>
+        </div>
+        
+        
+    </div>
+    
 </form>
+</div>
+
+
 {% endblock %}
