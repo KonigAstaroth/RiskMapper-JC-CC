@@ -241,18 +241,3 @@ body{
     border-width: 0;
 }
 
-.deleteUser{
-    background-color: #ff5349;
-    color: #FFFFFF;
-    border-radius: 15px;
-    width: 100%;
-    height: 2.5em;
-    border: none;
-    font-family: "Inter", sans-serif;
-    margin-top: 10%;
-    transition: .4s;
-}
-
-.deleteUser:hover{
-    background-color: #ff3419;
-}

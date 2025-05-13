@@ -6,6 +6,7 @@ from firebase_admin import firestore, auth
 from django.conf import settings
 from datetime import timedelta
 import urllib.parse
+from firebase_admin._auth_utils import UserNotFoundError
 
 
 
@@ -164,6 +165,80 @@ def add (request):
      return render (request, "addUser.html", {"success": success, "error": error,'priv': priv})
 
 def manage_user(request):
-     return render(request, 'manageUser.html')
+     usuarios = getUsers()
+
+
+     return render(request, 'manageUser.html', {"usuarios": usuarios})
+
+def getUsers():
+     docs = db.collection("Usuarios").stream()
+     listUsers=[]
+
+     for doc in docs:
+          datos = doc.to_dict()
+          datos['id'] = doc.id
+          listUsers.append(datos)
+
+     return listUsers
+
+def editUser(request, id):
+     if request.method == 'POST':
+          updates = {}
+          name = request.POST.get('name')
+          lastname = request.POST.get('lastname')
+          email = request.POST.get('email')
+          Pass = request.POST.get('password')
+          privileges = request.POST.get('privileges')
+
+          doc_ref = db.collection('Usuarios').document(id)
+          doc = doc_ref.get()
+          if doc.exists:
+               datos = doc.to_dict()
+               uid = datos.get('uid')
+
+          if name:
+               updates['name'] = name
+          if lastname:
+               updates['lastname']= lastname
+          if email:
+               updates['email']= email
+               try:
+                    auth.update_user(uid, email = email )
+               except:
+                    error = "Ocurrió un error"
+                    return redirect(f"/manageUser?error={urllib.parse.quote(error)}")
+          if Pass:
+               try:
+                    auth.update_user(uid, password = Pass )
+               except:
+                    error = "Ocurrió un error"
+                    return redirect(f"/manageUser?error={urllib.parse.quote(error)}")
+
+          if privileges in ['true', 'false']:
+               if privileges == 'true':
+                    updates['privileges'] = True
+               elif privileges == 'false':
+                    updates['privileges'] = False
+          if updates:
+               db.collection('Usuarios').document(id).update(updates)
+               success = "El usuario se actualizó correctamente"
+               return redirect(f"/manageUser?error={urllib.parse.quote(success)}")
+               
+
+def deleteUser(request, id):
+     if request.method == 'POST':
+          doc_ref = db.collection('Usuarios').document(id)
+          doc = doc_ref.get()
+          if doc.exists:
+               datos = doc.to_dict()
+               uid = datos.get('uid')
+               doc_ref.delete()
+               if uid:
+                    try:
+                         auth.delete_user(uid)
+                    except auth.UserNotFoundError:
+                         pass
+          
+     return redirect('manageUser')
 
 # Create your views here.

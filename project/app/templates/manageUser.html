@@ -41,89 +41,121 @@ Agregar usuarios
 
 <div class="addUsers">
 
-    <form method="POST">
-    {% csrf_token %}
     <br>
     <div class="banner">
-        <h1 class="bann_title">Administrar a un usuario</h1>
+        <h1 class="bann_title">Administrar usuarios</h1>
         <button type="submit" class="send">Actualizar</button>
         
     </div>
-    <div class="addInput">
-        <hr class="separation">
+    <br>
 
-        <div class="input-box">
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    
-                    <label for="exampleFormControlInput1" class="form-label">Correo electrónico del usuario a modificar</label>
-                    <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
-                    
-                </div>
-                <div class="col-md-6 mb-4">
-                    
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <label for="exampleFormControlInput1" class="form-label">Contraseña</label>
-                    <input class="form-control" type="text" placeholder="Contraseña"  id="password" name="password">
-                    
-                </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellido</th>
+                <th scope="col">Correo electrónico</th>
+                <th scope="col">Permisos</th>
+                <th scope="col">Opciones</th>
+            </tr>
+        </thead>
+        <div class="overflow-auto">
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>
+                        {{ usuario.name }}
+                    </td>
+                    <td>
+                        {{ usuario.lastname }}
+                    </td>
+                    <td>
+                        {{ usuario.email }}
+                    </td>
+                    <td>
+                        {% if usuario.privileges == True %}Administrador{% else %}Usuario{% endif %}
+                
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                            data-bs-target="#editUser{{ usuario.id }}"><i class="bi bi-pencil"></i></button>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                            data-bs-target="#deleteUser{{ usuario.id }}"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
 
-                <div class="col-md-6 mb-4">
-                    <label for="exampleFormControlInput1" class="form-label">Nombre</label>
-                    <input class="form-control" type="text" placeholder="Nombre"  id="name" name="name">
+                <div class="modal fade" id="deleteUser{{ usuario.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteUserLabel">¿Estás seguro de eliminar a este usuario?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <form method="POST" action="{% url 'deleteUser' usuario.id %}">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <h5 class="modal-title" id="userMail">Usuario a eliminar</h5>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
                 
-                
-            </div>
-            <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <label for="exampleFormControlInput1" class="form-label">Apellido</label>
-                        <input class="form-control" type="text" placeholder="Apellido"  id="lastname" name="lastname">
+
+<!--editar usuario-->
+                <div class="modal fade" id="editUser{{ usuario.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteUserLabel">Editar {{ usuario.email }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                        <form method="POST" action="{% url 'editUser' usuario.id %}">
+                            {% csrf_token %}
+                            <div class="modal-body">
+                                <label for="exampleFormControlInput1" class="form-label">Correo electrónico</label>
+                                <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
+
+                                <label for="exampleFormControlInput1" class="form-label">Contraseña</label>
+                                <input class="form-control" type="text" placeholder="Contraseña" id="password" name="password">
+
+                                <label for="exampleFormControlInput1" class="form-label">Nombre</label>
+                                <input class="form-control" type="text" placeholder="Nombre" id="name" name="name">
+
+                                <label for="exampleFormControlInput1" class="form-label">Apellido</label>
+                                <input class="form-control" type="text" placeholder="Apellido" id="lastname" name="lastname">
+
+                                <label for="exampleFormControlInput1" class="form-label">Privilegios</label>
+                                <select class="form-select" name="privileges">
+                                    <option selected>Seleccionar permisos de administrador</option>
+                                    <option value="true" {% if usuario.privileges %}selected{% endif %}>Administrador</option>
+                                    <option value="false" {% if not usuario.privileges %}selected{% endif %}>Usuario</option>
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="send">Modificar</button>
+                            </div>
+                        </form>
                     </div>
-                    <div class="col-md-6 mb-4">
-                        <label for="exampleFormControlInput1" class="form-label">Privilegios</label>
-                        <select class="form-select"  name="privileges">
-                            <option selected>Seleccionar permisos de administrador</option>
-                            <option value="true">Otorgar permisos</option>
-                            <option value="false">Denegar permisos</option>
-                        </select>
-                    </div>
-                    
                 </div>
+            </div>
+
+            {% empty %}
+                    <h2>Vacio</h2>
+            {% endfor %}
+            </tbody>
+            
+            
         </div>
-        <button type="button" class="deleteUser" data-bs-toggle="modal" data-bs-target="#deleteUser">Eliminar usuario</button>
         
-        
-    </div>
+    </table>
     
 </form>
 </div>
-<div class="modal fade" id="deleteUser" tabindex="-1" aria-labelledby="deleteUserLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="deleteUserLabel">¿Estás seguro de eliminar a este usuario?</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <form method="POST" action="">
-            {% csrf_token %}
-            <div class="modal-body">
-                <h5 class="modal-title" id="userMail">Correo</h5>
-                <input class="form-control" type="text" placeholder="Correo"  id="email" name="email">
-              </div>
-              <div class="modal-footer">
-                  <button type="submit" class="btn btn-outline-primary" data-bs-dismiss="modal">Eliminar</button>
-              </div>
-        </form>
-        
-      </div>
-    </div>
-  </div>
 
-</div>
 
 
 {% endblock %}
