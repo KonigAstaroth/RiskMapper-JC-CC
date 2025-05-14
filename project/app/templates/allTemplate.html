@@ -80,7 +80,7 @@
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item custom-item" href="#">
+                            <a class="dropdown-item custom-item" href="#" data-bs-toggle="modal" data-bs-target="#showUsers">
                                 <span class="contenido">
                                     <i class="bi bi-people-fill me-3 fs-4"></i>
                                 Usuarios 
@@ -112,9 +112,47 @@
         
     </nav>
 
+    <div class="modal fade" id="showUsers" tabindex="-1" aria-hidden="true" >
+            <div class="modal-dialog modal-lg modal-dialog-scrollable" style="max-height: 80vh;">
+                <div class="modal-content" style="height: 80vh;">
+                    <div class="modal-header">
+                    <h5 class="modal-title">Historial de usuarios</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body d-flex flex-column" style="height: 100%;">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col">Apellido</th>
+                                    <th scope="col">Fecha de acceso</th>
+                                    <th scope="col">Hora de acceso</th>
+                                </tr>
+                            </thead>
+                            
+                            <tbody>
+                                {% for usuario in usuarios %}
+                                    <td>{{ usuario.name }}</td>
+                                    <td>{{ usuario.lastname }}</td>
+                                    <td>{{ usuario.lastAccess| date:"d F Y" }}</td>
+                                    <td>{{ usuario.lastAccess| date:"h:i A" }}</td>
+                                {% endfor %}
+                            </tbody>
+                            
+
+                        </table>
+                    </div>
+                    
+                </div>
+                </div>
+            </div>
+    </div>
     
 
     {% block contenido %}
+        
+        
         
     {% endblock %}
 

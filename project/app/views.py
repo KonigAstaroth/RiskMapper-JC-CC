@@ -6,7 +6,7 @@ from firebase_admin import firestore, auth
 from django.conf import settings
 from datetime import timedelta
 import urllib.parse
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 
@@ -18,6 +18,9 @@ FIREBASE_AUTH_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signInW
 def login(request):
     sessionCookie = request.COOKIES.get('session')
     if sessionCookie:
+         decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
+         uid = decoded_claims["uid"]
+         db.collection('Usuarios').document(uid).update({'lastAccess': datetime.now(timezone.utc)})
          return redirect ("main")
 
     if request.method == 'POST':
@@ -54,7 +57,7 @@ def login(request):
                     decoded_claims = auth.verify_session_cookie(session_cookie)
                     uid = decoded_claims["uid"]
         
-                    db.collection('Usuarios').document(uid).update({'lastAccess': datetime.now()})
+                    db.collection('Usuarios').document(uid).update({'lastAccess': datetime.now(timezone.utc)})
                     response = redirect("main")
                     response.set_cookie(
                         key='session',
@@ -96,10 +99,12 @@ def main (request):
 
      if doc.exists:
           name = doc.to_dict().get("name")
+
+     usuarios = getUsers()
           
      
 
-     return render (request, 'main.html',{ 'name': name, 'priv': priv})
+     return render (request, 'main.html',{ 'name': name, 'priv': priv, 'usuarios':usuarios})
 
 def getPrivileges(request):
       sessionCookie = request.COOKIES.get('session')
@@ -250,6 +255,23 @@ def deleteUser(request, id):
           
      return redirect('manageUser')
 
-
+def display_users(request):
+     usuarios = getUsers()
+     priv = getPrivileges(request)
+     sessionCookie = request.COOKIES.get('session')
+     
+     try:
+          decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
+          uid = decoded_claims["uid"]
+     except:
+          return redirect("login")
+     
+     priv = getPrivileges(request)
+     if not priv:
+               return redirect("main")
+     
+     if not sessionCookie:
+          return redirect ("login")
+     return (request,{"usuarios": usuarios, "priv":priv})
 
 # Create your views here.
