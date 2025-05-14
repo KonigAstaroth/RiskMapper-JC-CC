@@ -7,37 +7,6 @@ Agregar usuarios
 
 {% block contenido %}
 
-{% if success %}
-    <div class="alert alert-success" style="width: 50%; text-align: center; z-index: 999; position: fixed; top: 0; left: 25%;" id="success-alert" role="alert">
-        {{ success }}
-        <script>
-            setTimeout(function() {
-                var successbox = document.getElementById("success-alert");
-                if (successbox) {
-                    successbox.style.transition = "opacity 0.75s";
-                    successbox.style.opacity = "0";
-                    setTimeout(() => successbox.remove(), 500); 
-                }
-            }, 3000); 
-        </script>
-    </div>
-{% endif %}
-
-{% if error %}
-    <div class="alert alert-danger" style="width: 50%; text-align: center ; z-index: 999; position: fixed; top: 0; left: 25%;" id="error-alert" role="alert">
-        {{ error }}
-        <script>
-            setTimeout(function() {
-                var alertBox = document.getElementById("error-alert");
-                if (alertBox) {
-                    alertBox.style.transition = "opacity 0.75s";
-                    alertBox.style.opacity = "0";
-                    setTimeout(() => alertBox.remove(), 500); 
-                }
-            }, 3000); 
-        </script>
-    </div>
-{% endif %}
 
 <div class="addUsers">
 
@@ -49,6 +18,7 @@ Agregar usuarios
     </div>
     <br>
 
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
     <table class="table">
         <thead>
             <tr>
@@ -59,102 +29,90 @@ Agregar usuarios
                 <th scope="col">Opciones</th>
             </tr>
         </thead>
-        <div class="overflow-auto">
-            <tbody>
-                {% for usuario in usuarios %}
-                <tr>
-                    <td>
-                        {{ usuario.name }}
-                    </td>
-                    <td>
-                        {{ usuario.lastname }}
-                    </td>
-                    <td>
-                        {{ usuario.email }}
-                    </td>
-                    <td>
-                        {% if usuario.privileges == True %}Administrador{% else %}Usuario{% endif %}
-                
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
-                            data-bs-target="#editUser{{ usuario.id }}"><i class="bi bi-pencil"></i></button>
-                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
-                            data-bs-target="#deleteUser{{ usuario.id }}"><i class="bi bi-trash"></i></button>
-                    </td>
-                </tr>
-
-                <div class="modal fade" id="deleteUser{{ usuario.id }}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="deleteUserLabel">¿Estás seguro de eliminar a este usuario?</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                            </div>
-                            <form method="POST" action="{% url 'deleteUser' usuario.id %}">
-                                {% csrf_token %}
-                                <div class="modal-body">
-                                    <h5 class="modal-title" id="userMail">Usuario a eliminar</h5>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-outline-danger">Eliminar</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                
-
-<!--editar usuario-->
-                <div class="modal fade" id="editUser{{ usuario.id }}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="deleteUserLabel">Editar {{ usuario.email }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                            </div>
-                        <form method="POST" action="{% url 'editUser' usuario.id %}">
-                            {% csrf_token %}
-                            <div class="modal-body">
-                                <label for="exampleFormControlInput1" class="form-label">Correo electrónico</label>
-                                <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
-
-                                <label for="exampleFormControlInput1" class="form-label">Contraseña</label>
-                                <input class="form-control" type="text" placeholder="Contraseña" id="password" name="password">
-
-                                <label for="exampleFormControlInput1" class="form-label">Nombre</label>
-                                <input class="form-control" type="text" placeholder="Nombre" id="name" name="name">
-
-                                <label for="exampleFormControlInput1" class="form-label">Apellido</label>
-                                <input class="form-control" type="text" placeholder="Apellido" id="lastname" name="lastname">
-
-                                <label for="exampleFormControlInput1" class="form-label">Privilegios</label>
-                                <select class="form-select" name="privileges">
-                                    <option selected>Seleccionar permisos de administrador</option>
-                                    <option value="true" {% if usuario.privileges %}selected{% endif %}>Administrador</option>
-                                    <option value="false" {% if not usuario.privileges %}selected{% endif %}>Usuario</option>
-                                </select>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="send">Modificar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.name }}</td>
+                <td>{{ usuario.lastname }}</td>
+                <td>{{ usuario.email }}</td>
+                <td>{% if usuario.privileges %}Administrador{% else %}Usuario{% endif %}</td>
+                <td>
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                        data-bs-target="#editUserModal_{{ usuario.id }}"><i class="bi bi-pencil"></i></button>
+                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                        data-bs-target="#deleteUserModal_{{ usuario.id }}"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
             {% empty %}
-                    <h2>Vacio</h2>
+            <tr>
+                <td colspan="5" class="text-center">No hay usuarios registrados.</td>
+            </tr>
             {% endfor %}
-            </tbody>
-            
-            
-        </div>
-        
+        </tbody>
     </table>
-    
-</form>
 </div>
+
+{% for usuario in usuarios %}
+<!-- Modal eliminar -->
+<div class="modal fade" id="deleteUserModal_{{ usuario.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'deleteUser' usuario.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="uid" value="{{ usuario.uid }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">¿Estás seguro de eliminar a este usuario?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Correo: <strong>{{ usuario.email }}</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal editar -->
+<div class="modal fade" id="editUserModal_{{ usuario.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'editUser' usuario.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="uid" value="{{ usuario.uid }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar {{ usuario.email }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Correo electrónico</label>
+                    <input type="email" class="form-control" name="email" value="{{ usuario.email }}">
+
+                    <label class="form-label">Contraseña</label>
+                    <input type="text" class="form-control" name="password" placeholder="Nueva contraseña">
+
+                    <label class="form-label">Nombre</label>
+                    <input type="text" class="form-control" name="name" value="{{ usuario.name }}">
+
+                    <label class="form-label">Apellido</label>
+                    <input type="text" class="form-control" name="lastname" value="{{ usuario.lastname }}">
+
+                    <label class="form-label">Privilegios</label>
+                    <select class="form-select" name="privileges">
+                        <option value="true" {% if usuario.privileges %}selected{% endif %}>Administrador</option>
+                        <option value="false" {% if not usuario.privileges %}selected{% endif %}>Usuario</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-outline-primary">Modificar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 
 

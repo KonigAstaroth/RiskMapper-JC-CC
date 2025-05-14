@@ -6,7 +6,7 @@ from firebase_admin import firestore, auth
 from django.conf import settings
 from datetime import timedelta
 import urllib.parse
-from firebase_admin._auth_utils import UserNotFoundError
+from datetime import datetime
 
 
 
@@ -51,6 +51,10 @@ def login(request):
 
                 try:
                     session_cookie = auth.create_session_cookie(id_token, expires_in=expires_in)
+                    decoded_claims = auth.verify_session_cookie(session_cookie)
+                    uid = decoded_claims["uid"]
+        
+                    db.collection('Usuarios').document(uid).update({'lastAccess': datetime.now()})
                     response = redirect("main")
                     response.set_cookie(
                         key='session',
@@ -59,6 +63,7 @@ def login(request):
                         httponly=True,
                         secure=False  # Cambiar a True en producción con HTTPS
                     )
+                    
                     return response
                 except Exception as e:
                     messages.error(request, "Error al crear la cookie de sesión")
@@ -149,6 +154,7 @@ def add (request):
                     "name": name,
                     "lastname": lastname,
                     "privileges":privileges,
+                    
                     })
                   success_message = "Usuario agregado correctamente"
                   return redirect(f"/add?success={urllib.parse.quote(success_message)}")
@@ -166,9 +172,22 @@ def add (request):
 
 def manage_user(request):
      usuarios = getUsers()
-
-
-     return render(request, 'manageUser.html', {"usuarios": usuarios})
+     priv = getPrivileges(request)
+     sessionCookie = request.COOKIES.get('session')
+     
+     try:
+          decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
+          uid = decoded_claims["uid"]
+     except:
+          return redirect("login")
+     
+     priv = getPrivileges(request)
+     if not priv:
+               return redirect("main")
+     
+     if not sessionCookie:
+          return redirect ("login")
+     return render(request, 'manageUser.html', {"usuarios": usuarios, "priv":priv})
 
 def getUsers():
      docs = db.collection("Usuarios").stream()
@@ -182,47 +201,38 @@ def getUsers():
      return listUsers
 
 def editUser(request, id):
+     
      if request.method == 'POST':
-          updates = {}
-          name = request.POST.get('name')
-          lastname = request.POST.get('lastname')
-          email = request.POST.get('email')
-          Pass = request.POST.get('password')
-          privileges = request.POST.get('privileges')
+        uid = id
+        updates = {}
 
-          doc_ref = db.collection('Usuarios').document(id)
-          doc = doc_ref.get()
-          if doc.exists:
-               datos = doc.to_dict()
-               uid = datos.get('uid')
+        if name := request.POST.get('name'):
+            updates['name'] = name
 
-          if name:
-               updates['name'] = name
-          if lastname:
-               updates['lastname']= lastname
-          if email:
-               updates['email']= email
-               try:
-                    auth.update_user(uid, email = email )
-               except:
-                    error = "Ocurrió un error"
-                    return redirect(f"/manageUser?error={urllib.parse.quote(error)}")
-          if Pass:
-               try:
-                    auth.update_user(uid, password = Pass )
-               except:
-                    error = "Ocurrió un error"
-                    return redirect(f"/manageUser?error={urllib.parse.quote(error)}")
+        if lastname := request.POST.get('lastname'):
+            updates['lastname'] = lastname
 
-          if privileges in ['true', 'false']:
-               if privileges == 'true':
-                    updates['privileges'] = True
-               elif privileges == 'false':
-                    updates['privileges'] = False
-          if updates:
-               db.collection('Usuarios').document(id).update(updates)
-               success = "El usuario se actualizó correctamente"
-               return redirect(f"/manageUser?error={urllib.parse.quote(success)}")
+        if email := request.POST.get('email'):
+            updates['email'] = email
+            if uid:
+                try:
+                    auth.update_user(uid, email=email)
+                except Exception as e:
+                    print("Error actualizando email:", e)
+
+        if password := request.POST.get('password'):
+            if uid:
+                try:
+                    auth.update_user(uid, password=password)
+                except Exception as e:
+                    print("Error actualizando contraseña:", e)
+
+        if privileges := request.POST.get('privileges'):
+            updates['privileges'] = privileges == 'true'
+
+        if updates:
+            db.collection('Usuarios').document(id).update(updates)
+     return redirect('manageUser')
                
 
 def deleteUser(request, id):
@@ -230,8 +240,7 @@ def deleteUser(request, id):
           doc_ref = db.collection('Usuarios').document(id)
           doc = doc_ref.get()
           if doc.exists:
-               datos = doc.to_dict()
-               uid = datos.get('uid')
+               uid = id
                doc_ref.delete()
                if uid:
                     try:
@@ -240,5 +249,7 @@ def deleteUser(request, id):
                          pass
           
      return redirect('manageUser')
+
+
 
 # Create your views here.
