@@ -107,12 +107,9 @@ body{
     font-family: "Inter", sans-serif;
     font-weight: 600;
     color: #727171;
-    transition: .3s;
+    
 }
 
-.bttm_links:hover{
-    font-size: 17px;
-}
 
 .reset{
     background-color: #2686B0;
