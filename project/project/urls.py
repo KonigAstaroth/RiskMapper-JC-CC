@@ -29,4 +29,5 @@ urlpatterns = [
     path('manageUser/', views.manage_user, name='manageUser'),
     path('edit_user<str:id>/', views.editUser, name='editUser'),
     path('delete_user<str:id>/', views.deleteUser, name='deleteUser'),
+    path('loadFiles/', views.loadFiles, name='loadFiles'),
 ]

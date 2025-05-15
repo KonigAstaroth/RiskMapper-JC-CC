@@ -6,7 +6,9 @@ from firebase_admin import firestore, auth
 from django.conf import settings
 from datetime import timedelta
 import urllib.parse
-from datetime import datetime, timezone
+from datetime import timezone
+import pandas as pd
+import datetime
 
 
 
@@ -273,5 +275,57 @@ def display_users(request):
      if not sessionCookie:
           return redirect ("login")
      return (request,{"usuarios": usuarios, "priv":priv})
+
+def loadFiles (request):
+     priv = getPrivileges(request)
+     sessionCookie = request.COOKIES.get('session')
+     
+     try:
+          decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
+          uid = decoded_claims["uid"]
+     except:
+          return redirect("login")
+     
+     priv = getPrivileges(request)
+     if not priv:
+               return redirect("main")
+     
+     if not sessionCookie:
+          return redirect ("login")
+     
+     if request.method == "POST":
+          if 'archivo' in request.FILES:
+               try:
+                    excel_file = request.FILES['archivo']
+                    print("✅ Archivo recibido:", excel_file.name)
+                    df = pd.read_excel(excel_file,engine='openpyxl')
+                    print(df.head())
+
+                    for columna in df.select_dtypes(include=['datetime']):
+                         df[columna] = df[columna].astype(str)
+
+                    datos = df.where(pd.notnull(df), None).to_dict(orient='records')
+
+                    for evento in datos:
+                         try:
+                              evento = convertir_tiempos_a_string(evento)
+                              db.collection('Eventos').add(evento)
+                         except Exception as e:
+                              print(f"Error: {e}")
+
+                    return redirect('main')
+               except Exception as e:
+                    return render(request, 'loadFiles.html', {
+                'error': f'Error al procesar el archivo: {e}'
+            })
+
+     return render(request, "loadFiles.html", {"priv":priv})
+
+def convertir_tiempos_a_string(diccionario):
+    for clave, valor in diccionario.items():
+        if isinstance(valor, datetime.time):
+            diccionario[clave] = valor.strftime('%H:%M') 
+    return diccionario
+
 
 # Create your views here.

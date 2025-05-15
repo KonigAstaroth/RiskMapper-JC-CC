@@ -1,0 +1,81 @@
+{% extends "allTemplate.html" %}
+{% load static %}
+
+{% block titulo %}
+Carga de datos
+{% endblock %}
+
+{% block contenido %}
+<h2 class="loadFilesTitle">Carga de datos</h2>
+<hr class="separationthree">
+<div class="loadData">
+    <br>
+    <h3>Detalles</h3>
+    <hr class="separation">
+    <div class="loadFormu">
+        <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+            <div class="formLoad">
+                <label class="labels">Tipo de evento</label>
+                <select class="form-select" name="event" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
+                    <option selected class="options">Selecciona un tipo de eventos</option>
+                    <option value="true" class="options">Administrador</option>
+                    <option value="false" class="options">Usuario</option>
+                </select>
+            </div>
+            <br>
+            <div class="row" style="margin-top: 1%;">
+                <div class="col">
+                    <label class="labels">Correo electrónico</label>
+                    <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
+                </div>
+                <div class="col">
+                    <label class="labels">Correo electrónico</label>
+                    <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
+                </div>
+            </div>
+            <br>
+            <div>
+                <label class="labels">Dirección</label>
+                <input type="email" class="form-control" id="calle" placeholder="Calle" name="calle">
+                <br>
+                <input type="email" class="form-control" id="colonia" placeholder="Colonia" name="colonia">
+            </div>
+            <br>
+            <div class="row">
+                <div class="col">
+                    <label class="labels">Municipio</label>
+                    <input type="email" class="form-control" id="municipio" placeholder="Municipio" name="email">
+                </div>
+        
+                <div class="col">
+                    <label class="labels">Estado</label>
+                    <input type="email" class="form-control" id="email" placeholder="Estado" name="email">
+                </div>
+            </div>
+            <hr style="border-top: 2px dashed #C5C5C5;">
+            <br>
+            <label for="archivo" class="uploadFile">
+                <i class="bi bi-upload me-3"></i>Buscar archivo
+            </label>
+            <input type="file" id="archivo" name="archivo" requiered>
+            <p id="nombreArchivo" style="margin-top: 10px; font-family: Inter, sans-serif;"></p>
+            <button type="submit">subir</button>
+        
+            <script>
+                const inputArchivo = document.getElementById('archivo');
+                const nombreArchivo = document.getElementById('nombreArchivo');
+
+                inputArchivo.addEventListener('change', function () {
+                    if (this.files.length > 0) {
+                        nombreArchivo.textContent = 'Archivo seleccionado: ' + this.files[0].name;
+                    } else {
+                        nombreArchivo.textContent = '';
+                    }
+                });
+            </script>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
