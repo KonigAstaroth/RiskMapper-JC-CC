@@ -6,9 +6,12 @@ from firebase_admin import firestore, auth
 from django.conf import settings
 from datetime import timedelta
 import urllib.parse
+import datetime
 from datetime import timezone
 import pandas as pd
-import datetime
+import json
+from django.utils.safestring import mark_safe
+
 
 
 
@@ -22,7 +25,7 @@ def login(request):
     if sessionCookie:
          decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
          uid = decoded_claims["uid"]
-         db.collection('Usuarios').document(uid).update({'lastAccess': datetime.now(timezone.utc)})
+         db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
          return redirect ("main")
 
     if request.method == 'POST':
@@ -44,10 +47,10 @@ def login(request):
         remember = request.POST.get("remember")
              
         login = {"email": email, "password": password, "returnSecureToken": True}
-        response = requests.post(FIREBASE_AUTH_URL, json=login)
-
-        if response.status_code == 200:
-                user_data = response.json()
+        auth_response = requests.post(FIREBASE_AUTH_URL, json=login)
+        
+        if auth_response.status_code == 200:
+                user_data = auth_response.json()
                 id_token = user_data["idToken"]
                 if remember == "checked":
                      expires_in = timedelta(days=14)
@@ -56,22 +59,22 @@ def login(request):
 
                 try:
                     session_cookie = auth.create_session_cookie(id_token, expires_in=expires_in)
-                    decoded_claims = auth.verify_session_cookie(session_cookie)
-                    uid = decoded_claims["uid"]
-        
-                    db.collection('Usuarios').document(uid).update({'lastAccess': datetime.now(timezone.utc)})
-                    response = redirect("main")
-                    response.set_cookie(
+                    response_redirect = redirect("main")
+                    response_redirect.set_cookie(
                         key='session',
                         value=session_cookie,
                         max_age=expires_in.total_seconds(),
                         httponly=True,
                         secure=False  # Cambiar a True en producción con HTTPS
                     )
+                    decoded_claims = auth.verify_session_cookie(session_cookie)
+                    uid = decoded_claims["uid"]
+                    db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
                     
-                    return response
+                    return response_redirect
                 except Exception as e:
-                    messages.error(request, "Error al crear la cookie de sesión")
+                    messages.error(request, "Error al crear la cookie de sesión:", e)
+                    print(e)
                     return redirect('/')
         else:
              messages.error(request, "Correo o contraseña incorrectos") 
@@ -102,11 +105,28 @@ def main (request):
      if doc.exists:
           name = doc.to_dict().get("name")
 
-     usuarios = getUsers()
-          
      
 
-     return render (request, 'main.html',{ 'name': name, 'priv': priv, 'usuarios':usuarios})
+     usuarios = getUsers()
+          
+     ref = db.collection('Eventos')
+     data = ref.get() or []
+
+     list_markers = []
+
+     for doc in data:
+          valor = doc.to_dict()
+          marker = {
+               'lat': valor.get('latitud'),
+               'lng': valor.get('longitud'),
+               'name': valor.get('Categoria')
+          }
+          list_markers.append(marker)
+
+     markers_json = mark_safe(json.dumps(list_markers))
+     
+     
+     return render (request, 'main.html',{ 'name': name, 'priv': priv, 'usuarios':usuarios, 'key': settings.GOOGLE_MAPS_KEY, 'markers': markers_json})
 
 def getPrivileges(request):
       sessionCookie = request.COOKIES.get('session')
@@ -294,6 +314,7 @@ def loadFiles (request):
           return redirect ("login")
      
      if request.method == "POST":
+          
           if 'archivo' in request.FILES:
                try:
                     excel_file = request.FILES['archivo']

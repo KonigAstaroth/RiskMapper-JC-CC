@@ -6,13 +6,17 @@
 Inicio
 {% endblock %}
 
+
+
 {% block contenido %}
     <h4 class="welcome">Bienvenido de nuevo, {{ name }}</h4>
+<div style="display: flex;flex-direction: row;">
     <div class="Search">
         <br>
         <div class="topSearch">
             <h3 class="Searchtitle">Visualización geográfica</h3>
-            <button class="searchBttn" type="submit">Buscar <span><i class="bi bi-search ms-3" style="color: #2686B0;"></i></span></button>
+            <button class="searchBttn" type="submit">Buscar <span><i class="bi bi-search ms-3"
+                style="color: #2686B0;"></i></span></button>
         </div>
         <br>
         <h5 class="filters">Filtros</h5>
@@ -21,40 +25,73 @@ Inicio
             <div class="inputFilters">
                 <div>
                     <label for="exampleFormControlInput1" class="label_filters">Fecha</label>
+                    <input class="form-control" type="text" placeholder="Estado" id="estado" name="estado">
                 </div>
-                
 
-                <label for="exampleFormControlInput1" class="label_filters">Evento</label>
-                <select class="form-select" aria-label="Default select example" name="event" style="font-family: Inter, sans-serif;color: #838383;">
+
+                <label  class="label_filters">Evento</label>
+                <select class="form-select" aria-label="Default select example" name="event"
+                    style="font-family: Inter, sans-serif;color: #838383;">
                     <option selected class="options">Selecciona un tipo de evento</option>
                     <option value="true" class="options">Otorgar permisos</option>
                     <option value="false" class="options">Denegar permisos</option>
                 </select>
                 <br>
-                <label for="exampleFormControlInput1" class="label_filters">Ubicación</label>
+                <label  class="label_filters">Ubicación</label>
                 <div class="row">
                     <div class="col-md-6 mb-4">
-                        <input class="form-control" type="text" placeholder="Estado"  id="estado" name="estado">
+                        <input class="form-control" type="text" placeholder="Estado" id="estado" name="estado">
                     </div>
                     <div class="col-md-6 mb-4">
-                        <input class="form-control" type="text" placeholder="Municipio"  id="municipio" name="municipio">
+                        <input class="form-control" type="text" placeholder="Municipio" id="municipio" name="municipio">
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6" style="margin-top: -3%;">
-                        <input class="form-control" type="text" placeholder="Colonia"  id="colonia" name="colonia">
+                        <input class="form-control" type="text" placeholder="Colonia" id="colonia" name="colonia">
                     </div>
                     <div class="col-md-6" style="margin-top: -3%;">
                         <input class="form-control" type="text" placeholder="Calle" id="calle" name="calle">
                     </div>
                 </div>
                 <hr class="separationTwo">
-                <input class="form-control" type="text" placeholder="Latitud"  id="name" name="name">
+                <input class="form-control" type="text" placeholder="Latitud" id="name" name="name">
                 <br>
-                <input class="form-control" type="text" placeholder="Longitud"  id="name" name="name">
+                <input class="form-control" type="text" placeholder="Longitud" id="name" name="name">
             </div>
-            
+
         </form>
-        
+
     </div>
+    <div id="mapa" style="height: 600px; width:65%;display: flex;align-self: center;"></div>
+</div>
+    
+
+    <script id="marcadores-json" type="application/json">
+        {{ markers|safe }}
+    </script>
+
+    <script>
+        function initMap(){
+
+            var marcadores = JSON.parse(document.getElementById('marcadores-json').textContent);
+
+            map = new google.maps.Map(document.getElementById("mapa"), {
+                zoom: 6,
+                center: {lat:19.42847, lng:-99.12766}
+            });
+            marcadores.forEach(function (marcador){
+            var marker = new google.maps.Marker({
+                position: { lat: marcador.lat, lng: marcador.lng },
+                map: map
+            })
+        })
+        }
+
+        window.initMap = initMap
+    
+    </script>
+   
+    
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQGP7O3B9OzJIj6yAoknc8AC4YaSE-2Cc&callback=initMap" async defer></script>
 {% endblock %}
