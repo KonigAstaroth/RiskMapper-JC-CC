@@ -119,7 +119,8 @@ def main (request):
           marker = {
                'lat': valor.get('latitud'),
                'lng': valor.get('longitud'),
-               'name': valor.get('Categoria')
+               'name': valor.get('Categoria'),
+               'icono': valor.get('icono')
           }
           list_markers.append(marker)
 
@@ -318,7 +319,6 @@ def loadFiles (request):
           if 'archivo' in request.FILES:
                try:
                     excel_file = request.FILES['archivo']
-                    print("✅ Archivo recibido:", excel_file.name)
                     df = pd.read_excel(excel_file,engine='openpyxl')
                     print(df.head())
 
@@ -330,6 +330,29 @@ def loadFiles (request):
                     for evento in datos:
                          try:
                               evento = convertir_tiempos_a_string(evento)
+
+                              delito = evento.get('Delito', '')
+                              keyWord= None
+
+                              
+                              if isinstance(delito, str):
+                                   delito_lower = delito.lower()
+                                   
+                                   if 'amenazas' in delito_lower:
+                                        keyWord = 'amenazas'
+                                        
+                                   elif 'robo a negocio' in delito_lower:
+                                        keyWord = 'robonegocio'
+                                        
+                                        
+                              
+                              evento['icono'] = keyWord
+
+                              if keyWord == 'amenazas':
+                                   evento['icono'] = 'amenazas'
+                              if keyWord == 'robonegocio':
+                                   evento['icono'] = 'robonegocio'
+                              
                               db.collection('Eventos').add(evento)
                          except Exception as e:
                               print(f"Error: {e}")

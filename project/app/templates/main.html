@@ -80,10 +80,22 @@ Inicio
                 zoom: 6,
                 center: {lat:19.42847, lng:-99.12766}
             });
+
+            const iconos = {
+                amenazas:"{% static 'mapIcons/enfado.png' %}",
+                robonegocio: "{% static 'mapIcons/delito.png' %}"
+            }
+
             marcadores.forEach(function (marcador){
+                const iconoUrl = iconos[marcador.icono]
             var marker = new google.maps.Marker({
                 position: { lat: marcador.lat, lng: marcador.lng },
-                map: map
+                map: map,
+                title: marcador.Categoria,
+                icon: {
+                    url: iconoUrl,
+                    scaledSize: new google.maps.Size(40,40)
+                }
             })
         })
         }
