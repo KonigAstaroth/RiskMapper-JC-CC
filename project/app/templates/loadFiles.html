@@ -15,44 +15,60 @@ Carga de datos
     <div class="loadFormu">
         <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-            <div class="formLoad">
-                <label class="labels">Tipo de evento</label>
-                <select class="form-select" name="event" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
-                    <option selected class="options">Selecciona un tipo de eventos</option>
-                    <option value="true" class="options">Administrador</option>
-                    <option value="false" class="options">Usuario</option>
-                </select>
+
+            <div class="row" style="margin-top: 1%;">
+                <div class="col">
+                    <label class="labels">Tipo de evento</label>
+                        <select class="form-select" name="event" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
+                            <option selected class="options">Selecciona un tipo de evento</option>
+                            <option value="true" class="options">Administrador</option>
+                            <option value="false" class="options">Usuario</option>
+                        </select>
+                </div>
+                <div class="col">
+                    <label class="labels">Tipo de delito</label>
+                        <select class="form-select" name="crime" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
+                            <option selected class="options">Selecciona un tipo de delito</option>
+                            <option value="Homicidio doloso" class="options">Homicidio doloso</option>
+                            <option value="Feminicidio" class="options">Feminicidio</option>
+                            <option value="Secuestro" class="options">Secuestro</option>
+                            <option value="Trata de personas" class="options">Trata de personas</option>
+                            <option value="Robo a transeúnte" class="options">Robo a transeúnte</option>
+                            <option value="Robo a negocio" class="options">Robo a negocio</option>
+                            <option value="Extorsión" class="options">Extorsión</option>
+                            <option value="Robo de vehículo" class="options">Robo de vehículo</option>
+                            <option value="Robo a casa habitación" class="options">Robo a casa habitación</option>
+                            <option value="Violación" class="options">Violación</option>
+                            <option value="Narcomenudeo" class="options">Narcomenudeo</option>
+                        </select>
+                </div>
             </div>
+            
             <br>
             <div class="row" style="margin-top: 1%;">
                 <div class="col">
-
-                    <label class="labels">Correo electrónico</label>
-                    <div data-coreui-locale="en-US" data-coreui-toggle="date-range-picker"></div>
-                    <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
+                    <label class="labels">Dirección</label>
+                    <input type="datetime-local" class="form-control" name="FechaHoraHecho">
                 </div>
-                <div class="col">
-                    <label class="labels">Correo electrónico</label>
-                    <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
-                </div>
+                
             </div>
             <br>
             <div>
                 <label class="labels">Dirección</label>
-                <input type="email" class="form-control" id="calle" placeholder="Calle" name="calle">
+                <input type="text" class="form-control" id="calle" placeholder="Calle" name="calle">
                 <br>
-                <input type="email" class="form-control" id="colonia" placeholder="Colonia" name="colonia">
+                <input type="text" class="form-control" id="colonia" placeholder="Colonia" name="colonia">
             </div>
             <br>
             <div class="row">
                 <div class="col">
                     <label class="labels">Municipio</label>
-                    <input type="email" class="form-control" id="municipio" placeholder="Municipio" name="email">
+                    <input type="text" class="form-control" id="municipio" placeholder="Municipio" name="municipio">
                 </div>
         
                 <div class="col">
                     <label class="labels">Estado</label>
-                    <input type="email" class="form-control" id="email" placeholder="Estado" name="email">
+                    <input type="text" class="form-control" id="estado" placeholder="Estado" name="estado">
                 </div>
             </div>
             <hr style="border-top: 2px dashed #C5C5C5;">
@@ -60,9 +76,9 @@ Carga de datos
             <label for="archivo" class="uploadFile">
                 <i class="bi bi-upload me-3"></i>Buscar archivo
             </label>
-            <input type="file" id="archivo" name="archivo" requiered>
+            <input type="file" id="archivo" name="archivo" requiered style="display: none;">
             <p id="nombreArchivo" style="margin-top: 10px; font-family: Inter, sans-serif;"></p>
-            <button type="submit">subir</button>
+            <button type="submit" class="send">subir</button>
         
             <script>
                 const inputArchivo = document.getElementById('archivo');
