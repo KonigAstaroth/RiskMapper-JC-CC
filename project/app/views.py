@@ -11,7 +11,7 @@ from datetime import timezone
 import pandas as pd
 import json
 from django.utils.safestring import mark_safe
-from django.utils import timezone
+from django.utils import timezone as dj_timezone
 
 
 
@@ -68,7 +68,7 @@ def login(request):
                     )
                     decoded_claims = auth.verify_session_cookie(session_cookie)
                     uid = decoded_claims["uid"]
-                    db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
+                    db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.make_aware)})
                     
                     return response_redirect
                 except Exception as e:
@@ -369,6 +369,33 @@ def loadFiles(request):
                                 icono = 'amenazas'
                             elif 'robo a negocio' in delito_lower:
                                 icono = 'robonegocio'
+                            elif 'homicidio doloso' in delito_lower:
+                                 icono = 'homicidiodoloso'
+                            elif 'feminicidio' in delito_lower:
+                                 icono = 'feminicidio'
+                            elif 'secuestro' in delito_lower:
+                                 icono = 'secuestro'
+                            elif 'trata de personas' in delito_lower:
+                                 icono = 'tratapersonas'
+                            elif 'robo a transeunte' in delito_lower:
+                                 icono = 'robotranseunte'
+                            elif 'extorsión' in delito_lower:
+                                 icono = 'extorsion'
+                            elif 'robo a casa habitación' in delito_lower:
+                                 icono = 'robocasa'
+                            elif 'violación' in delito_lower:
+                                 icono = 'violacion'
+                            elif 'narcomenudeo' in delito_lower:
+                                 icono = 'narcomenudeo'
+                            elif 'delito de bajo impacto' in delito_lower:
+                                 icono = "bajoimpacto"
+                            elif 'arma de fuego' in delito_lower:
+                                 icono = 'armafuego'
+                            elif 'robo de vehiculo' in delito_lower:
+                                 icono = 'robovehiculo'
+                            elif 'robo de accesorios de auto' in delito_lower:
+                                 icono= 'robovehiculo'
+
                         evento['icono'] = icono
 
                         print("Subiendo evento:", evento)
@@ -394,16 +421,43 @@ def loadFiles(request):
             municipio = request.POST.get("municipio")
             crime = request.POST.get("crime")
             fechaValue = request.POST.get("FechaHoraHecho")
+            evento = request.POST.get("evento")
 
             try:
                 Crime = crime
                 crime_lower = Crime.lower()
                 icono = None
-                if 'amenazas' in crime_lower:
-                        icono = 'amenazas'
-                elif 'robonegocio' in crime_lower:
-                        icono = 'robonegocio'
-                icon = icono
+                if 'amenazas' in delito_lower:
+                    icono = 'amenazas'
+                elif 'robo a negocio' in delito_lower:
+                    icono = 'robonegocio'
+                elif 'homicidio doloso' in delito_lower:
+                        icono = 'homicidiodoloso'
+                elif 'feminicidio' in delito_lower:
+                        icono = 'feminicidio'
+                elif 'secuestro' in delito_lower:
+                        icono = 'secuestro'
+                elif 'trata de personas' in delito_lower:
+                        icono = 'tratapersonas'
+                elif 'robo a transeunte' in delito_lower:
+                        icono = 'robotranseunte'
+                elif 'extorsion' in delito_lower:
+                        icono = 'extorsion'
+                elif 'robo a casa habitacion' in delito_lower:
+                        icono = 'robocasa'
+                elif 'violacion' in delito_lower:
+                        icono = 'violacion'
+                elif 'narcomenudeo' in delito_lower:
+                        icono = 'narcomenudeo'
+                elif 'delito de bajo impacto' in delito_lower:
+                        icono = "bajoimpacto"
+                elif 'arma de fuego' in delito_lower:
+                        icono = 'armafuego'
+                elif 'robo de vehiculo' in delito_lower:
+                        icono = 'robovehiculo'
+                elif 'robo de accesorios de auto' in delito_lower:
+                        icono= 'robovehiculo'
+                
                       
             except Exception as e:
                  print(e)
@@ -417,7 +471,7 @@ def loadFiles(request):
                     else:
                         dt=datetime.datetime.strptime(fechaValue, "%Y-%m-%d %H:%M:%S")
 
-                    timestamp = timezone.make_aware(dt)
+                    timestamp = dj_timezone.make_aware(dt)
                         
                  except Exception as e:
                       return render(request, 'loadFiles.HTML', {
@@ -426,14 +480,15 @@ def loadFiles(request):
                       
                            
                            
-            if calle and colonia and estado and municipio and fechaValue and crime:
+            if calle and colonia and estado and municipio and fechaValue and (crime or evento):
                 db.collection('Eventos').add({
                     "Calle_hechos": calle,
                     "ColoniaHechos": colonia,
                     "Estado_hechos": estado,
                     "Delito": crime,
                     "FechaHoraHecho": timestamp,
-                    "icono": icon
+                    "Evento":evento,
+                    "icono": icono,
                 })
 
     return render(request, "loadFiles.html")
