@@ -72,16 +72,8 @@ Inicio
     </script>
 
     <script>
-        function initMap(){
 
-            var marcadores = JSON.parse(document.getElementById('marcadores-json').textContent);
-
-            map = new google.maps.Map(document.getElementById("mapa"), {
-                zoom: 6,
-                center: {lat:19.42847, lng:-99.12766}
-            });
-
-            const iconos = {
+        const iconos = {
                 amenazas:"{% static 'mapIcons/enfado.png' %}",
                 robonegocio: "{% static 'mapIcons/delito.png' %}",
                 homicidiodoloso: "{% static 'mapIcons/escena-del-crimen.png' %}",
@@ -98,18 +90,52 @@ Inicio
                 armafuego: "{% static 'mapIcons/pistol.png' %}",
             }
 
+            
+        async function initMap(){
+
+            const { Map } = await google.maps.importLibrary('maps');
+            const { AdvancedMarkerElement, CollisionBehavior } = await google.maps.importLibrary('marker');
+
+            var marcadores = JSON.parse(document.getElementById('marcadores-json').textContent);
+
+            map = new google.maps.Map(document.getElementById("mapa"), {
+                zoom: 6,
+                center: {lat:19.42847, lng:-99.12766},
+                mapId: "mapa"
+            });
+
+            
+
+            const infoWindow = new google.maps.InfoWindow();
+
+            
             marcadores.forEach(function (marcador){
                 const iconoUrl = iconos[marcador.icono]
-            var marker = new google.maps.Marker({
-                position: { lat: marcador.lat, lng: marcador.lng },
-                map: map,
-                title: marcador.Categoria,
-                icon: {
-                    url: iconoUrl,
-                    scaledSize: new google.maps.Size(40,40)
-                }
+                const iconImg = document.createElement('img');
+                iconImg.src = iconoUrl;
+                iconImg.width = 40;
+                iconImg.height = 40;
+
+                const marker = new AdvancedMarkerElement ({
+                    position: { lat: Number(marcador.lat), lng: Number(marcador.lng) },
+                    map: map,
+                    title: marcador.Categoria,
+                    content: iconImg,
+                    collisionBehavior: CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
+                
+                })
+
+                marker.addListener('gmp-click', () =>{
+                    infoWindow.setContent(`<h6>${marcador.Categoria}</h6> <br> Delito: ${marcador.delito} <br> Fecha: ${marcador.fecha} `);
+                    infoWindow.setPosition({
+                        lat: Number(marcador.lat),
+                        lng: Number(marcador.lng)
+                    });
+                    infoWindow.open(map);
+                })
+
+            
             })
-        })
         }
 
         window.initMap = initMap
@@ -117,5 +143,5 @@ Inicio
     </script>
    
     
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQGP7O3B9OzJIj6yAoknc8AC4YaSE-2Cc&callback=initMap" async defer></script>
+<script async src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=marker" defer></script>
 {% endblock %}

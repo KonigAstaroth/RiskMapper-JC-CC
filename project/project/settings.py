@@ -132,7 +132,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 import os
-from dotenv import load_dotenv
+from decouple import config
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
@@ -148,4 +148,4 @@ RECAPTCHA_PUBLIC_KEY = '6Le8_DErAAAAADo-5P5aRsFEQUN_PY-ZK-VWNaFU'
 RECAPTCHA_PRIVATE_KEY = '6Le8_DErAAAAAK9GtI8lLVSRJdXfn0n5DSqcMjnY'
 RECAPTCHA_SECRET_KEY= '6Le8_DErAAAAAK9GtI8lLVSRJdXfn0n5DSqcMjnY'
 
-GOOGLE_MAPS_KEY = 'AIzaSyAQGP7O3B9OzJIj6yAoknc8AC4YaSE-2Cc'
+GOOGLE_MAPS_KEY = config('GOOGLE_MAPS_KEY')

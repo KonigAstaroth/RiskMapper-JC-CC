@@ -113,20 +113,30 @@ def main (request):
 
      list_markers = []
 
+     
+
      for doc in data:
           valor = doc.to_dict()
+
+          fecha_obj = valor.get('FechaHoraHecho')
+
+          if fecha_obj:
+               fecha_str = fecha_obj.strftime('%d/%m/%Y, %H:%M:%S')
           marker = {
                'lat': valor.get('latitud'),
                'lng': valor.get('longitud'),
-               'name': valor.get('Categoria'),
-               'icono': valor.get('icono')
+               'Categoria': valor.get('Categoria'),
+               'icono': valor.get('icono'),
+               'delito': valor.get('Delito'),
+               'fecha': fecha_str,
+               
           }
           list_markers.append(marker)
 
      markers_json = mark_safe(json.dumps(list_markers))
      
      
-     return render (request, 'main.html',{ 'name': name, 'priv': priv, 'usuarios':usuarios, 'key': settings.GOOGLE_MAPS_KEY, 'markers': markers_json})
+     return render (request, 'main.html',{ 'name': name, 'priv': priv, 'usuarios':usuarios, 'google_maps_api_key': settings.GOOGLE_MAPS_KEY, 'markers': markers_json})
 
 def getPrivileges(request):
       sessionCookie = request.COOKIES.get('session')
@@ -424,38 +434,36 @@ def loadFiles(request):
             evento = request.POST.get("evento")
 
             try:
-                Crime = crime
-                crime_lower = Crime.lower()
                 icono = None
-                if 'amenazas' in delito_lower:
+                if 'amenazas' in crime:
                     icono = 'amenazas'
-                elif 'robo a negocio' in delito_lower:
+                elif 'robo a negocio' in crime:
                     icono = 'robonegocio'
-                elif 'homicidio doloso' in delito_lower:
+                elif 'homicidio doloso' in crime:
                         icono = 'homicidiodoloso'
-                elif 'feminicidio' in delito_lower:
+                elif 'feminicidio' in crime:
                         icono = 'feminicidio'
-                elif 'secuestro' in delito_lower:
+                elif 'secuestro' in crime:
                         icono = 'secuestro'
-                elif 'trata de personas' in delito_lower:
+                elif 'trata de personas' in crime:
                         icono = 'tratapersonas'
-                elif 'robo a transeunte' in delito_lower:
+                elif 'robo a transeunte' in crime:
                         icono = 'robotranseunte'
-                elif 'extorsion' in delito_lower:
+                elif 'extorsion' in crime:
                         icono = 'extorsion'
-                elif 'robo a casa habitacion' in delito_lower:
+                elif 'robo a casa habitacion' in crime:
                         icono = 'robocasa'
-                elif 'violacion' in delito_lower:
+                elif 'violacion' in crime:
                         icono = 'violacion'
-                elif 'narcomenudeo' in delito_lower:
+                elif 'narcomenudeo' in crime:
                         icono = 'narcomenudeo'
-                elif 'delito de bajo impacto' in delito_lower:
+                elif 'delito de bajo impacto' in crime:
                         icono = "bajoimpacto"
-                elif 'arma de fuego' in delito_lower:
+                elif 'arma de fuego' in crime:
                         icono = 'armafuego'
-                elif 'robo de vehiculo' in delito_lower:
+                elif 'robo de vehiculo' in crime:
                         icono = 'robovehiculo'
-                elif 'robo de accesorios de auto' in delito_lower:
+                elif 'robo de accesorios de auto' in crime:
                         icono= 'robovehiculo'
                 
                       
