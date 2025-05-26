@@ -91,54 +91,92 @@ Inicio
             }
 
             
-        async function initMap(){
+        async function initMap() {
+                const { Map } = await google.maps.importLibrary('maps');
+                const { AdvancedMarkerElement, CollisionBehavior } = await google.maps.importLibrary('marker');
 
-            const { Map } = await google.maps.importLibrary('maps');
-            const { AdvancedMarkerElement, CollisionBehavior } = await google.maps.importLibrary('marker');
+                const marcadores = JSON.parse(document.getElementById('marcadores-json').textContent);
 
-            var marcadores = JSON.parse(document.getElementById('marcadores-json').textContent);
+                const map = new google.maps.Map(document.getElementById("mapa"), {
+                    zoom: 6,
+                    center: { lat: 19.42847, lng: -99.12766 },
+                    mapId: "mapa"
+                });
 
-            map = new google.maps.Map(document.getElementById("mapa"), {
-                zoom: 6,
-                center: {lat:19.42847, lng:-99.12766},
-                mapId: "mapa"
-            });
+                const infoWindow = new google.maps.InfoWindow();
+                const geocoder = new google.maps.Geocoder();
 
-            
+                marcadores.forEach((marcador) => {
+                    const iconoUrl = iconos[marcador.icono];
+                    const iconImg = document.createElement('img');
+                    iconImg.src = iconoUrl;
+                    iconImg.width = 40;
+                    iconImg.height = 40;
 
-            const infoWindow = new google.maps.InfoWindow();
+                    if (marcador.lat == null || marcador.lng == null) {
+                        let direccion = `${marcador.calle || ''}, ${marcador.colonia || ''}, ${marcador.municipio || ''}, ${marcador.estado || ''}`;
+                        direccion = direccion.replace(/&/g, 'y').trim();
 
-            
-            marcadores.forEach(function (marcador){
-                const iconoUrl = iconos[marcador.icono]
-                const iconImg = document.createElement('img');
-                iconImg.src = iconoUrl;
-                iconImg.width = 40;
-                iconImg.height = 40;
+                        if (!direccion.replace(/[, ]/g, '').length) {
+                            return;
+                        }
 
-                const marker = new AdvancedMarkerElement ({
-                    position: { lat: Number(marcador.lat), lng: Number(marcador.lng) },
-                    map: map,
-                    title: marcador.Categoria,
-                    content: iconImg,
-                    collisionBehavior: CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
-                
-                })
+                        console.log("Geocoding para:", direccion);
 
-                marker.addListener('gmp-click', () =>{
-                    infoWindow.setContent(`<h6>${marcador.Categoria}</h6> <br> Delito: ${marcador.delito} <br> Fecha: ${marcador.fecha} `);
-                    infoWindow.setPosition({
-                        lat: Number(marcador.lat),
-                        lng: Number(marcador.lng)
-                    });
-                    infoWindow.open(map);
-                })
+                        geocoder.geocode({ address: direccion }, (results, status) => {
+                            if (status === 'OK') {
+                                const latlng = results[0].geometry.location;
 
-            
-            })
-        }
+                                const marker = new AdvancedMarkerElement({
+                                    position: latlng,
+                                    map: map,
+                                    title: marcador.Categoria || 'Sin categoría',
+                                    content: iconImg,
+                                    collisionBehavior: CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
+                                });
 
-        window.initMap = initMap
+                                marker.addListener('gmp-click', () => {
+                                    infoWindow.setContent(`
+                            <h6>${marcador.Categoria || 'Sin categoría'}</h6>
+                            <br> Delito: ${marcador.delito || 'Desconocido'}
+                            <br> Fecha: ${marcador.fecha || 'No disponible'}
+                        `);
+                                    infoWindow.setPosition(latlng);
+                                    infoWindow.open(map);
+                                });
+                            } else {
+                                console.error("Geocoding falló:", status, direccion);
+                            }
+                        });
+                    } else {
+                        const position = {
+                            lat: Number(marcador.lat),
+                            lng: Number(marcador.lng)
+                        };
+
+                        const marker = new AdvancedMarkerElement({
+                            position: position,
+                            map: map,
+                            title: marcador.Categoria || 'Sin categoría',
+                            content: iconImg,
+                            collisionBehavior: CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
+                        });
+
+                        marker.addListener('gmp-click', () => {
+                            infoWindow.setContent(`
+                    <h6>${marcador.Categoria || 'Sin categoría'}</h6>
+                    <br> Delito: ${marcador.delito || 'Desconocido'}
+                    <br> Fecha: ${marcador.fecha || 'No disponible'}
+                `);
+                            infoWindow.setPosition(position);
+                            infoWindow.open(map);
+                        });
+                    }
+                });
+            }
+
+            window.initMap = initMap;
+
     
     </script>
    

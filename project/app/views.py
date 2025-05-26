@@ -121,7 +121,8 @@ def main (request):
           fecha_obj = valor.get('FechaHoraHecho')
 
           if fecha_obj:
-               fecha_str = fecha_obj.strftime('%d/%m/%Y, %H:%M:%S')
+               fecha_local = dj_timezone.localtime(fecha_obj)
+               fecha_str = fecha_local.strftime('%d/%m/%Y, %H:%M:%S')
           marker = {
                'lat': valor.get('latitud'),
                'lng': valor.get('longitud'),
@@ -129,7 +130,10 @@ def main (request):
                'icono': valor.get('icono'),
                'delito': valor.get('Delito'),
                'fecha': fecha_str,
-               
+               'calle': valor.get('Calle_hechos'),
+               'colonia': valor.get('ColoniaHechos'),
+               'estado': valor.get('Estado_hechos'),
+               'municipio': valor.get('Municipio_hechos')
           }
           list_markers.append(marker)
 
@@ -432,6 +436,7 @@ def loadFiles(request):
             crime = request.POST.get("crime")
             fechaValue = request.POST.get("FechaHoraHecho")
             evento = request.POST.get("evento")
+            categoria = request.POST.get("categ")
 
             try:
                 icono = None
@@ -497,6 +502,8 @@ def loadFiles(request):
                     "FechaHoraHecho": timestamp,
                     "Evento":evento,
                     "icono": icono,
+                    "Municipio_hechos": municipio,
+                    "Categoria": categoria
                 })
 
     return render(request, "loadFiles.html")

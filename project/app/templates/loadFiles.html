@@ -29,7 +29,6 @@ Carga de datos
                     <label class="labels">Tipo de delito</label>
                         <select class="form-select" name="crime" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
                             <option selected class="options">Selecciona un tipo de delito</option>
-                            <option selected class="options">Selecciona un icono</option>
                             <option value="Homicidio doloso" class="options">Homicidio</option>
                             <option value="Feminicidio" class="options">Feminicidio</option>
                             <option value="Secuestro" class="options">Secuestro</option>
@@ -49,8 +48,13 @@ Carga de datos
                 </div>
             </div>
             <br>
-            <div>
-                <label class="labels">Seleccione un icono</label>
+            <div class="row">
+                <div class="col">
+                     <label class="labels">Categoría</label>
+                    <input type="text" class="form-control" id="categ" placeholder="Escriba la categoría" name="categ" maxlength="50">
+                </div>
+                <div class="col">
+                     <label class="labels">Seleccione un icono</label>
                         <select class="form-select" name="crime" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
                             
                             <!----->
@@ -69,6 +73,8 @@ Carga de datos
                             <option value="delito de bajo impacto" class="options">Delito de bajo impacto</option>
                             <option value="robovehiculo" class="options">Robo de vehiculo</option>
                         </select>
+                </div>
+               
             </div>
             
             <br>
