@@ -12,25 +12,32 @@ Inicio
     <h4 class="welcome">Bienvenido de nuevo, {{ name }}</h4>
 <div style="display: flex;flex-direction: row;">
     <div class="Search">
-        <br>
-        <div class="topSearch">
-            <h3 class="Searchtitle">Visualización geográfica</h3>
-            <button class="searchBttn" type="submit">Buscar <span><i class="bi bi-search ms-3"
-                style="color: #2686B0;"></i></span></button>
-        </div>
-        <br>
-        <h5 class="filters">Filtros</h5>
+        
         <form method="POST">
             {% csrf_token %}
+            <br>
+            <div class="topSearch">
+                <h3 class="Searchtitle">Visualización geográfica</h3>
+                <button class="searchBttn" type="submit">Buscar <span><i class="bi bi-search ms-3"
+                            style="color: #2686B0;"></i></span></button>
+            </div>
+            <br>
+            <h5 class="filters">Filtros</h5>
             <div class="inputFilters">
-                <div>
-                    <label for="exampleFormControlInput1" class="label_filters">Fecha</label>
-                    <input class="form-control" type="text" placeholder="Estado" id="estado" name="estado">
+                <div class="row" style="margin-top: 1%;">
+                    <div class="col">
+                        <label class="labels">Fecha de inicio</label>
+                        <input type="date" class="form-control" name="startDate">
+                    </div>
+                    <div class="col">
+                        <label class="labels">Fecha final</label>
+                        <input type="date" class="form-control" name="endDate">
+                    </div>
                 </div>
 
-
+                <br>
                 <label  class="label_filters">Evento</label>
-                <select class="form-select" aria-label="Default select example" name="event"
+                <select class="form-select" name="event"
                     style="font-family: Inter, sans-serif;color: #838383;">
                     <option selected class="options">Selecciona un tipo de evento</option>
                     <option value="true" class="options">Otorgar permisos</option>
@@ -55,13 +62,12 @@ Inicio
                     </div>
                 </div>
                 <hr class="separationTwo">
-                <input class="form-control" type="text" placeholder="Latitud" id="name" name="name">
+                <input class="form-control" type="text" placeholder="Latitud" id="lat" name="lat">
                 <br>
-                <input class="form-control" type="text" placeholder="Longitud" id="name" name="name">
+                <input class="form-control" type="text" placeholder="Longitud" id="lng" name="lng">
             </div>
 
         </form>
-
     </div>
     <div id="mapa" style="height: 600px; width:65%;display: flex;align-self: center;"></div>
 </div>

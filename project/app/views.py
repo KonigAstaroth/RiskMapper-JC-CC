@@ -12,6 +12,7 @@ import pandas as pd
 import json
 from django.utils.safestring import mark_safe
 from django.utils import timezone as dj_timezone
+from google.cloud.firestore import FieldFilter
 
 
 
@@ -73,7 +74,6 @@ def login(request):
                     return response_redirect
                 except Exception as e:
                     messages.error(request, "Error al crear la cookie de sesión:", e)
-                    print(e)
                     return redirect('/')
         else:
              messages.error(request, "Correo o contraseña incorrectos") 
@@ -107,13 +107,15 @@ def main (request):
      
 
      usuarios = getUsers()
+
+
+     # datos necesarios para google maps
           
      ref = db.collection('Eventos')
      data = ref.get() or []
 
      list_markers = []
 
-     
 
      for doc in data:
           valor = doc.to_dict()
@@ -138,6 +140,37 @@ def main (request):
           list_markers.append(marker)
 
      markers_json = mark_safe(json.dumps(list_markers))
+
+     if request.method == 'POST':
+          filters = {}
+
+          calle = request.POST.get('calle')
+          colonia = request.POST.get('colonia')
+          municipio = request.POST.get('municipio')
+          estado = request.POST.get('estado')
+
+
+          if calle:
+               filters['Calle_hechos'] = calle
+          if colonia := request.POST.get('colonia'):
+               filters['ColoniaHechos'] = colonia
+          if municipio := request.POST.get('municipio'):
+               filters['Municipio_hechos'] = municipio
+          if estado := request.POST.get('estado'):
+               filters['Estado_hechos'] = estado
+          
+          query_ref = ref
+
+          if filters:
+               for campo, valor in filters.items():
+                    query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
+          resultados = query_ref.stream()
+
+          eventos = [doc.to_dict() for doc in resultados]
+          print("filtros:", filters)
+
+          print(eventos)
+          
      
      
      return render (request, 'main.html',{ 'name': name, 'priv': priv, 'usuarios':usuarios, 'google_maps_api_key': settings.GOOGLE_MAPS_KEY, 'markers': markers_json})
@@ -411,21 +444,20 @@ def loadFiles(request):
                                  icono= 'robovehiculo'
 
                         evento['icono'] = icono
-
-                        print("Subiendo evento:", evento)
                         db.collection('Eventos').add(evento)
 
                     except Exception as e:
-                        print(f"Error subiendo evento a Firestore: {e}")
-                        continue  
+                        error_message = "Error subiendo evento a Firestore"
+                        return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
+                        
+                        
 
-                return redirect('main')
+                success_message = "La carga ha sido exitosa"
+                return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
 
             except Exception as e:
-                print("Error general:", e)
-                return render(request, 'loadFiles.html', {
-                    'error': f'Error al procesar el archivo: {e}'
-                })
+                error_message = "Error general"
+                return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
 
         # Carga manual
         else:
@@ -437,7 +469,14 @@ def loadFiles(request):
             fechaValue = request.POST.get("FechaHoraHecho")
             evento = request.POST.get("evento")
             categoria = request.POST.get("categ")
+            lat = request.POST.get('lat')
+            lng = request.POST.get('lng')
+            
+            crime_str = str(crime)
+            crime_upper = crime_str.upper()
+            
 
+          # Este segmento es sobre los iconos
             try:
                 icono = None
                 if 'amenazas' in crime:
@@ -493,20 +532,34 @@ def loadFiles(request):
                       
                            
                            
-            if calle and colonia and estado and municipio and fechaValue and (crime or evento):
-                db.collection('Eventos').add({
-                    "Calle_hechos": calle,
-                    "ColoniaHechos": colonia,
-                    "Estado_hechos": estado,
-                    "Delito": crime,
-                    "FechaHoraHecho": timestamp,
-                    "Evento":evento,
-                    "icono": icono,
-                    "Municipio_hechos": municipio,
-                    "Categoria": categoria
-                })
-
-    return render(request, "loadFiles.html")
+            if ((calle and colonia and estado and municipio) or (lat and lng)) and fechaValue and (crime or evento) and icono:
+                try:
+                     
+                    db.collection('Eventos').add({
+                         "Calle_hechos": calle,
+                         "ColoniaHechos": colonia,
+                         "Estado_hechos": estado,
+                         "Delito": crime_upper,
+                         "FechaHoraHecho": timestamp,
+                         "Evento":evento,
+                         "icono": icono,
+                         "Municipio_hechos": municipio,
+                         "Categoria": categoria,
+                         "latitud": lat,
+                         "longitud": lng
+                         })
+                    success_message = "Datos agregados exitosamente"
+                    return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
+                except:
+                     error_message = "Error al subir datos"
+                     return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
+                
+                
+                
+     
+    success = request.GET.get("success")
+    error = request.GET.get("error")
+    return render(request, "loadFiles.html", {"error": error, 'success': success})
 
 
 
