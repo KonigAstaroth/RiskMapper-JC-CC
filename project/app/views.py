@@ -13,7 +13,11 @@ import json
 from django.utils.safestring import mark_safe
 from django.utils import timezone as dj_timezone
 from google.cloud.firestore import FieldFilter
-
+import matplotlib.pyplot as plt
+import numpy as np
+import io
+import base64
+from time import time
 
 
 db = firestore.client()
@@ -86,6 +90,14 @@ def policy (request):
 def forgotpass (request):
     return render(request, 'forgotPass.html')
 
+def time_to_num(time_str):
+     try:
+          hh, mm, ss = map(int, time_str.strip().split(':'))
+          return ss +60*(mm + 60*hh)
+     except Exception as e:
+          print(f"Error al convertir '{time_str}': {e}")
+          return None
+
 def main (request):
      sessionCookie = request.COOKIES.get('session')
      priv = getPrivileges(request)
@@ -141,7 +153,10 @@ def main (request):
 
      markers_json = mark_safe(json.dumps(list_markers))
 
-     if request.method == 'POST':
+     #Filtrado de datos
+     graphic = request.session.pop('graphic', None)
+
+     if request.method == 'POST' and 'buscar' in request.POST :
           filters = {}
 
           calle = request.POST.get('calle')
@@ -163,17 +178,80 @@ def main (request):
 
           if filters:
                for campo, valor in filters.items():
+                    valor = valor.strip() 
                     query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
           resultados = query_ref.stream()
 
-          eventos = [doc.to_dict() for doc in resultados]
-          print("filtros:", filters)
-
-          print(eventos)
           
-     
-     
-     return render (request, 'main.html',{ 'name': name, 'priv': priv, 'usuarios':usuarios, 'google_maps_api_key': settings.GOOGLE_MAPS_KEY, 'markers': markers_json})
+          angulos =[]
+          radios= []
+          
+         
+          for  doc in resultados:
+               eventos = doc.to_dict()
+               date_obj = eventos.get('FechaHoraHecho')
+               print("filtros:", filters)
+
+               print(eventos)
+               
+
+               if date_obj:
+                    hora_local = dj_timezone.localtime(date_obj)
+                    hora_str = hora_local.strftime('%H:%M:%S').strip()
+                    hora_str = ''.join(c for c in hora_str if c.isdigit() or c == ':')
+                    segundos = time_to_num(hora_str)
+                    if segundos is not None:
+                         angulo = (segundos/86400) * 2 * np.pi
+                         angulos.append(angulo)
+                         dia = hora_local.day
+                         radios.append(dia)
+                    
+               else:
+                    print("No hay timestamp")
+
+               print("angulos", angulos)
+               print("radios", radios)
+
+          if angulos and radios:
+               fig =  plt.figure(figsize=(7,7))
+               ax = plt.subplot(111, polar=True)
+               sc = ax.scatter(angulos, radios, color='blue', s=80, alpha=0.75)
+               ax.set_theta_direction(-1)
+               ax.set_theta_offset(np.pi/2)
+
+               horas =[f"{h:02d}:00" for h in range(24)]
+               ticks = [(h/24) * 2 * np.pi for h in range(24)]
+               ax.set_xticks(ticks)
+               ax.set_xticklabels(horas, fontsize=8)
+               ax.set_rlabel_position(135) 
+               ax.set_ylim(0,31)
+               
+               
+               buffer = io.BytesIO()
+               plt.savefig(buffer, format='png')
+               buffer.seek(0)
+               img_png = buffer.getvalue()
+               graphic = base64.b64encode(img_png).decode('utf-8')
+               buffer.close()
+               request.session['graphic'] = graphic
+               return redirect('main') 
+               
+
+     context = {
+          'name': name,
+          'priv': priv,
+          'usuarios': usuarios,
+          'google_maps_api_key': settings.GOOGLE_MAPS_KEY,
+          'markers': markers_json,
+          'graphic': graphic,
+          'timestamp': int(time()),
+          
+     }
+
+          
+               
+          
+     return render (request, 'main.html', context)
 
 def getPrivileges(request):
       sessionCookie = request.COOKIES.get('session')

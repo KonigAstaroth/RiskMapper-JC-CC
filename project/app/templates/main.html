@@ -18,7 +18,7 @@ Inicio
             <br>
             <div class="topSearch">
                 <h3 class="Searchtitle">Visualización geográfica</h3>
-                <button class="searchBttn" type="submit">Buscar <span><i class="bi bi-search ms-3"
+                <button class="searchBttn" type="submit" name="buscar">Buscar <span><i class="bi bi-search ms-3"
                             style="color: #2686B0;"></i></span></button>
             </div>
             <br>
@@ -70,7 +70,29 @@ Inicio
         </form>
     </div>
     <div id="mapa" style="height: 600px; width:65%;display: flex;align-self: center;"></div>
+    
 </div>
+
+    {% if graphic %}
+        <div class="carta">
+            <h2 class="analisis">ANALISIS DE PATRONES </h2>
+            <div class="data_analisis">
+                <div style="margin-right: 3%; margin-left: 3%;">
+                    <br>
+                    <div class="cartaBanner"><h5 style="color: #FFFFFF; font-weight: 500;">Zona analizada:</h5>></div>
+                    <img src="data:image/png;base64,{{ graphic }}" alt="">
+                </div>
+                
+            </div>
+        </div>
+        
+        
+    {% else %}
+    
+    {% endif %}
+    
+    
+
     
 
     <script id="marcadores-json" type="application/json">

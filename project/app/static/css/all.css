@@ -308,3 +308,35 @@ body{
     font-weight: 400;
     color: black;
 }
+
+.carta{
+    margin-top: 10%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.carta h2{
+    color: #1E1E1E;
+    font-weight: 500;
+}
+
+.data_analisis{
+    box-sizing: content-box;
+    background-color: #FFFFFF;
+    border-radius: 30px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, .25);
+    
+
+}
+
+.cartaBanner{
+    box-sizing: content-box;
+    background-color: #2686B0;
+    border-radius: 30px;
+    width: 90%;
+    margin: auto;
+    height: 3rem;
+    font-size: larger;
+    padding-left: 3%;
+    padding-top: 1%;
+}
