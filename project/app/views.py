@@ -14,10 +14,16 @@ from django.utils.safestring import mark_safe
 from django.utils import timezone as dj_timezone
 from google.cloud.firestore import FieldFilter
 import matplotlib.pyplot as plt
+import matplotlib
+import calendar
+from PIL import Image
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+matplotlib.use('agg')
 import numpy as np
 import io
 import base64
 from time import time
+from geopy.geocoders import GoogleV3
 
 
 db = firestore.client()
@@ -163,6 +169,8 @@ def main (request):
           colonia = request.POST.get('colonia')
           municipio = request.POST.get('municipio')
           estado = request.POST.get('estado')
+          startDate_str = request.POST.get('startDate')
+          endDate_str = request.POST.get('endDate')
 
 
           if calle:
@@ -173,13 +181,24 @@ def main (request):
                filters['Municipio_hechos'] = municipio
           if estado := request.POST.get('estado'):
                filters['Estado_hechos'] = estado
+          if startDate_str and endDate_str:
+               startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+               endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
+               filters['startDate']=startDate
+               filters['endDate']=endDate
           
           query_ref = ref
 
           if filters:
                for campo, valor in filters.items():
-                    valor = valor.strip() 
-                    query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
+                    if campo == "startDate":
+                         query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '>=', valor))
+                    elif campo == "endDate":
+                         query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '<=', valor))
+                    else:
+                         if isinstance(valor, str):
+                              valor = valor.strip() 
+                         query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
           resultados = query_ref.stream()
 
           
@@ -253,6 +272,38 @@ def main (request):
           
      return render (request, 'main.html', context)
 
+def generateCalendar(year: int, month: int, dayIcons: list):
+     cal = calendar.monthcalendar(year, month)
+     fig, ax = plt.subplot(figsize=(10,8))
+     ax.set_axis_off()
+     ax.set_title(calendar.month_name[month] + f" {year}", fontsize=20)
+
+     dias_semana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+
+     for i, dias in enumerate(dias_semana):
+          ax.text(i+0.5, len(cal), dias, ha='center', va= 'center', fontsize=12, weight='bold')
+     icono_cache = {}
+
+     for fila, semana in enumerate(cal):
+          for columna, dia in enumerate(semana):
+               if dia != 0:
+                    ax.text(columna + 0.5, len(cal) - fila - 0.5, str(dia), ha='center', va='top', fontsize=10)
+                    for dia_evento, icono in dayIcons:
+                         if dia_evento == dia:
+                              if icono not in icono_cache:
+                                   imagen = Image.open(f"iconos/{icono}.png").resize((30, 30))
+                                   icono_cache[icono] = OffsetImage(imagen)
+                         ab = AnnotationBbox(icono_cache[icono], (columna + 0.5, len(cal) - fila - 0.5 - 0.3), frameon=False)
+                         ax.add_artist(ab)
+
+     plt.xlim(0, 7)
+     plt.ylim(0, len(cal) + 1)
+     plt.tight_layout()
+     nombre_archivo = f"calendario_{year}_{month}.png"
+     plt.savefig(f"media/{nombre_archivo}")
+     plt.close()
+     return nombre_archivo
+
 def getPrivileges(request):
       sessionCookie = request.COOKIES.get('session')
       decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
@@ -306,6 +357,7 @@ def add (request):
                     "name": name,
                     "lastname": lastname,
                     "privileges":privileges,
+                    "lastAccess": None
                     
                     })
                   success_message = "Usuario agregado correctamente"
@@ -612,28 +664,90 @@ def loadFiles(request):
                            
             if ((calle and colonia and estado and municipio) or (lat and lng)) and fechaValue and (crime or evento) and icono:
                 try:
+                    if ((not calle and not colonia and not estado and not municipio) and lat and lng):
+                         geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
+                         
+                         location = geolocator.reverse((lat,lng))
+                         if location and location.raw:
+                              componentes = location.raw.get('address_components', [])
+                              calle_geo = colonia_geo = municipio_geo = estado_geo = None
+                              for comp in componentes:
+                                   tipos = comp['types']
+                                   if 'route' in tipos :
+                                        calle_geo = comp['long_name']
+                                   elif 'street_number' in tipos:
+                                        numero_geo = comp['long_name']
+                                   elif 'sublocality' in tipos or 'sublocality_level_1' in tipos:
+                                        colonia_geo = comp['long_name']
+                                   elif 'locality' in tipos:
+                                        municipio_geo = comp['long_name']
+                                   elif 'administrative_area_level_1' in tipos:
+                                        estado_geo = comp['long_name']
+
+                                   if calle_geo and numero_geo:
+                                        calleNumero = f"{calle_geo} {numero_geo}"
+                                   else:
+                                        calleNumero = calle_geo
+
+                              db.collection('Eventos').add({
+                              "Calle_hechos": calleNumero,
+                              "ColoniaHechos": colonia_geo,
+                              "Estado_hechos": estado_geo,
+                              "Delito": crime_upper,
+                              "FechaHoraHecho": timestamp,
+                              "Evento":evento,
+                              "icono": icono,
+                              "Municipio_hechos": municipio_geo,
+                              "Categoria": categoria,
+                              "latitud": lat,
+                              "longitud": lng
+                              })
+                    if (( calle and colonia and  estado and  municipio) and (not lat and not lng)):
+                         direccion=f"{calle}, {colonia}, {estado}, {municipio}"
+                         geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
+                         location = geolocator.geocode(direccion)
+                         lat_geo = location.latitude
+                         lng_geo = location.longitude
+
+                         db.collection('Eventos').add({
+                               "Calle_hechos": calle,
+                               "ColoniaHechos": colonia,
+                               "Estado_hechos": estado,
+                               "Delito": crime_upper,
+                               "FechaHoraHecho": timestamp,
+                               "Evento":evento,
+                               "icono": icono,
+                               "Municipio_hechos": municipio,
+                               "Categoria": categoria,
+                               "latitud": lat_geo,
+                               "longitud": lng_geo
+                               })
+                         print("latitud: ", location.latitude)
+                         print("longitud: ", location.longitude)
+
+                    elif calle and colonia and estado and municipio and lat and lng:
                      
-                    db.collection('Eventos').add({
-                         "Calle_hechos": calle,
-                         "ColoniaHechos": colonia,
-                         "Estado_hechos": estado,
-                         "Delito": crime_upper,
-                         "FechaHoraHecho": timestamp,
-                         "Evento":evento,
-                         "icono": icono,
-                         "Municipio_hechos": municipio,
-                         "Categoria": categoria,
-                         "latitud": lat,
-                         "longitud": lng
-                         })
+                         db.collection('Eventos').add({
+                              "Calle_hechos": calle,
+                              "ColoniaHechos": colonia,
+                              "Estado_hechos": estado,
+                              "Delito": crime_upper,
+                              "FechaHoraHecho": timestamp,
+                              "Evento":evento,
+                              "icono": icono,
+                              "Municipio_hechos": municipio,
+                              "Categoria": categoria,
+                              "latitud": lat,
+                              "longitud": lng
+                              })
                     success_message = "Datos agregados exitosamente"
                     return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
                 except:
                      error_message = "Error al subir datos"
                      return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
-                
-                
-                
+            else:
+                 error_message = "Faltan datos por agregar"
+                 return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
      
     success = request.GET.get("success")
     error = request.GET.get("error")
