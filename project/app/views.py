@@ -16,17 +16,20 @@ from google.cloud.firestore import FieldFilter
 import matplotlib.pyplot as plt
 import matplotlib
 import calendar
-from PIL import Image
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 matplotlib.use('agg')
 import numpy as np
 import io
 import base64
 from time import time
 from geopy.geocoders import GoogleV3
+from collections import defaultdict
+from django.core.cache import cache
+
 
 
 db = firestore.client()
+CACHE_KEY_MARKERS = 'firebase_markers'
+CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
 
 FIREBASE_AUTH_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={settings.FIREBASE_API_KEY}"
 
@@ -79,11 +82,12 @@ def login(request):
                     )
                     decoded_claims = auth.verify_session_cookie(session_cookie)
                     uid = decoded_claims["uid"]
-                    db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.make_aware)})
+                    db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
                     
                     return response_redirect
                 except Exception as e:
-                    messages.error(request, "Error al crear la cookie de sesión:", e)
+                    print(e)
+                    messages.error(request, "Error al crear la cookie de sesión:", {e})
                     return redirect('/')
         else:
              messages.error(request, "Correo o contraseña incorrectos") 
@@ -122,65 +126,99 @@ def main (request):
      if doc.exists:
           name = doc.to_dict().get("name")
 
-     
 
      usuarios = getUsers()
 
 
      # datos necesarios para google maps
+     last_update = cache.get(CACHE_KEY_LAST_UPDATE)
+     markers_cached = cache.get(CACHE_KEY_MARKERS)
+
           
      ref = db.collection('Eventos')
-     data = ref.get() or []
+     
+     query_has_update = False
+     
+     
+     if last_update:
+          changes_query = ref.where('updatedAt', '>', last_update)
+          changes = changes_query.limit(1).get()
+          query_has_update = len(changes) > 0
+     else:
+          query_has_update =True
+     
 
-     list_markers = []
+     if query_has_update:
+          data = ref.get() or []
+          list_markers = []
+          max_update = last_update
 
+          for doc in data:
+               valor = doc.to_dict()
+               update_doc = valor.get('updatedAt')
+               if update_doc:
+                    if not max_update or update_doc > max_update:
+                         max_update = update_doc
 
-     for doc in data:
-          valor = doc.to_dict()
-
-          fecha_obj = valor.get('FechaHoraHecho')
-
-          if fecha_obj:
-               fecha_local = dj_timezone.localtime(fecha_obj)
-               fecha_str = fecha_local.strftime('%d/%m/%Y, %H:%M:%S')
-          marker = {
-               'lat': valor.get('latitud'),
-               'lng': valor.get('longitud'),
-               'Categoria': valor.get('Categoria'),
-               'icono': valor.get('icono'),
-               'delito': valor.get('Delito'),
-               'fecha': fecha_str,
-               'calle': valor.get('Calle_hechos'),
-               'colonia': valor.get('ColoniaHechos'),
-               'estado': valor.get('Estado_hechos'),
-               'municipio': valor.get('Municipio_hechos')
-          }
-          list_markers.append(marker)
+               
+               fecha_obj = valor.get('FechaHoraHecho')
+               fecha_str = ''
+               if fecha_obj:
+                    fecha_local = dj_timezone.localtime(fecha_obj)
+                    fecha_str = fecha_local.strftime('%d/%m/%Y, %H:%M:%S')
+               marker = {
+                    'lat': valor.get('latitud'),
+                    'lng': valor.get('longitud'),
+                    'Categoria': valor.get('Categoria'),
+                    'icono': valor.get('icono'),
+                    'delito': valor.get('Delito'),
+                    'fecha': fecha_str,
+                    'calle': valor.get('Calle_hechos'),
+                    'colonia': valor.get('ColoniaHechos'),
+                    'estado': valor.get('Estado_hechos'),
+                    'municipio': valor.get('Municipio_hechos')
+               }
+               list_markers.append(marker)
+          cache.set(CACHE_KEY_MARKERS, list_markers, None)
+          cache.set(CACHE_KEY_LAST_UPDATE, max_update, None)
+     else:
+          list_markers = markers_cached or []
 
      markers_json = mark_safe(json.dumps(list_markers))
 
      #Filtrado de datos
      graphic = request.session.pop('graphic', None)
-
+     calendarios = request.session.pop('calendarios', [])
+     
+     
+     
      if request.method == 'POST' and 'buscar' in request.POST :
           filters = {}
-
+          
+          
           calle = request.POST.get('calle')
           colonia = request.POST.get('colonia')
           municipio = request.POST.get('municipio')
           estado = request.POST.get('estado')
           startDate_str = request.POST.get('startDate')
           endDate_str = request.POST.get('endDate')
-
+          Municipio = request.POST.get('municipio')
+          Estado = request.POST.get('estado')
+          
+          
 
           if calle:
                filters['Calle_hechos'] = calle
-          if colonia := request.POST.get('colonia'):
+          if colonia:
                filters['ColoniaHechos'] = colonia
-          if municipio := request.POST.get('municipio'):
+          if municipio:
                filters['Municipio_hechos'] = municipio
-          if estado := request.POST.get('estado'):
+               
+          if estado:
                filters['Estado_hechos'] = estado
+
+          
+               
           if startDate_str and endDate_str:
                startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
@@ -202,6 +240,9 @@ def main (request):
           resultados = query_ref.stream()
 
           
+
+          eventos_por_mes = defaultdict(list)
+          
           angulos =[]
           radios= []
           
@@ -209,6 +250,20 @@ def main (request):
           for  doc in resultados:
                eventos = doc.to_dict()
                date_obj = eventos.get('FechaHoraHecho')
+               fecha = date_obj
+
+               if isinstance(fecha,str):
+                    fecha = datetime.fromisoformat(fecha)
+               elif hasattr(fecha, 'to_datetime'):
+                    fecha = fecha.to_datetime()
+
+               year = fecha.year
+               month = fecha.month
+               day = fecha.day
+
+               eventos_por_mes[(year, month)].append(day)
+
+               
                print("filtros:", filters)
 
                print(eventos)
@@ -225,14 +280,19 @@ def main (request):
                          dia = hora_local.day
                          radios.append(dia)
                     
-               else:
-                    print("No hay timestamp")
 
-               print("angulos", angulos)
-               print("radios", radios)
+          
+          for (year, month),day in eventos_por_mes.items():
+                    imagen_base64  = generateCalendar(year, month, day)
+                    if imagen_base64:
+                         calendarios.append({
+                              'img': imagen_base64 
+                         })
+                    else:
+                         print("No hay calendario")
 
           if angulos and radios:
-               fig =  plt.figure(figsize=(7,7))
+               fig =  plt.figure(figsize=(6,6))
                ax = plt.subplot(111, polar=True)
                sc = ax.scatter(angulos, radios, color='blue', s=80, alpha=0.75)
                ax.set_theta_direction(-1)
@@ -252,8 +312,16 @@ def main (request):
                img_png = buffer.getvalue()
                graphic = base64.b64encode(img_png).decode('utf-8')
                buffer.close()
-               request.session['graphic'] = graphic
-               return redirect('main') 
+          request.session['graphic'] = graphic
+          request.session['calendarios'] = calendarios
+          request.session['estado'] = Estado
+          request.session['municipio'] = Municipio
+          return redirect('main') 
+     else:
+          Municipio = request.session.get('municipio')
+          Estado = request.session.get('estado')
+          
+          
                
 
      context = {
@@ -263,8 +331,10 @@ def main (request):
           'google_maps_api_key': settings.GOOGLE_MAPS_KEY,
           'markers': markers_json,
           'graphic': graphic,
+          'calendarios': calendarios,
           'timestamp': int(time()),
-          
+          'municipio': Municipio,
+          'estado': Estado
      }
 
           
@@ -272,9 +342,9 @@ def main (request):
           
      return render (request, 'main.html', context)
 
-def generateCalendar(year: int, month: int, dayIcons: list):
+def generateCalendar( year: int, month: int, days_event: list) -> str:
      cal = calendar.monthcalendar(year, month)
-     fig, ax = plt.subplot(figsize=(10,8))
+     fig, ax = plt.subplots(figsize=(5,5))
      ax.set_axis_off()
      ax.set_title(calendar.month_name[month] + f" {year}", fontsize=20)
 
@@ -282,27 +352,31 @@ def generateCalendar(year: int, month: int, dayIcons: list):
 
      for i, dias in enumerate(dias_semana):
           ax.text(i+0.5, len(cal), dias, ha='center', va= 'center', fontsize=12, weight='bold')
-     icono_cache = {}
+     
 
      for fila, semana in enumerate(cal):
           for columna, dia in enumerate(semana):
                if dia != 0:
-                    ax.text(columna + 0.5, len(cal) - fila - 0.5, str(dia), ha='center', va='top', fontsize=10)
-                    for dia_evento, icono in dayIcons:
-                         if dia_evento == dia:
-                              if icono not in icono_cache:
-                                   imagen = Image.open(f"iconos/{icono}.png").resize((30, 30))
-                                   icono_cache[icono] = OffsetImage(imagen)
-                         ab = AnnotationBbox(icono_cache[icono], (columna + 0.5, len(cal) - fila - 0.5 - 0.3), frameon=False)
-                         ax.add_artist(ab)
+                    y = len(cal) - fila - 0.5
+                    x = columna + 0.5
+                    ax.text(x, y + 0.3, str(dia), ha='center', va='top', fontsize=10)
+                    if dia in days_event:
+                         circle = plt.Circle((x, y -0.2), 0.15, color= 'red')
+                         ax.add_patch(circle) 
 
      plt.xlim(0, 7)
      plt.ylim(0, len(cal) + 1)
      plt.tight_layout()
-     nombre_archivo = f"calendario_{year}_{month}.png"
-     plt.savefig(f"media/{nombre_archivo}")
+
+     buffer = io.BytesIO()
+     plt.savefig(buffer, format='png')
+     buffer.seek(0)
+     imagen_png = buffer.getvalue()
+     imagen_base64 = base64.b64encode(imagen_png).decode('utf-8')
+     buffer.close()
+     
      plt.close()
-     return nombre_archivo
+     return imagen_base64 
 
 def getPrivileges(request):
       sessionCookie = request.COOKIES.get('session')
@@ -574,6 +648,7 @@ def loadFiles(request):
                                  icono= 'robovehiculo'
 
                         evento['icono'] = icono
+                        evento['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
                         db.collection('Eventos').add(evento)
 
                     except Exception as e:
@@ -661,8 +736,9 @@ def loadFiles(request):
                       })
                       
                            
-                           
+          
             if ((calle and colonia and estado and municipio) or (lat and lng)) and fechaValue and (crime or evento) and icono:
+                now = datetime.datetime.now(datetime.timezone.utc)
                 try:
                     if ((not calle and not colonia and not estado and not municipio) and lat and lng):
                          geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
@@ -700,7 +776,8 @@ def loadFiles(request):
                               "Municipio_hechos": municipio_geo,
                               "Categoria": categoria,
                               "latitud": lat,
-                              "longitud": lng
+                              "longitud": lng,
+                              'updatedAt': now
                               })
                     if (( calle and colonia and  estado and  municipio) and (not lat and not lng)):
                          direccion=f"{calle}, {colonia}, {estado}, {municipio}"
@@ -720,10 +797,10 @@ def loadFiles(request):
                                "Municipio_hechos": municipio,
                                "Categoria": categoria,
                                "latitud": lat_geo,
-                               "longitud": lng_geo
+                               "longitud": lng_geo,
+                               'updatedAt': now
                                })
-                         print("latitud: ", location.latitude)
-                         print("longitud: ", location.longitude)
+                         
 
                     elif calle and colonia and estado and municipio and lat and lng:
                      
@@ -738,7 +815,8 @@ def loadFiles(request):
                               "Municipio_hechos": municipio,
                               "Categoria": categoria,
                               "latitud": lat,
-                              "longitud": lng
+                              "longitud": lng,
+                              'updatedAt': now
                               })
                     success_message = "Datos agregados exitosamente"
                     return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")

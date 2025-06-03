@@ -73,14 +73,23 @@ Inicio
     
 </div>
 
-    {% if graphic %}
+    {% if graphic and calendarios %}
         <div class="carta">
-            <h2 class="analisis">ANALISIS DE PATRONES </h2>
+            <h2 class="analisis">ANALISIS DE PATRONES  </h2>
             <div class="data_analisis">
                 <div style="margin-right: 3%; margin-left: 3%;">
                     <br>
-                    <div class="cartaBanner"><h5 style="color: #FFFFFF; font-weight: 500;">Zona analizada:</h5></div>
-                    <img src="data:image/png;base64,{{ graphic }}" alt="">
+                    <div class="cartaBanner"><h5 style="color: #FFFFFF; font-weight: 500;">Zona analizada: {{ estado }}, {{ municipio }}</h5></div>
+                    {% if calendarios %}
+                        {% for cal in calendarios %}
+                            <img src="data:image/png;base64,{{ cal.img }}" alt="" class="mb-3">
+                        {% endfor %}
+                    {% else %}
+                    <p>No hay calendario</p>
+                    {% endif %}
+                    <img src="data:image/png;base64,{{ graphic }}" alt="" style="margin-left: 10%;">
+                    <br>
+                    <h3>DATA:</h3>
                 </div>
                 
             </div>
@@ -100,6 +109,7 @@ Inicio
     </script>
 
     <script>
+        
 
         const iconos = {
                 amenazas:"{% static 'mapIcons/enfado.png' %}",

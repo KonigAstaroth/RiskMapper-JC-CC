@@ -18,6 +18,9 @@ from django.contrib import admin
 from django.urls import path
 from app import views
 
+
+ 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.login, name='login'),
@@ -30,4 +33,5 @@ urlpatterns = [
     path('edit_user<str:id>/', views.editUser, name='editUser'),
     path('delete_user<str:id>/', views.deleteUser, name='deleteUser'),
     path('loadFiles/', views.loadFiles, name='loadFiles'),
+    
 ]
