@@ -1,0 +1,55 @@
+{% extends "allTemplate.html" %}
+{% load static %}
+
+
+{% block titulo %}
+Bibloteca de datos
+{% endblock %}
+
+{% block contenido %}
+<div style="margin-left: 10%; margin-right: 10%;">
+     <form method="POST">
+            {% csrf_token %}
+            <br>
+            <h5 >Filtros</h5>
+            <div class="row">
+                <div class="col">
+                    <label class="labels">Fecha de inicio</label>
+                    <input type="date" class="form-control" name="startDate">
+                    
+                </div>
+                <div class="col">
+                    <label class="labels">Fecha final</label>
+                    <input type="date" class="form-control" name="endDate">
+                </div>
+                <div class="col">
+                    <label  class="label_filters">Evento</label>
+                <select class="form-select" name="event"
+                    style="font-family: Inter, sans-serif;color: #838383;">
+                    <option selected class="options">Selecciona un tipo de evento</option>
+                    <option value="true" class="options">Otorgar permisos</option>
+                    <option value="false" class="options">Denegar permisos</option>
+                </select>
+                </div>
+                    
+            </div>
+            <div class="row">
+                <label  class="label_filters" style="margin-top:1%">Ubicación</label>
+                <div class="col col-sm-2">
+                    <select class="form-select" name="searchBy">
+                        <option value="full">Direccion completa</option>
+                        <option value="estado">Estado</option>
+                        <option value="municipio">Municipio</option>
+                        <option value="estadoMunicipio">Estado y municipio</option>
+                    </select>
+                    
+                </div>
+                <div class="col">
+                    <input class="form-control" type="text" placeholder="Direccion" id="direccion" name="direccion">
+                </div>
+            </div>
+            
+
+        </form>
+</div>
+{% endblock %}

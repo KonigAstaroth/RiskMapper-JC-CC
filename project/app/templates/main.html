@@ -10,7 +10,7 @@ Inicio
 
 {% block contenido %}
     <h4 class="welcome">Bienvenido de nuevo, {{ name }}</h4>
-<div style="display: flex;flex-direction: row;">
+<div style="display: flex;flex-direction: row; height: 65vh;">
     <div class="Search">
         
         <form method="POST">
@@ -69,7 +69,7 @@ Inicio
 
         </form>
     </div>
-    <div id="mapa" style="height: 600px; width:65%;display: flex;align-self: center;"></div>
+    <div id="mapa" class="mapa"></div>
     
 </div>
 
@@ -107,6 +107,7 @@ Inicio
     <script id="marcadores-json" type="application/json">
         {{ markers|safe }}
     </script>
+    <script  src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=marker" async defer></script>
 
     <script>
         
@@ -219,5 +220,5 @@ Inicio
     </script>
    
     
-<script async src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=marker" defer></script>
+
 {% endblock %}
