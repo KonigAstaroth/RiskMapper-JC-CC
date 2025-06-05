@@ -24,6 +24,8 @@ from time import time
 from geopy.geocoders import GoogleV3
 from collections import defaultdict
 from django.core.cache import cache
+from django.urls import reverse
+
 
 
 
@@ -826,9 +828,21 @@ def loadFiles(request):
     return render(request, "loadFiles.html", {"error": error, 'success': success, 'usuarios': usuarios, 'priv': priv,})
 
 def library(request):
+     sessionCookie = request.COOKIES.get('session')
+     priv = getPrivileges(request)
+
+     if not sessionCookie:
+          return redirect ("login")
+     try:
+          decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
+          uid = decoded_claims["uid"]
+     except:
+          return redirect("login")
      usuarios = getUsers()
      ref = db.collection('Eventos')
-     if request.method == 'POST' and 'buscar' in request.POST :
+     
+     eventos =[]
+     if request.method == 'POST':
           filters = {}
           
           startDate_str = request.POST.get('startDate')
@@ -843,23 +857,33 @@ def library(request):
                colonia = partes_direccion[1] if len(partes_direccion) > 1 else None
                municipio = partes_direccion[2] if len(partes_direccion) > 2 else None
                estado = partes_direccion[3] if len(partes_direccion) > 3 else None
+
+               if calle:
+                    filters['Calle_hechos'] = calle
+               if colonia:
+                    filters['ColoniaHechos'] = colonia
+               if municipio:
+                    filters['Municipio_hechos'] = municipio
+               if estado:
+                    filters['Estado_hechos'] = estado
           elif (search =="estado"):
                estado = partes_direccion[0] if len(partes_direccion) > 0 else None
+               if estado:
+                    filters['Estado_hechos'] = estado
           elif (search =="municipio"):
                municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
-          elif (search=="municipioEstado"):
-               estado = partes_direccion[0] if len(partes_direccion) > 0 else None
-               municipio = partes_direccion[1] if len(partes_direccion) > 1 else None
+               if municipio:
+                    filters['Municipio_hechos'] = municipio
+          elif (search=="estadoMunicipio"):
+               
+               municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
+               estado = partes_direccion[1] if len(partes_direccion) > 1 else None
+               if municipio:
+                    filters['Municipio_hechos'] = municipio.strip()
+               if estado:
+                    filters['Estado_hechos'] = estado.strip()
+               
           
-
-          if calle:
-               filters['Calle_hechos'] = calle
-          if colonia:
-               filters['ColoniaHechos'] = colonia
-          if municipio:
-               filters['Municipio_hechos'] = municipio
-          if estado:
-               filters['Estado_hechos'] = estado
  
           if startDate_str and endDate_str:
                startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -880,15 +904,14 @@ def library(request):
                               valor = valor.strip() 
                          query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
           resultados = query_ref.stream()
-
-          for doc in resultados:
-               eventos = doc.to_dict()
-               print("filtros",filters)
-               print(eventos)
-
-
           
-     return render(request, 'library.html', {'usuarios': usuarios})
+          for doc in resultados:
+               data = doc.to_dict()
+               eventos.append(data)
+          
+     
+          
+     return render(request, 'library.html', {'usuarios': usuarios, 'eventos': eventos, 'priv': priv})
 
 
 
