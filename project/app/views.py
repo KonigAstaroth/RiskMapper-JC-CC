@@ -3,7 +3,6 @@ from django.shortcuts import render,redirect
 from django.conf import settings
 from django.contrib import messages
 from firebase_admin import firestore, auth
-from django.conf import settings
 from datetime import timedelta
 import urllib.parse
 import datetime
@@ -24,7 +23,7 @@ from time import time
 from geopy.geocoders import GoogleV3
 from collections import defaultdict
 from django.core.cache import cache
-from django.urls import reverse
+from .utils import sendEmail
 
 
 
@@ -100,7 +99,53 @@ def policy (request):
     return render(request, 'policy.html')
 
 def forgotpass (request):
-    return render(request, 'forgotPass.html')
+    if request.method == "POST":
+          try:
+               email = request.POST.get('email')
+               #user = auth.get_user_by_email(email)
+               #if user:
+               request.session['user_email'] = email
+               sendEmail(email)
+               success_message = "Correo para restablecer contraseña ha sido enviado"
+               return redirect(f"/recoverPass?success={urllib.parse.quote(success_message)}")
+                    
+               
+          except:
+               error_message = "No se encuentra al usuario"
+               return redirect(f"/forgotPassword?error={urllib.parse.quote(error_message)}")
+                  
+    error = request.GET.get("error")
+    success = request.GET.get("success")
+    return render(request, 'forgotPass.html', {'error':error, 'success': success})
+
+def recoverPass (request):
+     email = request.session.get('user_email')
+     password = request.POST.get('password')
+     repassword = request.POST.get('repassword')
+     if request.method == 'POST':
+          try:
+               if email and password and repassword:
+                    if password == repassword:
+                         user = auth.get_user_by_email(email)
+                         auth.update_user(user.uid, password=password)
+                         success_message = "Contraseña actualizada exitosamente!"
+                         return redirect(f"/recoverPass?success={urllib.parse.quote(success_message)}")
+
+                    else:
+                         error_message = "Las contraseñas no coinciden"
+                         return redirect(f"/recoverPass?error={urllib.parse.quote(error_message)}")  
+               else:
+                    error_message = "Faltan campos por llenar"
+                    return redirect(f"/recoverPass?error={urllib.parse.quote(error_message)}") 
+          except Exception as e:
+               error_message = e
+               return redirect(f"/recoverPass?error={urllib.parse.quote(error_message)}") 
+
+     error = request.GET.get("error")
+     success = request.GET.get('success')
+     return render(request, 'recoverPass.html', {'error': error, 'success':success})
+
+     
 
 def time_to_num(time_str):
      try:
@@ -909,8 +954,7 @@ def library(request):
                data = doc.to_dict()
                eventos.append(data)
           
-     
-          
+        
      return render(request, 'library.html', {'usuarios': usuarios, 'eventos': eventos, 'priv': priv})
 
 

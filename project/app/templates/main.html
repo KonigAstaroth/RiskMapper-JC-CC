@@ -10,7 +10,7 @@ Inicio
 
 {% block contenido %}
     <h4 class="welcome">Bienvenido de nuevo, {{ name }}</h4>
-<div style="display: flex;flex-direction: row; height: 65vh;">
+<div style="display: flex;flex-direction: row; height: 65vh; margin-top: 2%;">
     <div class="Search">
         
         <form method="POST">
@@ -26,11 +26,11 @@ Inicio
             <div class="inputFilters">
                 <div class="row" style="margin-top: 1%;">
                     <div class="col">
-                        <label class="labels">Fecha de inicio</label>
+                        <label class="label_filters">Fecha de inicio</label>
                         <input type="date" class="form-control" name="startDate">
                     </div>
                     <div class="col">
-                        <label class="labels">Fecha final</label>
+                        <label class="label_filters">Fecha final</label>
                         <input type="date" class="form-control" name="endDate">
                     </div>
                 </div>
@@ -54,10 +54,10 @@ Inicio
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6" style="margin-top: -3%;">
+                    <div class="col-md-6 mt-2">
                         <input class="form-control" type="text" placeholder="Colonia" id="colonia" name="colonia">
                     </div>
-                    <div class="col-md-6" style="margin-top: -3%;">
+                    <div class="col-md-6 mt-2" >
                         <input class="form-control" type="text" placeholder="Calle" id="calle" name="calle">
                     </div>
                 </div>

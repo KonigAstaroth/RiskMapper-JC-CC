@@ -72,11 +72,9 @@ body{
 
 .Search{
     width: 35%;
-    height: 100%;
     background-color: #2686B0;
     box-sizing: content-box;
-    
-    box-shadow: 0px 0px 15px rgba(0, 0, 0, .15);
+    box-shadow: 0px 0px 20px 6px rgba(0, 0, 0, .15);
 }
 
 .Searchtitle{
@@ -216,6 +214,8 @@ body{
 .inputFilters{
     padding-left: 4%;
     width: 35em;
+    padding-right: 4%;
+    height: 100%;
 }
 
 .label_filters{
@@ -324,7 +324,7 @@ body{
 .data_analisis{
     box-sizing: content-box;
     background-color: #FFFFFF;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, .25);
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, .25);
 }
 
 .cartaBanner{
@@ -342,6 +342,12 @@ body{
 .mapa{
     height: 100%;
     width:65%;
+    box-sizing: content-box;
+    box-shadow: 10px 0px 20px 6px rgba(0, 0, 0, .15);
     
-    
+}
+
+.filteredSearch{
+    box-sizing: content-box;
+    border-color: #C8C8C8;
 }

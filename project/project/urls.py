@@ -33,5 +33,6 @@ urlpatterns = [
     path('edit_user<str:id>/', views.editUser, name='editUser'),
     path('delete_user<str:id>/', views.deleteUser, name='deleteUser'),
     path('loadFiles/', views.loadFiles, name='loadFiles'),
-    path('library/', views.library, name='library')
+    path('library/', views.library, name='library'),
+    path('recoverPass/', views.recoverPass, name='recoverPass')
 ]

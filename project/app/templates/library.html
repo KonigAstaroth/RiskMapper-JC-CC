@@ -36,7 +36,7 @@ Bibloteca de datos
             <div class="row">
                 <label  class="label_filters" style="margin-top:1%">Ubicación</label>
                 <div class="col col-sm-2">
-                    <select class="form-select" name="searchBy">
+                    <select class="form-select" name="searchBy" required>
                         <option value="full">Direccion completa</option>
                         <option value="estado">Estado</option>
                         <option value="municipio">Municipio</option>
@@ -45,16 +45,20 @@ Bibloteca de datos
                     
                 </div>
                 <div class="col">
-                    <input class="form-control" type="text" placeholder="Direccion" id="direccion" name="direccion">
-                    
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Direccion" aria-label="Search" name="direccion" required>
+                        <button class="btn btn-primary px-4" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <button type="submit">Buscar</button>
+            
 
         </form>
 </div>
-<div style="margin-left: 10%; margin-right: 10%;">
-    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+<div style="margin-left: 10%; margin-right: 10%; margin-top: 2%;">
+    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
         <table class="table">
             <thead>
                 <tr>
@@ -64,9 +68,10 @@ Bibloteca de datos
                     <th>Municipio</th>
                     <th>Estado</th>
                     <th>Fecha</th>
+                    <th>Hora</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody >
                 {% if eventos %}
                     {% for evento in eventos %}
                         <tr>
@@ -74,8 +79,9 @@ Bibloteca de datos
                             <td>{{ evento.Calle_hechos}}</td>
                             <td>{{ evento.ColoniaHechos}}</td>
                             <td>{{ evento.Municipio_hechos}}</td>
-                            <td>{{ evento.Estado_hechos}}</td>
+                            <td>{{ evento.Estado_hechos}}</td> 
                             <td>{{ evento.FechaHoraHecho| date:"d F Y" }}</td>
+                            <td>{{ evento.FechaHoraHecho| date:"h:i A" }}</td>
                         </tr>
                     {% endfor %}
                 {% else %}
