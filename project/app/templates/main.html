@@ -90,6 +90,9 @@ Inicio
                     <img src="data:image/png;base64,{{ graphic }}" alt="" style="margin-left: 10%;">
                     <br>
                     <h3>DATA:</h3>
+                    <form method="get" action="{% url 'export' %}">
+                        <button type="submit">Descargar analisis</button>
+                    </form>
                 </div>
                 
             </div>

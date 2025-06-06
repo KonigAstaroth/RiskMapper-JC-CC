@@ -24,6 +24,10 @@ from geopy.geocoders import GoogleV3
 from collections import defaultdict
 from django.core.cache import cache
 from .utils import sendEmail
+from docx import Document
+from docx.shared import Inches
+from io import BytesIO
+from django.http import HttpResponse
 
 
 
@@ -234,8 +238,8 @@ def main (request):
      markers_json = mark_safe(json.dumps(list_markers))
 
      #Filtrado de datos
-     graphic = request.session.pop('graphic', None)
-     calendarios = request.session.pop('calendarios', [])
+     graphic = request.session.get('graphic')
+     calendarios = request.session.get('calendarios', [])
      
      
      
@@ -360,7 +364,6 @@ def main (request):
           Municipio = request.session.get('municipio')
           Estado = request.session.get('estado')
           
-          
                
 
      context = {
@@ -376,10 +379,51 @@ def main (request):
           'estado': Estado
      }
 
-          
-               
-          
+    
      return render (request, 'main.html', context)
+
+def exportarDocx(request):
+     graphic = request.session.get('graphic')
+     calendarios = request.session.get('calendarios', [])
+
+     doc = Document()
+     doc.add_heading('Análisis de eventos', level=1)
+     doc.add_paragraph("Parrafo generado por IA")
+
+     for calendario in calendarios:
+          img_base64 = calendario.get('img')
+          if img_base64:
+               if img_base64.startswith('data:image'):
+                    img_base64 = img_base64.split(',')[1]
+               try:
+                    calendario_data = base64.b64decode(img_base64)
+                    calendario_stream = BytesIO(calendario_data)
+                    doc.add_paragraph('Gráfico de distribución por fecha:')
+                    doc.add_picture(calendario_stream, width=Inches(4))  
+               except:
+                    doc.add_paragraph('Error al cargar calendario')
+
+     if graphic :
+          if graphic.startswith('data:image'):
+               graphic = graphic.split(',')[1]
+          try:
+               graphic_data = base64.b64decode(graphic)
+               graphic_stream = BytesIO(graphic_data)
+               doc.add_paragraph('Gráfico de distribución horaria:')
+               doc.add_picture(graphic_stream, width=Inches(4))  
+          except:
+               doc.add_paragraph('Error al agregar calendario')
+
+     response = HttpResponse(
+          content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+     )
+
+     response['Content-Disposition'] = 'attachment; filename ="Analisis_de_eventos.docx"'
+     doc.save(response)
+     request.session.pop('graphic', None)
+     request.session.pop('calendarios', None)
+
+     return response
 
 def generateCalendar( year: int, month: int, days_event: list) -> str:
      cal = calendar.monthcalendar(year, month)
@@ -652,7 +696,35 @@ def loadFiles(request):
 
                 for evento in datos:
                     try:
-                        
+                        if 'latitud'  in df.columns and 'longitud'  in df.columns and evento.get('latitud') != 'NA' and evento.get('longitud') != 'NA':
+                              if 'Municipio_hechos' not in df.columns and 'Estado_hechos' not in df.columns:
+                                   geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
+                                   latitud = evento.get('latitud', '')
+                                   longitud = evento.get('longitud', '')
+                                   location = geolocator.reverse((latitud,longitud))
+                                   municipio_geo, estado_geo = getEstadoMunicipio(location)
+                                   if municipio_geo:
+                                        evento['Municipio_hechos'] = municipio_geo
+                                   if estado_geo:
+                                        evento['Estado_hechos'] = estado_geo
+                              else:
+                                   geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
+                                   calle_dir = evento.get('Calle_hechos')
+                                   col_dir = evento.get('ColoniaHechos')
+                                   if 'Calle_hechos2' in df.columns and evento.get('Calle_hechos2') != 'NA':
+                                        calle_dir_dos = evento.get('Calle_hechos2')
+                                        direccion = f"{calle_dir}, {calle_dir_dos}, {col_dir}"
+                                   else:
+                                        direccion = f"{calle_dir}, {col_dir}"
+               
+                                   location = geolocator.geocode(direccion)
+                                   municipio_geo, estado_geo = getEstadoMunicipio(location)
+
+                                   if municipio_geo:
+                                        evento['Municipio_hechos'] = municipio_geo
+                                   if estado_geo:
+                                        evento['Estado_hechos'] = estado_geo
+
                         delito = evento.get('Delito', '')
                         icono = None
                         if isinstance(delito, str):
@@ -688,6 +760,7 @@ def loadFiles(request):
                             elif 'robo de accesorios de auto' in delito_lower:
                                  icono= 'robovehiculo'
 
+                        
                         evento['icono'] = icono
                         evento['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
                         db.collection('Eventos').add(evento)
@@ -871,6 +944,17 @@ def loadFiles(request):
     success = request.GET.get("success")
     error = request.GET.get("error")
     return render(request, "loadFiles.html", {"error": error, 'success': success, 'usuarios': usuarios, 'priv': priv,})
+
+def getEstadoMunicipio(location):
+     municipio = estado = None
+     if location and location.raw.get('address_components', []):
+          for comp in location.raw['address_components']:
+               tipos = comp['types']
+               if 'locality' in tipos:
+                    municipio = comp['long_name']
+               elif 'administrative_area_level_1' in tipos:
+                    estado = comp['long_name']
+     return municipio, estado
 
 def library(request):
      sessionCookie = request.COOKIES.get('session')
