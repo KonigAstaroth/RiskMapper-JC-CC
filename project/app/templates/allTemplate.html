@@ -122,14 +122,14 @@
                                 </tr>
                             </thead>
                             
-                            <tbody>
-                                {% for usuario in usuarios %}
+                            {% for usuario in usuarios %}
+                            <tbody>  
                                     <td>{{ usuario.name }}</td>
                                     <td>{{ usuario.lastname }}</td>
                                     <td>{{ usuario.lastAccess| date:"d F Y" }}</td>
                                     <td>{{ usuario.lastAccess| date:"h:i A" }}</td>
-                                {% endfor %}
                             </tbody>
+                            {% endfor %}
                             
 
                         </table>

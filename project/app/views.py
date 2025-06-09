@@ -28,6 +28,8 @@ from docx import Document
 from docx.shared import Inches
 from io import BytesIO
 from django.http import HttpResponse
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+
 
 
 
@@ -66,6 +68,8 @@ def login(request):
              
         login = {"email": email, "password": password, "returnSecureToken": True}
         auth_response = requests.post(FIREBASE_AUTH_URL, json=login)
+        print("Login response code:", auth_response.status_code)
+        print("Login response body:", auth_response.text)
         
         if auth_response.status_code == 200:
                 user_data = auth_response.json()
@@ -102,48 +106,69 @@ def login(request):
 def policy (request):
     return render(request, 'policy.html')
 
+def generate_token(email, uid):
+     s = URLSafeTimedSerializer(settings.SECRET_KEY)
+     return s.dumps(email, salt="recover-pass")
+
 def forgotpass (request):
     if request.method == "POST":
           try:
-               email = request.POST.get('email')
-               #user = auth.get_user_by_email(email)
-               #if user:
-               request.session['user_email'] = email
-               sendEmail(email)
-               success_message = "Correo para restablecer contraseña ha sido enviado"
-               return redirect(f"/recoverPass?success={urllib.parse.quote(success_message)}")
-                    
                
-          except:
-               error_message = "No se encuentra al usuario"
+               email = request.POST.get('email')
+               user = auth.get_user_by_email(email)
+               if user:
+                    token = generate_token(email, user.uid)
+                    link = request.build_absolute_uri(f"http://127.0.0.1:8000/recoverPass/{token}/")
+                    sendEmail(email, link)
+                    success_message = "Correo para restablecer contraseña ha sido enviado"
+                    return redirect(f"/forgotPassword?success={urllib.parse.quote(success_message)}")
+                    
+          except Exception as e:
+               error_message = f"{e}"
                return redirect(f"/forgotPassword?error={urllib.parse.quote(error_message)}")
                   
     error = request.GET.get("error")
     success = request.GET.get("success")
     return render(request, 'forgotPass.html', {'error':error, 'success': success})
 
-def recoverPass (request):
-     email = request.session.get('user_email')
-     password = request.POST.get('password')
+def recoverPass (request, token):
+     s = URLSafeTimedSerializer(settings.SECRET_KEY)
+     
+     try:
+          email = s.loads(token, salt="recover-pass", max_age = 900)
+     except SignatureExpired:
+          error_message = "El enlace ha expirado. Solicita uno nuevo."
+          return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}") 
+     except BadSignature:
+          error_message = "El enlace es inválido."
+          return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}") 
+     
+     if not email:
+          return redirect('login')
+     contra = request.POST.get('password')
      repassword = request.POST.get('repassword')
+     
      if request.method == 'POST':
+          
+          print(contra)
+          print(repassword)
+          if not contra or not repassword:
+               error_message = "Faltan campos por llenar"
+               return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}") 
+          if contra != repassword:
+               error_message = "Las contraseñas no coinciden"
+               return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}")  
+          
           try:
-               if email and password and repassword:
-                    if password == repassword:
-                         user = auth.get_user_by_email(email)
-                         auth.update_user(user.uid, password=password)
-                         success_message = "Contraseña actualizada exitosamente!"
-                         return redirect(f"/recoverPass?success={urllib.parse.quote(success_message)}")
-
-                    else:
-                         error_message = "Las contraseñas no coinciden"
-                         return redirect(f"/recoverPass?error={urllib.parse.quote(error_message)}")  
-               else:
-                    error_message = "Faltan campos por llenar"
-                    return redirect(f"/recoverPass?error={urllib.parse.quote(error_message)}") 
+               
+               user = auth.get_user_by_email(email)
+               auth.update_user(user.uid, password=contra)
+               success_message = "Contraseña restablecida"
+               return redirect(f"/recoverPass/{token}?success={urllib.parse.quote(success_message)}")
           except Exception as e:
-               error_message = e
-               return redirect(f"/recoverPass?error={urllib.parse.quote(error_message)}") 
+               error_message = str(e)
+               return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}") 
+          
 
      error = request.GET.get("error")
      success = request.GET.get('success')
