@@ -351,3 +351,10 @@ body{
     box-sizing: content-box;
     border-color: #C8C8C8;
 }
+
+.word_dwnld{
+    display: flex; 
+    flex-direction: row; 
+    justify-content: flex-end;
+    
+}

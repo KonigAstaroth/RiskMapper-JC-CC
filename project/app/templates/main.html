@@ -90,9 +90,17 @@ Inicio
                     <img src="data:image/png;base64,{{ graphic }}" alt="" style="margin-left: 10%;">
                     <br>
                     <h3>DATA:</h3>
-                    <form method="get" action="{% url 'export' %}">
-                        <button type="submit">Descargar analisis</button>
-                    </form>
+                    <hr>
+                    <h3>Rango horario crítico: </h3><span><p>{{ hour_txt }}</p></span>
+                    <h3>Resumen de hechos violentos en el periodo</h3>
+                    <p>Texto por IA</p>
+                    <br>
+                    <div class="word_dwnld">
+                        <form method="get" action="{% url 'export' %}">
+                            <button type="submit" class="send">Descargar analisis</button>
+                        </form>
+                    </div>
+                    
                 </div>
                 
             </div>

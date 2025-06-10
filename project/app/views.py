@@ -25,10 +25,11 @@ from collections import defaultdict
 from django.core.cache import cache
 from .utils import sendEmail
 from docx import Document
-from docx.shared import Inches
+from docx.shared import Inches, Pt
 from io import BytesIO
 from django.http import HttpResponse
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+from collections import Counter
 
 
 
@@ -183,6 +184,51 @@ def time_to_num(time_str):
      except Exception as e:
           print(f"Error al convertir '{time_str}': {e}")
           return None
+     
+def getRange(eventos):
+     horas = []
+
+     for evento in eventos:
+        fecha = evento.get('FechaHoraHecho')
+        if not fecha:
+            print("Evento sin fecha:", evento)
+            continue
+
+        
+        fecha_dt = None
+        if isinstance(fecha, str):
+            try:
+                fecha_dt = datetime.fromisoformat(fecha)
+            except Exception as e:
+                print("Error al convertir string a datetime:", e)
+                continue
+        elif hasattr(fecha, 'to_datetime'):
+            try:
+                fecha_dt = fecha.to_datetime()
+            except Exception as e:
+                print("Error al usar to_datetime():", e)
+                continue
+        elif isinstance(fecha, datetime.datetime):
+            fecha_dt = fecha
+        else:
+            print("Tipo de fecha no reconocido:", type(fecha))
+            continue
+
+        if fecha_dt.tzinfo is not None:
+            fecha_local = dj_timezone.localtime(fecha_dt)
+        else:
+            fecha_local = fecha_dt  
+
+        horas.append(fecha_local.hour)
+     
+     print("Horas extraídas:", horas)
+
+     if not horas:
+        return None, None
+
+     ctr = Counter(horas)
+     hora_critica, cantidad = ctr.most_common(1)[0]
+     return hora_critica, cantidad
 
 def main (request):
      sessionCookie = request.COOKIES.get('session')
@@ -266,10 +312,11 @@ def main (request):
      graphic = request.session.get('graphic')
      calendarios = request.session.get('calendarios', [])
      
-     
+     hour_txt = None
      
      if request.method == 'POST' and 'buscar' in request.POST :
           filters = {}
+          
           
           
           calle = request.POST.get('calle')
@@ -310,20 +357,30 @@ def main (request):
                          if isinstance(valor, str):
                               valor = valor.strip() 
                          query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-          resultados = query_ref.stream()
+          resultados = list(query_ref.stream())
 
-          
+          eventos_lista=[doc.to_dict() for doc in resultados]
+
+          hora_critica, cantidad = getRange(eventos_lista)
+          print("Eventos que se pasan a getRange:")
+          for e in eventos_lista[:5]:  # Solo muestro los primeros 5 para no saturar
+               print(e.get('FechaHoraHecho'))
+
+          if hora_critica is not None:
+               hour_txt = f"{hora_critica}:00 a {hora_critica+1}:00, contiene una cantidad de {cantidad} de eventos"
+          else:
+               hour_txt = "No hay eventos para calcular rango horario crítico."
 
           eventos_por_mes = defaultdict(list)
           
           angulos =[]
           radios= []
-          
+
          
-          for  doc in resultados:
-               eventos = doc.to_dict()
+          for  eventos in eventos_lista:
                date_obj = eventos.get('FechaHoraHecho')
                fecha = date_obj
+
 
                if isinstance(fecha,str):
                     fecha = datetime.fromisoformat(fecha)
@@ -333,6 +390,8 @@ def main (request):
                year = fecha.year
                month = fecha.month
                day = fecha.day
+               
+               
 
                eventos_por_mes[(year, month)].append(day)
                
@@ -348,8 +407,6 @@ def main (request):
                          dia = hora_local.day
                          radios.append(dia)
                     
-
-          
           for (year, month),day in eventos_por_mes.items():
                     imagen_base64  = generateCalendar(year, month, day)
                     if imagen_base64:
@@ -384,10 +441,21 @@ def main (request):
           request.session['calendarios'] = calendarios
           request.session['estado'] = Estado
           request.session['municipio'] = Municipio
+          request.session['hour_txt'] = hour_txt
+          request.session['desde_busqueda'] = True
           return redirect('main') 
      else:
           Municipio = request.session.get('municipio')
           Estado = request.session.get('estado')
+
+          if request.session.pop('desde_busqueda', False) is not True:
+               request.session.pop('graphic', None)
+               request.session.pop('calendarios', None)
+               request.session.pop('municipio', None)
+               request.session.pop('estado', None)
+               request.session.pop('hour_txt', None)
+
+          
           
                
 
@@ -401,7 +469,9 @@ def main (request):
           'calendarios': calendarios,
           'timestamp': int(time()),
           'municipio': Municipio,
-          'estado': Estado
+          'estado': Estado,
+          'hour_txt': hour_txt
+          
      }
 
     
@@ -410,9 +480,11 @@ def main (request):
 def exportarDocx(request):
      graphic = request.session.get('graphic')
      calendarios = request.session.get('calendarios', [])
+     horas = request.session.get('hour_txt')
 
      doc = Document()
-     doc.add_heading('Análisis de eventos', level=1)
+     
+     doc.add_heading('Análisis de eventos', 0)
      doc.add_paragraph("Parrafo generado por IA")
 
      for calendario in calendarios:
@@ -423,8 +495,8 @@ def exportarDocx(request):
                try:
                     calendario_data = base64.b64decode(img_base64)
                     calendario_stream = BytesIO(calendario_data)
-                    doc.add_paragraph('Gráfico de distribución por fecha:')
-                    doc.add_picture(calendario_stream, width=Inches(4))  
+                    doc.add_heading('Gráfico de distribución por fecha:', level= 2)
+                    doc.add_picture(calendario_stream, width=Inches(2))  
                except:
                     doc.add_paragraph('Error al cargar calendario')
 
@@ -434,10 +506,15 @@ def exportarDocx(request):
           try:
                graphic_data = base64.b64decode(graphic)
                graphic_stream = BytesIO(graphic_data)
-               doc.add_paragraph('Gráfico de distribución horaria:')
+               doc.add_heading('Gráfico de distribución horaria:', level= 2)
                doc.add_picture(graphic_stream, width=Inches(4))  
           except:
                doc.add_paragraph('Error al agregar calendario')
+     if horas:
+          try:
+               doc.add_paragraph( horas)
+          except:
+               doc.add_paragraph("No hay rango horario crítico")
 
      response = HttpResponse(
           content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -447,6 +524,7 @@ def exportarDocx(request):
      doc.save(response)
      request.session.pop('graphic', None)
      request.session.pop('calendarios', None)
+     request.session.pop('hour_txt', None)
 
      return response
 
