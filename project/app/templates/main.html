@@ -187,9 +187,11 @@ Inicio
 
                                 marker.addListener('gmp-click', () => {
                                     infoWindow.setContent(`
-                            <h6>${marcador.Categoria || 'Sin categoría'}</h6>
-                            <br> Delito: ${marcador.delito || 'Desconocido'}
-                            <br> Fecha: ${marcador.fecha || 'No disponible'}
+                            <h4> Categoria: ${marcador.Categoria || 'Sin categoría'}</h4>
+                            <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'} </p>
+                            <p> <b>Colonia:</b> ${marcador.colonia || 'Desconocido'}</p>
+                            <p> <b>Delito:</b> ${marcador.delito || 'Desconocido'}</p>
+                            <p> <b>Fecha:</b> ${marcador.fecha || 'No disponible'}</p>
                         `);
                                     infoWindow.setPosition(latlng);
                                     infoWindow.open(map);
@@ -214,9 +216,11 @@ Inicio
 
                         marker.addListener('gmp-click', () => {
                             infoWindow.setContent(`
-                    <h6>${marcador.Categoria || 'Sin categoría'}</h6>
-                    <br> Delito: ${marcador.delito || 'Desconocido'}
-                    <br> Fecha: ${marcador.fecha || 'No disponible'}
+                            <h4> Categoria: ${marcador.Categoria || 'Sin categoría'}</h4>
+                            <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'} </p>
+                            <p> <b>Colonia:</b> ${marcador.colonia || 'Desconocido'}</p>
+                            <p> <b>Delito:</b> ${marcador.delito || 'Desconocido'}</p>
+                            <p> <b>Fecha:</b> ${marcador.fecha || 'No disponible'}</p>
                 `);
                             infoWindow.setPosition(position);
                             infoWindow.open(map);

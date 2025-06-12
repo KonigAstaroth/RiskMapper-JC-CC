@@ -69,8 +69,6 @@ def login(request):
              
         login = {"email": email, "password": password, "returnSecureToken": True}
         auth_response = requests.post(FIREBASE_AUTH_URL, json=login)
-        print("Login response code:", auth_response.status_code)
-        print("Login response body:", auth_response.text)
         
         if auth_response.status_code == 200:
                 user_data = auth_response.json()
@@ -96,8 +94,7 @@ def login(request):
                     
                     return response_redirect
                 except Exception as e:
-                    print(e)
-                    messages.error(request, "Error al crear la cookie de sesión:", {e})
+                    messages.error(request, "Error al crear la cookie de sesión:", str(e))
                     return redirect('/')
         else:
              messages.error(request, "Correo o contraseña incorrectos") 
@@ -151,8 +148,6 @@ def recoverPass (request, token):
      
      if request.method == 'POST':
           
-          print(contra)
-          print(repassword)
           if not contra or not repassword:
                error_message = "Faltan campos por llenar"
                return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}") 
@@ -221,7 +216,6 @@ def getRange(eventos):
 
         horas.append(fecha_local.hour)
      
-     print("Horas extraídas:", horas)
 
      if not horas:
         return None, None
@@ -362,9 +356,6 @@ def main (request):
           eventos_lista=[doc.to_dict() for doc in resultados]
 
           hora_critica, cantidad = getRange(eventos_lista)
-          print("Eventos que se pasan a getRange:")
-          for e in eventos_lista[:5]:  # Solo muestro los primeros 5 para no saturar
-               print(e.get('FechaHoraHecho'))
 
           if hora_critica is not None:
                hour_txt = f"{hora_critica}:00 a {hora_critica+1}:00, contiene una cantidad de {cantidad} de eventos"
@@ -951,6 +942,11 @@ def loadFiles(request):
                       return render(request, 'loadFiles.HTML', {
                            'error': f'Error al convertir la fecha: {e}'
                       })
+                 if dt:
+                    year = dt.year
+                    month = dt.month
+                    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                    mes = meses[month-1]
                       
                            
           
@@ -994,7 +990,11 @@ def loadFiles(request):
                               "Categoria": categoria,
                               "latitud": lat,
                               "longitud": lng,
-                              'updatedAt': now
+                              'updatedAt': now,
+                              'Ano_hecho': year,
+                              'Ano_inicio': year,
+                              'Mes_hecho': mes,
+                              'Mes_inicio': mes
                               })
                     if (( calle and colonia and  estado and  municipio) and (not lat and not lng)):
                          direccion=f"{calle}, {colonia}, {estado}, {municipio}"
@@ -1015,7 +1015,11 @@ def loadFiles(request):
                                "Categoria": categoria,
                                "latitud": lat_geo,
                                "longitud": lng_geo,
-                               'updatedAt': now
+                               'updatedAt': now,
+                               'Ano_hecho': year,
+                               'Ano_inicio': year,
+                               'Mes_hecho': mes,
+                               'Mes_inicio': mes
                                })
                          
 
@@ -1033,7 +1037,11 @@ def loadFiles(request):
                               "Categoria": categoria,
                               "latitud": lat,
                               "longitud": lng,
-                              'updatedAt': now
+                              'updatedAt': now,
+                              'Ano_hecho': year,
+                              'Ano_inicio': year,
+                              'Mes_hecho': mes,
+                              'Mes_inicio': mes
                               })
                     success_message = "Datos agregados exitosamente"
                     return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
