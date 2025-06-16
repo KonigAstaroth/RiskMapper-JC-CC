@@ -4,9 +4,12 @@ from email.mime.image import MIMEImage
 import os
 
 
+
+
 def sendEmail(email, link):
-    sender = 'roboed3dguillermo@gmail.com'
-    sender_pass = 'qqwypqyqgudgecah'
+    
+    sender = settings.SENDER_EMAIL
+    sender_pass = settings.SENDER_PASSWORD
     receiver = email
     subject = "Restablecer contraseña"
     body = """Para restablecer su contraseña, haga click en el siguiente link: http://127.0.0.1:8000/recoverPass/"""

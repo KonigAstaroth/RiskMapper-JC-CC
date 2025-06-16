@@ -30,6 +30,7 @@ from io import BytesIO
 from django.http import HttpResponse
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from collections import Counter
+from openai import OpenAI
 
 
 
@@ -467,6 +468,15 @@ def main (request):
 
     
      return render (request, 'main.html', context)
+
+def genAI(content):
+     client = OpenAI(api_key=settings.OPENAI_API_KEY)
+     completion =client.chat.completions.create(
+          model='gpt-4.1-mini',
+          store = True,
+          messages=[{'role': 'user', 'content': content}]
+     )
+     return str(completion.choices[0].message)
 
 def exportarDocx(request):
      graphic = request.session.get('graphic')
