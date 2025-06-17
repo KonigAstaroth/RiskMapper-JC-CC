@@ -73,7 +73,7 @@ Inicio
     
 </div>
 
-    {% if graphic and calendarios and AiText%}
+    {% if graphic and calendarios %}
         <div class="carta">
             <h2 class="analisis">ANALISIS DE PATRONES  </h2>
             <div class="data_analisis">
@@ -123,6 +123,7 @@ Inicio
         {{ map_config_json|safe }}
     </script>
 
+
     <script  src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=marker" async defer></script>
 
     <script>
@@ -143,6 +144,12 @@ Inicio
                 bajoimpacto: "{% static 'mapIcons/esposas.png' %}",
                 robovehiculo: "{% static 'mapIcons/robovehiculo.png' %}",
                 armafuego: "{% static 'mapIcons/pistol.png' %}",
+                robotransportista: "{% static 'mapIcons/robotransportista.png' %}",
+                robotaxi: "{% static 'mapIcons/robotaxi.png' %}",
+                roborepartidor: "{% static 'mapIcons/roborepartidor.png' %}",
+                robomicrobus: "{% static 'mapIcons/robomicrobus.png' %}",
+                robometro: "{% static 'mapIcons/robometro.png' %}",
+                nodelito: "{% static 'mapIcons/nodelito.png' %}",
             }
 
             
@@ -151,13 +158,15 @@ Inicio
                 const { AdvancedMarkerElement, CollisionBehavior } = await google.maps.importLibrary('marker');
 
                 const marcadores = JSON.parse(document.getElementById('marcadores-json').textContent);
-                const config = JSON.parse(document.getElementById('map_config_json').textContent)
+                const config = JSON.parse(document.getElementById('map_config_json').textContent);
 
                 const map = new google.maps.Map(document.getElementById("mapa"), {
                     zoom: config.zoom || 6,
                     center: config.center || { lat: 19.42847, lng: -99.12766 },
                     mapId: "mapa"
                 });
+
+                console.log("Config", config)
 
                 const infoWindow = new google.maps.InfoWindow();
                 const geocoder = new google.maps.Geocoder();

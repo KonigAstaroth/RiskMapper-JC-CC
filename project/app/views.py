@@ -307,13 +307,29 @@ def main (request):
      graphic = request.session.get('graphic')
      calendarios = request.session.get('calendarios', [])
      
-     hour_txt = None
-     AiText = None
-     
+     hour_txt = request.session.get('hour_txt', None)
+     #AiText = request.session.get('AiText', None)
+     if request.method != 'POST':
+          request.session.pop('graphic', None)
+          request.session.pop('calendarios', None)
+          request.session.pop('municipio', None)
+          request.session.pop('estado', None)
+          request.session.pop('hour_txt', None)
+          #request.session.pop('AiText', None)
+          map_config = request.session.pop('map_config', {
+               'center': {'lat': 19.42847, 'lng': -99.12766},
+               'zoom': 6
+               })
+     else:
+          map_config = None 
+
+
      if request.method == 'POST' and 'buscar' in request.POST :
           filters = {}
           filtersAi = {}
           direccion = ""
+          graphic = None
+          calendarios = []
           
           
           calle = request.POST.get('calle')
@@ -327,9 +343,6 @@ def main (request):
           lat = request.POST.get('lat')
           lng = request.POST.get('lng')
 
-
-          
-          
 
           if calle:
                filters['Calle_hechos'] = calle
@@ -361,6 +374,7 @@ def main (request):
                     },
                     'zoom': 14 if lat and lng else 6
                }
+          
  
           if startDate_str and endDate_str:
                startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -382,7 +396,10 @@ def main (request):
                          if isinstance(valor, str):
                               valor = valor.strip() 
                          query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-               AiText = genAI(filtersAi, str_startDate,str_endDate)
+               #if str_startDate and str_endDate:
+                    #AiText = genAI(filtersAi, str_startDate,str_endDate)
+               #elif str_startDate is None and str_endDate is None:
+                    #AiText = genAINoDate(filtersAi)
           resultados = list(query_ref.stream())
 
           eventos_lista=[doc.to_dict() for doc in resultados]
@@ -398,6 +415,8 @@ def main (request):
           
           angulos =[]
           radios= []
+
+          print(eventos_lista)
 
          
           for  eventos in eventos_lista:
@@ -466,22 +485,13 @@ def main (request):
           request.session['municipio'] = Municipio
           request.session['hour_txt'] = hour_txt
           request.session['desde_busqueda'] = True
-          request.session['AiText'] = AiText
+          #request.session['AiText'] = AiText
+          request.session['map_config'] = map_config
           return redirect('main') 
      else:
           Municipio = request.session.get('municipio')
           Estado = request.session.get('estado')
 
-          if request.session.pop('desde_busqueda', False) is not True:
-               request.session.pop('graphic', None)
-               request.session.pop('calendarios', None)
-               request.session.pop('municipio', None)
-               request.session.pop('estado', None)
-               request.session.pop('hour_txt', None)
-               request.session.pop('AiText', None)
-
-          
-          
                
 
      context = {
@@ -496,7 +506,7 @@ def main (request):
           'municipio': Municipio,
           'estado': Estado,
           'hour_txt': hour_txt,
-          'AiText': AiText,
+          #'AiText': AiText,
           'map_config_json': json.dumps(map_config)
           
      }
@@ -515,7 +525,7 @@ def getLatLng(direccion):
                lat = None
                lng = None
           map_config = {
-               'center' : {'lat': float(lat) if lat is not None else 19.42847, 
+               'center': {'lat': float(lat) if lat is not None else 19.42847, 
                          'lng': float(lng) if lng is not None else -99.12766
                },
                'zoom': 14 if lat and lng else 6
@@ -534,6 +544,16 @@ def genAI(filters,start,end):
      client = OpenAI(api_key=settings.OPENAI_API_KEY)
      lugar = ', '.join(f"{k}:{v}" for k,v in filters.items())
      content= f"Genera un reporte sobre la situacion delictiva en {lugar} con rango de fechas: {start} al {end}"
+     completion =client.chat.completions.create(
+          model='gpt-4.1-mini',
+          store = True,
+          messages=[{'role': 'user', 'content': content}]
+     )
+     return str(completion.choices[0].message)
+def genAINoDate(filters):
+     client = OpenAI(api_key=settings.OPENAI_API_KEY)
+     lugar = ', '.join(f"{k}:{v}" for k,v in filters.items())
+     content= f"Genera un reporte sobre la situacion delictiva en {lugar} actual con registros historicos"
      completion =client.chat.completions.create(
           model='gpt-4.1-mini',
           store = True,
@@ -899,40 +919,56 @@ def loadFiles(request):
                                    if estado_geo:
                                         evento['Estado_hechos'] = estado_geo
 
-                        delito = evento.get('Delito', '')
+                        categoria = evento.get('Categoria', '')
                         icono = None
-                        if isinstance(delito, str):
-                            delito_lower = delito.lower()
-                            if 'amenazas' in delito_lower:
+                        if isinstance(categoria, str):
+                            categoria_lower = categoria.lower()
+                            if 'amenazas' in categoria_lower:
                                 icono = 'amenazas'
-                            elif 'robo a negocio' in delito_lower:
+                            elif 'robo a negocio' in categoria_lower:
                                 icono = 'robonegocio'
-                            elif 'homicidio doloso' in delito_lower:
+                            elif 'homicidio doloso' in categoria_lower:
                                  icono = 'homicidiodoloso'
-                            elif 'feminicidio' in delito_lower:
+                            elif 'feminicidio' in categoria_lower:
                                  icono = 'feminicidio'
-                            elif 'secuestro' in delito_lower:
+                            elif 'secuestro' in categoria_lower:
                                  icono = 'secuestro'
-                            elif 'trata de personas' in delito_lower:
+                            elif 'trata de personas' in categoria_lower:
                                  icono = 'tratapersonas'
-                            elif 'robo a transeunte' in delito_lower:
+                            elif 'robo a transeúnte' in categoria_lower:
                                  icono = 'robotranseunte'
-                            elif 'extorsión' in delito_lower:
+                            elif 'extorsión' in categoria_lower:
                                  icono = 'extorsion'
-                            elif 'robo a casa habitación' in delito_lower:
+                            elif 'robo a casa habitación' in categoria_lower:
                                  icono = 'robocasa'
-                            elif 'violación' in delito_lower:
+                            elif 'violación' in categoria_lower:
                                  icono = 'violacion'
-                            elif 'narcomenudeo' in delito_lower:
+                            elif 'narcomenudeo' in categoria_lower:
                                  icono = 'narcomenudeo'
-                            elif 'delito de bajo impacto' in delito_lower:
+                            elif 'categoria de bajo impacto' in categoria_lower or 'delito de bajo impacto' in categoria_lower:
                                  icono = "bajoimpacto"
-                            elif 'arma de fuego' in delito_lower:
+                            elif 'arma de fuego' in categoria_lower:
                                  icono = 'armafuego'
-                            elif 'robo de vehiculo' in delito_lower:
-                                 icono = 'robovehiculo'
-                            elif 'robo de accesorios de auto' in delito_lower:
+                            elif 'robo de accesorios de auto' in categoria_lower:
                                  icono= 'robovehiculo'
+                            elif 'robo a cuentahabiente saliendo del cajero con violencia' in categoria_lower:
+                                   icono = 'robocuentahabiente'
+                            elif 'robo de vehículo' in categoria_lower:
+                                   icono = 'robovehiculo'
+                            elif 'robo a pasajero a bordo de microbus' in categoria_lower:
+                                   icono = 'robomicrobus'
+                            elif 'robo a repartidor' in categoria_lower:
+                                   icono = 'roborepartidor'
+                            elif 'robo a pasajero a bordo del metro' in categoria_lower:
+                                   icono = 'robometro'
+                            elif 'lesiones dolosas por disparo de arma de fuego' in categoria_lower:
+                                   icono = 'armafuego'
+                            elif 'hecho no delictivo' in categoria_lower:
+                                   icono = 'nodelito'
+                            elif 'robo a pasajero a bordo de taxi con violencia' in categoria_lower:
+                                   icono = 'robotaxi'
+                            elif 'robo a transportista' in categoria_lower:
+                                   icono = 'robotransportista'
 
                         
                         evento['icono'] = icono
@@ -973,35 +1009,51 @@ def loadFiles(request):
             try:
                 icono = None
                 if 'amenazas' in crime:
-                    icono = 'amenazas'
+                         icono = 'amenazas'
                 elif 'robo a negocio' in crime:
-                    icono = 'robonegocio'
+                         icono = 'robonegocio'
                 elif 'homicidio doloso' in crime:
-                        icono = 'homicidiodoloso'
+                         icono = 'homicidiodoloso'
                 elif 'feminicidio' in crime:
-                        icono = 'feminicidio'
+                         icono = 'feminicidio'
                 elif 'secuestro' in crime:
-                        icono = 'secuestro'
+                         icono = 'secuestro'
                 elif 'trata de personas' in crime:
-                        icono = 'tratapersonas'
-                elif 'robo a transeunte' in crime:
-                        icono = 'robotranseunte'
-                elif 'extorsion' in crime:
-                        icono = 'extorsion'
-                elif 'robo a casa habitacion' in crime:
-                        icono = 'robocasa'
-                elif 'violacion' in crime:
-                        icono = 'violacion'
+                         icono = 'tratapersonas'
+                elif 'robo a transeúnte' in crime:
+                         icono = 'robotranseunte'
+                elif 'extorsión' in crime:
+                         icono = 'extorsion'
+                elif 'robo a casa habitación' in crime:
+                         icono = 'robocasa'
+                elif 'violación' in crime:
+                         icono = 'violacion'
                 elif 'narcomenudeo' in crime:
-                        icono = 'narcomenudeo'
-                elif 'delito de bajo impacto' in crime:
-                        icono = "bajoimpacto"
+                         icono = 'narcomenudeo'
+                elif 'categoria de bajo impacto' in crime or 'delito de bajo impacto' in crime:
+                         icono = "bajoimpacto"
                 elif 'arma de fuego' in crime:
-                        icono = 'armafuego'
-                elif 'robo de vehiculo' in crime:
-                        icono = 'robovehiculo'
+                         icono = 'armafuego'
                 elif 'robo de accesorios de auto' in crime:
-                        icono= 'robovehiculo'
+                         icono= 'robovehiculo'
+                elif 'robo a cuentahabiente saliendo del cajero con violencia' in crime:
+                         icono = 'robocuentahabiente'
+                elif 'robo de vehículo' in crime:
+                         icono = 'robovehiculo'
+                elif 'robo a pasajero a bordo de microbus' in crime:
+                         icono = 'robomicrobus'
+                elif 'robo a repartidor' in crime:
+                         icono = 'roborepartidor'
+                elif 'robo a pasajero a bordo del metro' in crime:
+                         icono = 'robometro'
+                elif 'lesiones dolosas por disparo de arma de fuego' in crime:
+                         icono = 'armafuego'
+                elif 'hecho no delictivo' in crime:
+                         icono = 'nodelito'
+                elif 'robo a pasajero a bordo de taxi con violencia' in crime:
+                         icono = 'robotaxi'
+                elif 'robo a transportista' in crime:
+                         icono = 'robotransportista'
                 
                       
             except Exception as e:
@@ -1017,16 +1069,17 @@ def loadFiles(request):
                         dt=datetime.datetime.strptime(fechaValue, "%Y-%m-%d %H:%M:%S")
 
                     timestamp = dj_timezone.make_aware(dt)
+                    if dt:
+                         year = dt.year
+                         month = dt.month
+                         meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+                         mes = meses[month-1]
                         
                  except Exception as e:
                       return render(request, 'loadFiles.HTML', {
                            'error': f'Error al convertir la fecha: {e}'
                       })
-                 if dt:
-                    year = dt.year
-                    month = dt.month
-                    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-                    mes = meses[month-1]
+                 
                       
                            
           
