@@ -308,10 +308,12 @@ def main (request):
      calendarios = request.session.get('calendarios', [])
      
      hour_txt = None
+     AiText = None
      
      if request.method == 'POST' and 'buscar' in request.POST :
           filters = {}
-          
+          filtersAi = {}
+          direccion = ""
           
           
           calle = request.POST.get('calle')
@@ -322,21 +324,49 @@ def main (request):
           endDate_str = request.POST.get('endDate')
           Municipio = request.POST.get('municipio')
           Estado = request.POST.get('estado')
+          lat = request.POST.get('lat')
+          lng = request.POST.get('lng')
+
+
           
           
 
           if calle:
                filters['Calle_hechos'] = calle
+               filtersAi['Calle'] = calle
+               direccion += calle+ ', '
           if colonia:
                filters['ColoniaHechos'] = colonia
+               filtersAi['Colonia']= colonia
+               direccion += colonia + ', '
           if municipio:
                filters['Municipio_hechos'] = municipio
+               filtersAi['Municipios'] = municipio
+               direccion += municipio + ', '
           if estado:
                filters['Estado_hechos'] = estado
+               filtersAi['Estado'] = estado
+               direccion += estado + ', '
+          if lat:
+               filters['latitud'] = lat
+          if lng:
+               filters['longitud'] =lng
+
+          if not lat and not lng:
+               map_config = getLatLng(direccion)
+          else:
+               map_config = {
+                    'center' : {'lat': float(lat) if lat is not None else 19.42847, 
+                              'lng': float(lng) if lng is not None else -99.12766
+                    },
+                    'zoom': 14 if lat and lng else 6
+               }
  
           if startDate_str and endDate_str:
                startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
+               str_startDate = startDate.strftime("%Y-%m-%d")
+               str_endDate = endDate.strftime("%Y-%m-%d")
                filters['startDate']=startDate
                filters['endDate']=endDate
           
@@ -352,6 +382,7 @@ def main (request):
                          if isinstance(valor, str):
                               valor = valor.strip() 
                          query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
+               AiText = genAI(filtersAi, str_startDate,str_endDate)
           resultados = list(query_ref.stream())
 
           eventos_lista=[doc.to_dict() for doc in resultados]
@@ -435,6 +466,7 @@ def main (request):
           request.session['municipio'] = Municipio
           request.session['hour_txt'] = hour_txt
           request.session['desde_busqueda'] = True
+          request.session['AiText'] = AiText
           return redirect('main') 
      else:
           Municipio = request.session.get('municipio')
@@ -446,6 +478,7 @@ def main (request):
                request.session.pop('municipio', None)
                request.session.pop('estado', None)
                request.session.pop('hour_txt', None)
+               request.session.pop('AiText', None)
 
           
           
@@ -462,15 +495,45 @@ def main (request):
           'timestamp': int(time()),
           'municipio': Municipio,
           'estado': Estado,
-          'hour_txt': hour_txt
+          'hour_txt': hour_txt,
+          'AiText': AiText,
+          'map_config_json': json.dumps(map_config)
           
      }
 
     
      return render (request, 'main.html', context)
 
-def genAI(content):
+def getLatLng(direccion):
+     try:
+          geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
+          location = geolocator.geocode(direccion)
+          if location:
+               lat = location.latitude
+               lng = location.longitude
+          else:
+               lat = None
+               lng = None
+          map_config = {
+               'center' : {'lat': float(lat) if lat is not None else 19.42847, 
+                         'lng': float(lng) if lng is not None else -99.12766
+               },
+               'zoom': 14 if lat and lng else 6
+          }
+          return map_config
+     except Exception as e:
+          print(str(e))
+          return {
+            'center': {'lat': 19.42847, 'lng': -99.12766},
+            'zoom': 6
+        }
+
+     
+
+def genAI(filters,start,end):
      client = OpenAI(api_key=settings.OPENAI_API_KEY)
+     lugar = ', '.join(f"{k}:{v}" for k,v in filters.items())
+     content= f"Genera un reporte sobre la situacion delictiva en {lugar} con rango de fechas: {start} al {end}"
      completion =client.chat.completions.create(
           model='gpt-4.1-mini',
           store = True,
@@ -482,11 +545,16 @@ def exportarDocx(request):
      graphic = request.session.get('graphic')
      calendarios = request.session.get('calendarios', [])
      horas = request.session.get('hour_txt')
+     AiText = request.session.get('AiText')
 
      doc = Document()
      
      doc.add_heading('Análisis de eventos', 0)
-     doc.add_paragraph("Parrafo generado por IA")
+     if AiText:
+          try:
+               doc.add_paragraph(AiText)
+          except:
+               doc.add_paragraph('No hay texto generado por IA')
 
      for calendario in calendarios:
           img_base64 = calendario.get('img')
@@ -516,6 +584,7 @@ def exportarDocx(request):
                doc.add_paragraph( horas)
           except:
                doc.add_paragraph("No hay rango horario crítico")
+     
 
      response = HttpResponse(
           content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -526,6 +595,7 @@ def exportarDocx(request):
      request.session.pop('graphic', None)
      request.session.pop('calendarios', None)
      request.session.pop('hour_txt', None)
+     request.session.pop('AiText', None)
 
      return response
 

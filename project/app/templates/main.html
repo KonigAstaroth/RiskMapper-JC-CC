@@ -73,7 +73,7 @@ Inicio
     
 </div>
 
-    {% if graphic and calendarios %}
+    {% if graphic and calendarios and AiText%}
         <div class="carta">
             <h2 class="analisis">ANALISIS DE PATRONES  </h2>
             <div class="data_analisis">
@@ -93,7 +93,7 @@ Inicio
                     <hr>
                     <h3>Rango horario crítico: </h3><span><p>{{ hour_txt }}</p></span>
                     <h3>Resumen de hechos violentos en el periodo</h3>
-                    <p>Texto por IA</p>
+                    <p>{{ AiText }}</p>
                     <br>
                     <div class="word_dwnld">
                         <form method="get" action="{% url 'export' %}">
@@ -118,6 +118,11 @@ Inicio
     <script id="marcadores-json" type="application/json">
         {{ markers|safe }}
     </script>
+
+    <script id="map_config_json" type="application/json">
+        {{ map_config_json|safe }}
+    </script>
+
     <script  src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=marker" async defer></script>
 
     <script>
@@ -146,10 +151,11 @@ Inicio
                 const { AdvancedMarkerElement, CollisionBehavior } = await google.maps.importLibrary('marker');
 
                 const marcadores = JSON.parse(document.getElementById('marcadores-json').textContent);
+                const config = JSON.parse(document.getElementById('map_config_json').textContent)
 
                 const map = new google.maps.Map(document.getElementById("mapa"), {
-                    zoom: 6,
-                    center: { lat: 19.42847, lng: -99.12766 },
+                    zoom: config.zoom || 6,
+                    center: config.center || { lat: 19.42847, lng: -99.12766 },
                     mapId: "mapa"
                 });
 
