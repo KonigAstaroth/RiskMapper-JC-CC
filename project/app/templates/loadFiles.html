@@ -57,27 +57,36 @@ Carga de datos
 
             <div class="row" style="margin-top: 1%;">
                 <div class="col">
-                    <label class="labels">Tipo de evento</label>
-                        <input type="text" class="form-control" id="evento" placeholder="Escriba un tipo de evento" name="evento" maxlength="30">
+                    <label class="labels">Delito</label>
+                        <input type="text" class="form-control" id="crime" placeholder="Escriba un tipo de delito" name="crime" maxlength="30">
                 </div>
                 <div class="col">
-                    <label class="labels">Tipo de delito</label>
-                        <select class="form-select" name="crime" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
-                            <option selected class="options">Selecciona un tipo de delito</option>
-                            <option value="Homicidio doloso" class="options">Homicidio</option>
-                            <option value="Feminicidio" class="options">Feminicidio</option>
-                            <option value="Secuestro" class="options">Secuestro</option>
-                            <option value="Trata de personas" class="options">Trata de personas</option>
-                            <option value="Robo a transeúnte" class="options">Robo a transeúnte</option>
-                            <option value="Robo a negocio" class="options">Robo a negocio</option>
-                            <option value="Extorsión" class="options">Extorsión</option>
-                            <option value="Robo de vehículo" class="options">Robo de vehículo</option>
-                            <option value="Robo a casa habitación" class="options">Robo a casa habitación</option>
-                            <option value="Violación" class="options">Violación</option>
-                            <option value="Narcomenudeo" class="options">Narcomenudeo</option>
-                            <option value="Amenazas" class="options">Amenazas</option>
-                            <option value="DelitoBajoImpacto" class="options">Delito de bajo impacto</option>
-                            <option value="DelitoBajoImpacto" class="options">Robo a transeunte</option>
+                    <label class="labels">Categoria del delito</label>
+                        <select class="form-select" name="categ" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
+                            <option selected class="options">Selecciona una categoria de delito</option>
+                            <option value="amenazas" class="options">Amenazas</option>
+                            <option value="robo a negocio" class="options">Robo a negocio</option>
+                            <option value="homicidio doloso" class="options">Homicidio doloso</option>
+                            <option value="feminicidio" class="options">Feminicidio</option>
+                            <option value="secuestro" class="options">Secuestro</option>
+                            <option value="trata de personas" class="options">Trata de personas</option>
+                            <option value="robo a transeúnte" class="options">Robo a transeúnte</option>
+                            <option value="extorsión" class="options">Extorsión</option>
+                            <option value="robo a casa habitación" class="options">Robo a casa habitación</option>
+                            <option value="violación" class="options">Violación</option>
+                            <option value="narcomenudeo" class="options">Narcomenudeo</option>
+                            <option value="categoria de bajo impacto" class="options">Delito de bajo impacto</option>
+                            <option value="arma de fuego" class="options">Lesión con arma de fuego</option>
+                            <option value="robo de accesorios de auto" class="options">Robo de accesorios de auto</option>
+                            <option value="robo a cuentahabiente saliendo del cajero con violencia" class="options">Robo a cuentahabiente</option>
+                            <option value="robo de vehículo" class="options">Robo de vehículo</option>
+                            <option value="robo a pasajero a bordo de microbus" class="options">Robo en microbús</option>
+                            <option value="robo a repartidor" class="options">Robo a repartidor</option>
+                            <option value="robo a pasajero a bordo del metro" class="options">Robo en metro</option>
+                            <option value="lesiones dolosas por disparo de arma de fuego" class="options">Lesiones por arma de fuego</option>
+                            <option value="hecho no delictivo" class="options">Hecho no delictivo</option>
+                            <option value="robo a pasajero a bordo de taxi con violencia" class="options">Robo en taxi</option>
+                            <option value="robo a transportista" class="options">Robo a transportista</option>
                             
                         </select>
                 </div>
@@ -85,40 +94,43 @@ Carga de datos
             <br>
             <div class="row">
                 <div class="col">
-                     <label class="labels">Categoría</label>
-                    <input type="text" class="form-control" id="categ" placeholder="Escriba la categoría" name="categ" maxlength="50">
-                </div>
-                <div class="col">
                      <label class="labels">Seleccione un icono</label>
-                        <select class="form-select" name="crime" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
-                            
+                        <select class="form-select" name="icons" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
                             <!----->
+                            <option selected class="options">Selecciona un icono</option>
+                            <option value="amenazas" class="options">Amenazas</option>
+                            <option value="robo a negocio" class="options">Robo a negocio</option>
                             <option value="homicidio doloso" class="options">Homicidio doloso</option>
                             <option value="feminicidio" class="options">Feminicidio</option>
                             <option value="secuestro" class="options">Secuestro</option>
                             <option value="trata de personas" class="options">Trata de personas</option>
-                            <option value="robo a transeunte" class="options">Robo a transeúnte</option>
-                            <option value="robo a negocio" class="options">Robo a negocio</option>
-                            <option value="extorsion" class="options">Extorsión</option>
-                            <option value="robo de vehiculo" class="options">Robo de vehículo</option>
-                            <option value="robo a casa habitacion" class="options">Robo a casa habitación</option>
-                            <option value="violacion" class="options">Violación</option>
+                            <option value="robo a transeúnte" class="options">Robo a transeúnte</option>
+                            <option value="extorsión" class="options">Extorsión</option>
+                            <option value="robo a casa habitación" class="options">Robo a casa habitación</option>
+                            <option value="violación" class="options">Violación</option>
                             <option value="narcomenudeo" class="options">Narcomenudeo</option>
-                            <option value="amenazas" class="options">Amenazas</option>
-                            <option value="delito de bajo impacto" class="options">Delito de bajo impacto</option>
-                            <option value="robovehiculo" class="options">Robo de vehiculo</option>
+                            <option value="categoria de bajo impacto" class="options">Delito de bajo impacto</option>
+                            <option value="arma de fuego" class="options">Lesión con arma de fuego</option>
+                            <option value="robo de accesorios de auto" class="options">Robo de accesorios de auto</option>
+                            <option value="robo a cuentahabiente saliendo del cajero con violencia" class="options">Robo a cuentahabiente</option>
+                            <option value="robo de vehículo" class="options">Robo de vehículo</option>
+                            <option value="robo a pasajero a bordo de microbus" class="options">Robo en microbús</option>
+                            <option value="robo a repartidor" class="options">Robo a repartidor</option>
+                            <option value="robo a pasajero a bordo del metro" class="options">Robo en metro</option>
+                            <option value="lesiones dolosas por disparo de arma de fuego" class="options">Lesiones por arma de fuego</option>
+                            <option value="hecho no delictivo" class="options">Hecho no delictivo</option>
+                            <option value="robo a pasajero a bordo de taxi con violencia" class="options">Robo en taxi</option>
+                            <option value="robo a transportista" class="options">Robo a transportista</option>
+                            <option value="default" class="options">Icono por default</option>
                         </select>
+                        
                 </div>
-               
-            </div>
-            
-            <br>
-            <div class="row" style="margin-top: 1%;">
-                <div class="col">
-                    <label class="labels">Fecha</label>
+               <div class="col">
+                    <label class="labels">Fecha y hora</label>
                     <input type="datetime-local" class="form-control" name="FechaHoraHecho">
                 </div>
             </div>
+            
             <br>
             <div class="row">
                 <label class="labels">Dirección</label>

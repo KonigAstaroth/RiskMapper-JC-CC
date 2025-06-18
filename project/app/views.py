@@ -32,6 +32,8 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from collections import Counter
 from openai import OpenAI
 import os
+import re
+from bs4 import BeautifulSoup
 
 
 
@@ -265,6 +267,10 @@ def main (request):
      else:
           query_has_update =True
      
+     map_config = {
+        'center': {'lat': 19.42847, 'lng': -99.12766},
+        'zoom': 6
+    }
 
      if query_has_update:
           data = ref.get() or []
@@ -309,20 +315,53 @@ def main (request):
      calendarios = request.session.get('calendarios', [])
      
      hour_txt = request.session.get('hour_txt', None)
-     #AiText = request.session.get('AiText', None)
+     AiText = request.session.get('AiText', None)
+     Municipio = request.session.get('municipio')
+     Estado = request.session.get('estado')
+
      if request.method != 'POST':
-          request.session.pop('graphic', None)
-          request.session.pop('calendarios', None)
-          request.session.pop('municipio', None)
-          request.session.pop('estado', None)
-          request.session.pop('hour_txt', None)
-          #request.session.pop('AiText', None)
-          map_config = request.session.pop('map_config', {
-               'center': {'lat': 19.42847, 'lng': -99.12766},
-               'zoom': 6
-               })
-     else:
-          map_config = None 
+          if not request.session.get('desde_busqueda'):
+               request.session.pop('graphic', None)
+               request.session.pop('calendarios', None)
+               request.session.pop('municipio', None)
+               request.session.pop('estado', None)
+               request.session.pop('hour_txt', None)
+               request.session.pop('AiText', None)
+               map_config = request.session.pop('map_config', {
+                    'center': {'lat': 19.42847, 'lng': -99.12766},
+                    'zoom': 6
+                    })
+          else:
+               request.session.pop('desde_busqueda', None)
+     
+     
+     
+
+     lista_delitos= [
+          {'valor': 'AMENAZAS', 'nombre': 'Amenazas'},
+          {'valor': 'ROBO A NEGOCIO', 'nombre': 'Robo a negocio'},
+          {'valor': 'HOMICIDIO DOLOSO', 'nombre': 'Homicidio doloso'},
+          {'valor': 'FEMINICIDIO', 'nombre': 'Feminicidio'},
+          {'valor': 'SECUUESTRO', 'nombre': 'Secuestro'},
+          {'valor': 'TRATA DE PERSONAS', 'nombre': 'Trata de personas'},
+          {'valor': 'ROBO A TRANSEÚNTE', 'nombre': 'Robo a transeúnte'},
+          {'valor': 'EXTORSIÓN', 'nombre': 'Extorsión'},
+          {'valor': 'ROBO A CASA HABITACIÓN', 'nombre': 'Robo a casa habitación'},
+          {'valor': 'VIOLACIÓN', 'nombre': 'Violación'},
+          {'valor': 'NARCOMENUDEO', 'nombre': 'Narcomenudeo'},
+          {'valor': 'CATEGORIA DE BAJO IMPACTO', 'nombre': 'Delito de bajo impacto'},
+          {'valor': 'ARMA DE FUEGO', 'nombre': 'Lesión con arma de fuego'},
+          {'valor': 'ROBO DE ACCESORIOS DE AUTO', 'nombre': 'Robo de accesorios de auto'},
+          {'valor': 'ROBO A CUENTAHABIENTE SALIENDO DEL CAJERO CON VIOLENCIA', 'nombre': 'Robo a cuentahabiente'},
+          {'valor': 'ROBO DE VEHÍCULO', 'nombre': 'Robo de vehículo'},
+          {'valor': 'ROBO A PASAJERO A BORDO DE MICROBUS', 'nombre': 'Robo en microbús'},
+          {'valor': 'ROBO A REPARTIDOR', 'nombre': 'Robo a repartidor'},
+          {'valor': 'ROBO A PASAJERO A BORDO DEL METRO', 'nombre': 'Robo en metro'},
+          {'valor': 'LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO', 'nombre': 'Lesiones por arma de fuego'},
+          {'valor': 'HECHO NO DELICTIVO', 'nombre': 'Hecho no delictivo'},
+          {'valor': 'ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA', 'nombre': 'Robo en taxi'},
+          {'valor': 'ROBO A TRANSPORTISTA', 'nombre': 'Robo a transportista'},
+     ]
 
 
      if request.method == 'POST' and 'buscar' in request.POST :
@@ -331,6 +370,10 @@ def main (request):
           direccion = ""
           graphic = []
           calendarios = []
+          str_startDate = None
+          str_endDate = None
+          
+          
           
           
           calle = request.POST.get('calle')
@@ -343,12 +386,13 @@ def main (request):
           Estado = request.POST.get('estado')
           lat = request.POST.get('lat')
           lng = request.POST.get('lng')
+          delitos_select = request.POST.getlist('delitos')
 
 
           if calle:
                filters['Calle_hechos'] = calle
                filtersAi['Calle'] = calle
-               direccion += calle+ ', '
+               direccion += calle + ', '
           if colonia:
                filters['ColoniaHechos'] = colonia
                filtersAi['Colonia']= colonia
@@ -384,6 +428,8 @@ def main (request):
                str_endDate = endDate.strftime("%Y-%m-%d")
                filters['startDate']=startDate
                filters['endDate']=endDate
+          else:
+               pass
           
           query_ref = ref
 
@@ -397,10 +443,17 @@ def main (request):
                          if isinstance(valor, str):
                               valor = valor.strip() 
                          query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-               #if str_startDate and str_endDate:
-                    #AiText = genAI(filtersAi, str_startDate,str_endDate)
-               #elif str_startDate is None and str_endDate is None:
-                    #AiText = genAINoDate(filtersAi)
+               if str_startDate and str_endDate:
+                    AiText = genAI(filtersAi, str_startDate,str_endDate)
+               elif str_startDate is None and str_endDate is None:
+                    AiText = genAINoDate(filtersAi)
+          if delitos_select:
+               if len(delitos_select)<= 10:
+                    query_ref = query_ref.where(filter=FieldFilter("Categoria", "in", delitos_select))
+               else:
+                    error_message = "Demasiados delitos seleccionados para aplicar filtro 'in'"
+                    return redirect(f"/main?error={urllib.parse.quote(error_message)}")
+
           resultados = list(query_ref.stream())
 
           eventos_lista=[doc.to_dict() for doc in resultados]
@@ -432,7 +485,6 @@ def main (request):
                month = fecha.month
                day = fecha.day
                
-               
 
                eventos_por_mes[(year, month)].append((day, categorie))
                
@@ -454,13 +506,17 @@ def main (request):
                               'img': imagen_base64 
                          })
                     else:
-                         print("No hay calendario")
+                         error_message = "No se pudo el calendario"
+                         return redirect(f"/main?error={urllib.parse.quote(error_message)}")
                     puntos_mes = graficos_por_mes.get((year,month), [])
                     if puntos_mes:
                          graphic_img = genGraph(puntos_mes)
                          graphic.append({
                               'img': graphic_img
                          })
+                    else:
+                         error_message = "No se pudo la grafica"
+                         return redirect(f"/main?error={urllib.parse.quote(error_message)}")
 
 
           request.session['graphic'] = graphic
@@ -469,13 +525,11 @@ def main (request):
           request.session['municipio'] = Municipio
           request.session['hour_txt'] = hour_txt
           request.session['desde_busqueda'] = True
-          #request.session['AiText'] = AiText
+          request.session['AiText'] = mark_safe(AiText)
           request.session['map_config'] = map_config
           return redirect('main') 
-     else:
-          Municipio = request.session.get('municipio')
-          Estado = request.session.get('estado')
-
+          
+     error = request.GET.get("error")
                
 
      context = {
@@ -490,8 +544,10 @@ def main (request):
           'municipio': Municipio,
           'estado': Estado,
           'hour_txt': hour_txt,
-          #'AiText': AiText,
-          'map_config_json': json.dumps(map_config)
+          'AiText': AiText,
+          'map_config_json': json.dumps(map_config),
+          'error': error,
+          'lista_delitos': lista_delitos
           
      }
 
@@ -575,12 +631,12 @@ def getLatLng(direccion):
         }
      
 def loadOsintDate(name = "osintDate.txt" ):
-     ruta = os.path.join(settings.BASE_DIR, 'prompts', name)
+     ruta = os.path.join(settings.BASE_DIR, 'app','prompts', name)
      with open (ruta, 'r', encoding='utf-8')as f:
           return f.read()
      
 def loadOsintNoDate(name = "osintNoDate.txt"):
-     ruta = os.path.join(settings.BASE_DIR, 'prompts', name)
+     ruta = os.path.join(settings.BASE_DIR,'app', 'prompts', name)
      with open (ruta, 'r', encoding='utf-8')as f:
           return f.read()
 
@@ -597,32 +653,94 @@ def genAI(filters,start,end):
           store = True,
           messages=[{'role': 'user', 'content': content}]
      )
-     return str(completion.choices[0].message)
+     text = completion.choices[0].message.content.strip()
+     
+     return cleanAnswer(text)
 
 def genAINoDate(filters):
      client = OpenAI(api_key=settings.OPENAI_API_KEY)
      lugar = ', '.join(f"{k}:{v}" for k,v in filters.items())
-     template = loadOsintDate()
+     template = loadOsintNoDate()
      content= template.format(lugar = lugar)
      completion =client.chat.completions.create(
           model='gpt-4.1-mini',
           store = True,
           messages=[{'role': 'user', 'content': content}]
      )
-     return str(completion.choices[0].message)
+     text = completion.choices[0].message.content.strip()
+    
+     return cleanAnswer(text)
+
+def cleanAnswer(texto):
+    texto = texto.strip()
+    texto = re.sub(r'\n?[^.\n]*\?$', '', texto).strip()
+
+    # Eliminar frases de cierre comunes
+    patrones_finales = [
+        r'Si desea.*?$',
+        r'¿Desea.*?$',
+        r'¿Le gustaría.*?$',
+        r'¿Quiere que.*?$',
+    ]
+    for patron in patrones_finales:
+        texto = re.sub(patron, '', texto, flags=re.IGNORECASE).strip()
+
+    
+    texto = re.sub(r'^#{1,6}\s*(.*)', r'<h3>\1</h3>', texto, flags=re.MULTILINE)
+
+    
+    texto = re.sub(r'^[-]{3,}$', '', texto, flags=re.MULTILINE)
+
+    
+    texto = re.sub(r'^[\-\*]\s+(.*)', r'<li>\1</li>', texto, flags=re.MULTILINE)
+    texto = re.sub(r'(<li>.*?</li>)', r'<ul>\1</ul>', texto, flags=re.DOTALL)
+
+    
+    texto = re.sub(r'^\d+\.\s+(.*)', r'<li>\1</li>', texto, flags=re.MULTILINE)
+    texto = re.sub(r'(<li>.*?</li>)', r'<ol>\1</ol>', texto, flags=re.DOTALL)
+
+    
+    texto = re.sub(r'\*\*(.*?)\*\*', r'\1', texto)
+    texto = re.sub(r'\*(.*?)\*', r'\1', texto)
+
+    
+    texto = re.sub(r'\|[\s\-|]+\|', '', texto)
+    
+    def convertir_tabla(match):
+        fila = match.group(0)
+        celdas = [f'<td>{celda.strip()}</td>' for celda in fila.strip('|').split('|')]
+        return '<tr>' + ''.join(celdas) + '</tr>'
+    texto = re.sub(r'^\|.*\|$', convertir_tabla, texto, flags=re.MULTILINE)
+    
+    texto = re.sub(r'((<tr>.*?</tr>\s*)+)', r'<table>\1</table>', texto, flags=re.DOTALL)
+
+    
+    texto = re.sub(r'\n{2,}', '</p><p>', texto)
+    texto = '<p>' + texto + '</p>'
+
+    return texto
+
+def html_to_text(html):
+     soup = BeautifulSoup(html, 'html.parser')
+     text = soup.get_text(separator='\n')
+     return text
+
+
 
 def exportarDocx(request):
      graphic = request.session.get('graphic')
      calendarios = request.session.get('calendarios', [])
      horas = request.session.get('hour_txt')
      AiText = request.session.get('AiText')
+     text_html = AiText
+     plain_text = html_to_text(text_html)
 
      doc = Document()
      
      doc.add_heading('Análisis de eventos', 0)
      if AiText:
           try:
-               doc.add_paragraph(AiText)
+               doc.add_paragraph(plain_text)
           except:
                doc.add_paragraph('No hay texto generado por IA')
 
@@ -635,20 +753,22 @@ def exportarDocx(request):
                     calendario_data = base64.b64decode(img_base64)
                     calendario_stream = BytesIO(calendario_data)
                     doc.add_heading('Gráfico de distribución por fecha:', level= 2)
-                    doc.add_picture(calendario_stream, width=Inches(2))  
+                    doc.add_picture(calendario_stream, width=Inches(3))  
                except:
                     doc.add_paragraph('Error al cargar calendario')
 
      if graphic :
-          if graphic.startswith('data:image'):
-               graphic = graphic.split(',')[1]
-          try:
-               graphic_data = base64.b64decode(graphic)
-               graphic_stream = BytesIO(graphic_data)
-               doc.add_heading('Gráfico de distribución horaria:', level= 2)
-               doc.add_picture(graphic_stream, width=Inches(4))  
-          except:
-               doc.add_paragraph('Error al agregar calendario')
+          for g in graphic:
+               img = g.get('img')
+               if img.startswith('data:image'):
+                    img = img.split(',')[1]
+               try:
+                    graphic_data = base64.b64decode(img)
+                    graphic_stream = BytesIO(graphic_data)
+                    doc.add_heading('Gráfico de distribución horaria:', level= 2)
+                    doc.add_picture(graphic_stream, width=Inches(4))  
+               except:
+                    doc.add_paragraph('Error al agregar calendario')
      if horas:
           try:
                doc.add_paragraph( horas)
@@ -1067,65 +1187,62 @@ def loadFiles(request):
             colonia = request.POST.get("colonia")
             estado = request.POST.get("estado")
             municipio = request.POST.get("municipio")
-            crime = request.POST.get("crime")
+            delito = request.POST.get("crime")
             fechaValue = request.POST.get("FechaHoraHecho")
-            evento = request.POST.get("evento")
+            icon = request.POST.get("icons")
             categoria = request.POST.get("categ")
             lat = request.POST.get('lat')
             lng = request.POST.get('lng')
             
-            crime_str = str(crime)
-            crime_upper = crime_str.upper()
-            
-
+            crime_str = str(categoria).upper()
           # Este segmento es sobre los iconos
             try:
                 icono = None
-                if 'amenazas' in crime:
+                if 'amenazas' in icon:
                          icono = 'amenazas'
-                elif 'robo a negocio' in crime:
+                elif 'robo a negocio' in icon:
                          icono = 'robonegocio'
-                elif 'homicidio doloso' in crime:
+                elif 'homicidio doloso' in icon:
                          icono = 'homicidiodoloso'
-                elif 'feminicidio' in crime:
+                elif 'feminicidio' in icon:
                          icono = 'feminicidio'
-                elif 'secuestro' in crime:
+                elif 'secuestro' in icon:
                          icono = 'secuestro'
-                elif 'trata de personas' in crime:
+                elif 'trata de personas' in icon:
                          icono = 'tratapersonas'
-                elif 'robo a transeúnte' in crime:
+                elif 'robo a transeúnte' in icon:
                          icono = 'robotranseunte'
-                elif 'extorsión' in crime:
+                elif 'extorsión' in icon:
                          icono = 'extorsion'
-                elif 'robo a casa habitación' in crime:
+                elif 'robo a casa habitación' in icon:
                          icono = 'robocasa'
-                elif 'violación' in crime:
+                elif 'violación' in icon:
                          icono = 'violacion'
-                elif 'narcomenudeo' in crime:
+                elif 'narcomenudeo' in icon:
                          icono = 'narcomenudeo'
-                elif 'categoria de bajo impacto' in crime or 'delito de bajo impacto' in crime:
+                elif 'categoria de bajo impacto' in icon or 'delito de bajo impacto' in icon:
                          icono = "bajoimpacto"
-                elif 'arma de fuego' in crime:
+                elif 'arma de fuego' in icon:
                          icono = 'armafuego'
-                elif 'robo de accesorios de auto' in crime:
+                elif 'robo de accesorios de auto' in icon:
                          icono= 'robovehiculo'
-                elif 'robo a cuentahabiente saliendo del cajero con violencia' in crime:
+                elif 'robo a cuentahabiente saliendo del cajero con violencia' in icon:
                          icono = 'robocuentahabiente'
-                elif 'robo de vehículo' in crime:
+                elif 'robo de vehículo' in icon:
                          icono = 'robovehiculo'
-                elif 'robo a pasajero a bordo de microbus' in crime:
+                elif 'robo a pasajero a bordo de microbus' in icon:
                          icono = 'robomicrobus'
-                elif 'robo a repartidor' in crime:
+                elif 'robo a repartidor' in icon:
                          icono = 'roborepartidor'
-                elif 'robo a pasajero a bordo del metro' in crime:
+                elif 'robo a pasajero a bordo del metro' in icon:
                          icono = 'robometro'
-                elif 'lesiones dolosas por disparo de arma de fuego' in crime:
+                elif 'lesiones dolosas por disparo de arma de fuego' in icon:
                          icono = 'armafuego'
-                elif 'hecho no delictivo' in crime:
+                elif 'hecho no delictivo' in icon:
                          icono = 'nodelito'
-                elif 'robo a pasajero a bordo de taxi con violencia' in crime:
+                elif 'robo a pasajero a bordo de taxi con violencia' in icon:
                          icono = 'robotaxi'
-                elif 'robo a transportista' in crime:
+                elif 'robo a transportista' in icon:
                          icono = 'robotransportista'
                 else:
                      icono = 'default'
@@ -1158,7 +1275,7 @@ def loadFiles(request):
                       
                            
           
-            if ((calle and colonia and estado and municipio) or (lat and lng)) and fechaValue and (crime or evento) and icono:
+            if ((calle and colonia and estado and municipio) or (lat and lng)) and fechaValue and delito and icono:
                 now = datetime.datetime.now(datetime.timezone.utc)
                 try:
                     if ((not calle and not colonia and not estado and not municipio) and lat and lng):
@@ -1190,12 +1307,11 @@ def loadFiles(request):
                               "Calle_hechos": calleNumero,
                               "ColoniaHechos": colonia_geo,
                               "Estado_hechos": estado_geo,
-                              "Delito": crime_upper,
+                              "Delito": delito,
                               "FechaHoraHecho": timestamp,
-                              "Evento":evento,
                               "icono": icono,
                               "Municipio_hechos": municipio_geo,
-                              "Categoria": categoria,
+                              "Categoria": crime_str,
                               "latitud": lat,
                               "longitud": lng,
                               'updatedAt': now,
@@ -1215,12 +1331,11 @@ def loadFiles(request):
                                "Calle_hechos": calle,
                                "ColoniaHechos": colonia,
                                "Estado_hechos": estado,
-                               "Delito": crime_upper,
+                               "Delito": delito,
                                "FechaHoraHecho": timestamp,
-                               "Evento":evento,
                                "icono": icono,
                                "Municipio_hechos": municipio,
-                               "Categoria": categoria,
+                               "Categoria": crime_str,
                                "latitud": lat_geo,
                                "longitud": lng_geo,
                                'updatedAt': now,
@@ -1237,9 +1352,8 @@ def loadFiles(request):
                               "Calle_hechos": calle,
                               "ColoniaHechos": colonia,
                               "Estado_hechos": estado,
-                              "Delito": crime_upper,
+                              "Delito": delito,
                               "FechaHoraHecho": timestamp,
-                              "Evento":evento,
                               "icono": icono,
                               "Municipio_hechos": municipio,
                               "Categoria": categoria,
