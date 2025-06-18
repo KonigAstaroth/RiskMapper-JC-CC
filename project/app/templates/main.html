@@ -80,17 +80,35 @@ Inicio
                 <div style="margin-right: 3%; margin-left: 3%;">
                     <br>
                     <div class="cartaBanner"><h5 style="color: #FFFFFF; font-weight: 500;">Zona analizada: {{ estado }}, {{ municipio }}</h5></div>
-                    {% if calendarios %}
-                        {% for cal in calendarios %}
-                            <img src="data:image/png;base64,{{ cal.img }}" alt="" class="mb-3">
-                        {% endfor %}
-                    {% else %}
-                    <p>No hay calendario</p>
-                    {% endif %}
-                    <img src="data:image/png;base64,{{ graphic }}" alt="" style="margin-left: 10%;">
+                    <div class="calendar-and-graphic-container" style="display: flex; justify-content: space-around; align-items: flex-start; flex-wrap: wrap;">
+                        {% if calendarios %}
+                            <div class="calendars-wrapper" style="flex: 1; min-width: 300px; margin-right: 20px;"> 
+                                {% for cal in calendarios %}
+                                    <div>
+                                        <img src="data:image/png;base64,{{ cal.img }}" alt="" class="mb-3" style="max-width: 100%; height: auto;"> 
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p>No hay calendario</p>
+                        {% endif %}
+                        
+                        {% if graphic %} 
+                            <div class="graphics-wrapper" style="flex: 1; min-width: 300px;"> 
+                                {% for item in graphic %}
+                                    <img src="data:image/png;base64,{{ item.img }}" alt="" style="max-width: 100%; height: auto; margin-bottom: 15px;">
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                    
+                    </div>
                     <br>
                     <h3>DATA:</h3>
                     <hr>
+                    
+                    
+                    
                     <h3>Rango horario crítico: </h3><span><p>{{ hour_txt }}</p></span>
                     <h3>Resumen de hechos violentos en el periodo</h3>
                     <p>{{ AiText }}</p>
@@ -150,6 +168,7 @@ Inicio
                 robomicrobus: "{% static 'mapIcons/robomicrobus.png' %}",
                 robometro: "{% static 'mapIcons/robometro.png' %}",
                 nodelito: "{% static 'mapIcons/nodelito.png' %}",
+                default: "{% static 'mapIcons/default.png' %}"
             }
 
             

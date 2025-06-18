@@ -25,12 +25,13 @@ from collections import defaultdict
 from django.core.cache import cache
 from .utils import sendEmail
 from docx import Document
-from docx.shared import Inches, Pt
+from docx.shared import Inches
 from io import BytesIO
 from django.http import HttpResponse
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from collections import Counter
 from openai import OpenAI
+import os
 
 
 
@@ -328,7 +329,7 @@ def main (request):
           filters = {}
           filtersAi = {}
           direccion = ""
-          graphic = None
+          graphic = []
           calendarios = []
           
           
@@ -412,16 +413,14 @@ def main (request):
                hour_txt = "No hay eventos para calcular rango horario crítico."
 
           eventos_por_mes = defaultdict(list)
+          graficos_por_mes = defaultdict(list)
           
-          angulos =[]
-          radios= []
-
-          print(eventos_lista)
 
          
           for  eventos in eventos_lista:
                date_obj = eventos.get('FechaHoraHecho')
                fecha = date_obj
+               categorie = eventos.get('Categoria')
 
 
                if isinstance(fecha,str):
@@ -435,7 +434,7 @@ def main (request):
                
                
 
-               eventos_por_mes[(year, month)].append(day)
+               eventos_por_mes[(year, month)].append((day, categorie))
                
 
                if date_obj:
@@ -445,11 +444,10 @@ def main (request):
                     segundos = time_to_num(hora_str)
                     if segundos is not None:
                          angulo = (segundos/86400) * 2 * np.pi
-                         angulos.append(angulo)
                          dia = hora_local.day
-                         radios.append(dia)
+                         graficos_por_mes[(year, month)].append((angulo, dia, categorie))
                     
-          for (year, month),day in eventos_por_mes.items():
+          for (year, month), day in eventos_por_mes.items():
                     imagen_base64  = generateCalendar(year, month, day)
                     if imagen_base64:
                          calendarios.append({
@@ -457,28 +455,14 @@ def main (request):
                          })
                     else:
                          print("No hay calendario")
+                    puntos_mes = graficos_por_mes.get((year,month), [])
+                    if puntos_mes:
+                         graphic_img = genGraph(puntos_mes)
+                         graphic.append({
+                              'img': graphic_img
+                         })
 
-          if angulos and radios:
-               fig =  plt.figure(figsize=(6,6))
-               ax = plt.subplot(111, polar=True)
-               sc = ax.scatter(angulos, radios, color='blue', s=80, alpha=0.75)
-               ax.set_theta_direction(-1)
-               ax.set_theta_offset(np.pi/2)
 
-               horas =[f"{h:02d}:00" for h in range(24)]
-               ticks = [(h/24) * 2 * np.pi for h in range(24)]
-               ax.set_xticks(ticks)
-               ax.set_xticklabels(horas, fontsize=8)
-               ax.set_rlabel_position(135) 
-               ax.set_ylim(0,31)
-               
-               
-               buffer = io.BytesIO()
-               plt.savefig(buffer, format='png')
-               buffer.seek(0)
-               img_png = buffer.getvalue()
-               graphic = base64.b64encode(img_png).decode('utf-8')
-               buffer.close()
           request.session['graphic'] = graphic
           request.session['calendarios'] = calendarios
           request.session['estado'] = Estado
@@ -514,6 +498,58 @@ def main (request):
     
      return render (request, 'main.html', context)
 
+def genGraph(puntos):
+          
+          colores_cat ={
+          'DELITO DE BAJO IMPACTO': '#A0A0A0',  # gris
+          'ROBO A CUENTAHABIENTE SALIENDO DEL CAJERO CON VIOLENCIA': '#FF0000',  # rojo
+          'ROBO DE VEHÍCULO CON Y SIN VIOLENCIA': '#FFA500',  # naranja
+          'VIOLACIÓN': '#8B0000',  # rojo oscuro
+          'ROBO A PASAJERO A BORDO DE MICROBUS CON Y SIN VIOLENCIA': '#FFD700',  # dorado
+          'ROBO A REPARTIDOR CON Y SIN VIOLENCIA': '#ADFF2F',  # verde lima
+          'ROBO A PASAJERO A BORDO DEL METRO CON Y SIN VIOLENCIA': '#00FFFF',  # cian
+          'LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO': '#00008B',  # azul oscuro
+          'ROBO A NEGOCIO CON VIOLENCIA': '#FF69B4',  # rosa fuerte
+          'HECHO NO DELICTIVO': '#D3D3D3',  # gris claro
+          'ROBO A TRANSEUNTE EN VÍA PÚBLICA CON Y SIN VIOLENCIA': '#00FF00',  # verde
+          'ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA': '#40E0D0',  # turquesa
+          'HOMICIDIO DOLOSO': '#4B0082',  # índigo
+          'ROBO A CASA HABITACIÓN CON VIOLENCIA': '#800080',  # morado
+          'SECUESTRO': '#FF1493',  # rosa mexicano
+          'ROBO A TRANSPORTISTA CON Y SIN VIOLENCIA': '#0000FF'
+          }
+
+          angulos =[]
+          radios =[]
+          colores = []
+
+          for angulo, radio, categoria in puntos:
+               angulos.append(angulo)
+               radios.append(radio)
+               colores.append(colores_cat.get(categoria, 'gray'))
+
+          fig =  plt.figure(figsize=(6,6))
+          ax = plt.subplot(111, polar=True)
+          sc = ax.scatter(angulos, radios, color=colores, s=80, alpha=0.75)
+          ax.set_theta_direction(-1)
+          ax.set_theta_offset(np.pi/2)
+
+          horas =[f"{h:02d}:00" for h in range(24)]
+          ticks = [(h/24) * 2 * np.pi for h in range(24)]
+          ax.set_xticks(ticks)
+          ax.set_xticklabels(horas, fontsize=8)
+          ax.set_rlabel_position(135) 
+          ax.set_ylim(0,31)
+          
+          
+          buffer = io.BytesIO()
+          plt.savefig(buffer, format='png')
+          buffer.seek(0)
+          img_png = buffer.getvalue()
+          graphic = base64.b64encode(img_png).decode('utf-8')
+          buffer.close()
+          return graphic
+
 def getLatLng(direccion):
      try:
           geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
@@ -537,23 +573,37 @@ def getLatLng(direccion):
             'center': {'lat': 19.42847, 'lng': -99.12766},
             'zoom': 6
         }
+     
+def loadOsintDate(name = "osintDate.txt" ):
+     ruta = os.path.join(settings.BASE_DIR, 'prompts', name)
+     with open (ruta, 'r', encoding='utf-8')as f:
+          return f.read()
+     
+def loadOsintNoDate(name = "osintNoDate.txt"):
+     ruta = os.path.join(settings.BASE_DIR, 'prompts', name)
+     with open (ruta, 'r', encoding='utf-8')as f:
+          return f.read()
+
 
      
 
 def genAI(filters,start,end):
      client = OpenAI(api_key=settings.OPENAI_API_KEY)
      lugar = ', '.join(f"{k}:{v}" for k,v in filters.items())
-     content= f"Genera un reporte sobre la situacion delictiva en {lugar} con rango de fechas: {start} al {end}"
+     template = loadOsintDate()
+     content= template.format(start=start, end = end, lugar = lugar)
      completion =client.chat.completions.create(
           model='gpt-4.1-mini',
           store = True,
           messages=[{'role': 'user', 'content': content}]
      )
      return str(completion.choices[0].message)
+
 def genAINoDate(filters):
      client = OpenAI(api_key=settings.OPENAI_API_KEY)
      lugar = ', '.join(f"{k}:{v}" for k,v in filters.items())
-     content= f"Genera un reporte sobre la situacion delictiva en {lugar} actual con registros historicos"
+     template = loadOsintDate()
+     content= template.format(lugar = lugar)
      completion =client.chat.completions.create(
           model='gpt-4.1-mini',
           store = True,
@@ -619,13 +669,32 @@ def exportarDocx(request):
 
      return response
 
-def generateCalendar( year: int, month: int, days_event: list) -> str:
+def generateCalendar( year: int, month: int, eventos: list[tuple]) -> str:
      cal = calendar.monthcalendar(year, month)
      fig, ax = plt.subplots(figsize=(5,5))
      ax.set_axis_off()
      ax.set_title(calendar.month_name[month] + f" {year}", fontsize=20)
 
      dias_semana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+
+     colores_cat ={
+          'DELITO DE BAJO IMPACTO': '#A0A0A0',  # gris
+          'ROBO A CUENTAHABIENTE SALIENDO DEL CAJERO CON VIOLENCIA': '#FF0000',  # rojo
+          'ROBO DE VEHÍCULO CON Y SIN VIOLENCIA': '#FFA500',  # naranja
+          'VIOLACIÓN': '#8B0000',  # rojo oscuro
+          'ROBO A PASAJERO A BORDO DE MICROBUS CON Y SIN VIOLENCIA': '#FFD700',  # dorado
+          'ROBO A REPARTIDOR CON Y SIN VIOLENCIA': '#ADFF2F',  # verde lima
+          'ROBO A PASAJERO A BORDO DEL METRO CON Y SIN VIOLENCIA': '#00FFFF',  # cian
+          'LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO': '#00008B',  # azul oscuro
+          'ROBO A NEGOCIO CON VIOLENCIA': '#FF69B4',  # rosa fuerte
+          'HECHO NO DELICTIVO': '#D3D3D3',  # gris claro
+          'ROBO A TRANSEUNTE EN VÍA PÚBLICA CON Y SIN VIOLENCIA': '#00FF00',  # verde
+          'ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA': '#40E0D0',  # turquesa
+          'HOMICIDIO DOLOSO': '#4B0082',  # índigo
+          'ROBO A CASA HABITACIÓN CON VIOLENCIA': '#800080',  # morado
+          'SECUESTRO': '#FF1493',  # rosa mexicano
+          'ROBO A TRANSPORTISTA CON Y SIN VIOLENCIA': '#0000FF'
+    }
 
      for i, dias in enumerate(dias_semana):
           ax.text(i+0.5, len(cal), dias, ha='center', va= 'center', fontsize=12, weight='bold')
@@ -637,9 +706,11 @@ def generateCalendar( year: int, month: int, days_event: list) -> str:
                     y = len(cal) - fila - 0.5
                     x = columna + 0.5
                     ax.text(x, y + 0.3, str(dia), ha='center', va='top', fontsize=10)
-                    if dia in days_event:
-                         circle = plt.Circle((x, y -0.2), 0.15, color= 'red')
-                         ax.add_patch(circle) 
+                    for (dia_evento, categoria) in eventos:
+                         if dia_evento == dia:
+                              color = colores_cat.get(categoria, 'gray')
+                              circle = plt.Circle((x, y -0.2), 0.15, color= color)
+                              ax.add_patch(circle) 
 
      plt.xlim(0, 7)
      plt.ylim(0, len(cal) + 1)
@@ -969,6 +1040,8 @@ def loadFiles(request):
                                    icono = 'robotaxi'
                             elif 'robo a transportista' in categoria_lower:
                                    icono = 'robotransportista'
+                            else:
+                                 icono = 'default'
 
                         
                         evento['icono'] = icono
@@ -1054,6 +1127,8 @@ def loadFiles(request):
                          icono = 'robotaxi'
                 elif 'robo a transportista' in crime:
                          icono = 'robotransportista'
+                else:
+                     icono = 'default'
                 
                       
             except Exception as e:

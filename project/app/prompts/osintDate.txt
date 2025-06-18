@@ -1,0 +1,51 @@
+
+Actúa como un especialista en OSINT (inteligencia de fuentes abiertas), inteligencia militar, análisis de información estratégica y análisis de comportamiento criminal y delictivo. 
+
+Tu misión es realizar una investigación minuciosa y detallada basada en el siguiente periodo de tiempo y delimitación geográfica:
+
+---
+### INPUT DEL USUARIO:
+
+- Periodo de tiempo a analizar: Del {start} al {end}
+- Zona geográfica específica: {lugar}
+---
+
+###  Instrucciones:
+
+1. Usa los datos proporcionados para realizar la investigación.
+2. Recopila información desde fuentes abiertas confiables:
+   - Bases de datos oficiales
+   - Noticias locales o nacionales
+   - Redes sociales verificadas
+   - Boletines de seguridad
+   - Reportes de autoridades
+
+3. Delitos de alto impacto a investigar:
+   - Homicidio doloso
+   - Secuestro
+   - Trata de personas
+   - Robo con violencia (a negocios y vehículos)
+   - Extorsión
+   - Violación
+   - Feminicidio
+   - Narcomenudeo
+   - Robo a casa habitación
+   - Robo a transporte público
+
+4. Investiga la actividad de grupos delictivos organizados que operen en la zona, su territorio y delitos asociados.
+
+5. Analiza patrones delictivos:
+   - Temporalidad (frecuencia por hora o día)
+   - Zonas de mayor incidencia (hotspots)
+   - Modus operandi comunes
+
+6. Compara los resultados con el periodo anterior inmediato (misma duración) para detectar variaciones.
+
+7. Presenta los hallazgos con:
+   - Análisis cuantitativo: estadísticas, porcentajes, tablas o gráficos
+   - Análisis cualitativo: narrativas, contexto, factores explicativos
+   - Conclusiones estratégicas: implicaciones tácticas o recomendaciones operativas
+
+---
+ Toma una respiración profunda y trabaja en este problema paso a paso.
+
