@@ -31,7 +31,7 @@ Inicio
 
 
     <h4 class="welcome">Bienvenido de nuevo, {{ name }}</h4>
-<div style="display: flex;flex-direction: row; height: 65vh; margin-top: 2%;">
+<div style="display: flex;flex-direction: row; margin-top: 2%; max-height: 75vh;">
     <div class="Search">
         
         <form method="POST">
@@ -42,7 +42,7 @@ Inicio
                 <button class="searchBttn" type="submit" name="buscar">Buscar <span><i class="bi bi-search ms-3"
                             style="color: #2686B0;"></i></span></button>
             </div>
-            <br>
+            
             <h5 class="filters">Filtros</h5>
             <div class="inputFilters">
                 <div class="row" style="margin-top: 1%;">
@@ -56,7 +56,7 @@ Inicio
                     </div>
                 </div>
 
-                <br>
+                
                 <label  class="label_filters">Categoria</label>
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle = "dropdown" aria-expanded="false">
@@ -79,7 +79,7 @@ Inicio
                     </ul>
 
                 </div>
-                <br>
+                
                 <label  class="label_filters">Ubicación</label>
                 <div class="row">
                     <div class="col-md-6 mb-4">
@@ -141,6 +141,14 @@ Inicio
                     </div>
                     <br>
                     <h3>DATA:</h3>
+                    {% if cat_color%}
+                        <ul>
+                            {% for cat in cat_color %}
+                                <li color="{{ cat.color }}">{{ cat.nombre }}</li>
+
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                     <hr>
                     
                     <h3>Rango horario crítico: </h3><span><p>{{ hour_txt }}</p></span>

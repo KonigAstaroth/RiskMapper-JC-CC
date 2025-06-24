@@ -327,6 +327,7 @@ def main (request):
                request.session.pop('estado', None)
                request.session.pop('hour_txt', None)
                request.session.pop('AiText', None)
+               request.session.pop('cat_color', None)
                map_config = request.session.pop('map_config', {
                     'center': {'lat': 19.42847, 'lng': -99.12766},
                     'zoom': 6
@@ -363,6 +364,32 @@ def main (request):
           {'valor': 'ROBO A TRANSPORTISTA', 'nombre': 'Robo a transportista'},
      ]
 
+     color_delitos = [
+          {'valor': 'AMENAZAS', 'nombre': 'Amenazas', 'color': '#8A2BE2'},
+          {'valor': 'ROBO A NEGOCIO', 'nombre': 'Robo a negocio', 'color': '#FF69B4'},
+          {'valor': 'HOMICIDIO DOLOSO', 'nombre': 'Homicidio doloso', 'color': '#4B0082'},
+          {'valor': 'FEMINICIDIO', 'nombre': 'Feminicidio', 'color': '#DC143C'},
+          {'valor': 'SECUUESTRO', 'nombre': 'Secuestro', 'color': '#FF1493'},
+          {'valor': 'TRATA DE PERSONAS', 'nombre': 'Trata de personas', 'color': '#B22222'},
+          {'valor': 'ROBO A TRANSEÚNTE', 'nombre': 'Robo a transeúnte', 'color': '#00FF00'},
+          {'valor': 'EXTORSIÓN', 'nombre': 'Extorsión', 'color': '#DAA520'},
+          {'valor': 'ROBO A CASA HABITACIÓN', 'nombre': 'Robo a casa habitación', 'color': '#800080'},
+          {'valor': 'VIOLACIÓN', 'nombre': 'Violación', 'color': '#8B0000'},
+          {'valor': 'NARCOMENUDEO', 'nombre': 'Narcomenudeo', 'color': '#006400'},
+          {'valor': 'CATEGORIA DE BAJO IMPACTO', 'nombre': 'Delito de bajo impacto', 'color': '#A0A0A0'},
+          {'valor': 'ARMA DE FUEGO', 'nombre': 'Lesión con arma de fuego', 'color': '#00008B'},
+          {'valor': 'ROBO DE ACCESORIOS DE AUTO', 'nombre': 'Robo de accesorios de auto', 'color': '#A0522D'},
+          {'valor': 'ROBO A CUENTAHABIENTE SALIENDO DEL CAJERO CON VIOLENCIA', 'nombre': 'Robo a cuentahabiente', 'color': '#FF0000'},
+          {'valor': 'ROBO DE VEHÍCULO', 'nombre': 'Robo de vehículo', 'color': '#FFA500'},
+          {'valor': 'ROBO A PASAJERO A BORDO DE MICROBUS', 'nombre': 'Robo en microbús', 'color': '#FFD700'},
+          {'valor': 'ROBO A REPARTIDOR', 'nombre': 'Robo a repartidor', 'color': '#ADFF2F'},
+          {'valor': 'ROBO A PASAJERO A BORDO DEL METRO', 'nombre': 'Robo en metro', 'color': '#00FFFF'},
+          {'valor': 'LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO', 'nombre': 'Lesiones por arma de fuego', 'color': '#00008B'},
+          {'valor': 'HECHO NO DELICTIVO', 'nombre': 'Hecho no delictivo', 'color': '#D3D3D3'},
+          {'valor': 'ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA', 'nombre': 'Robo en taxi', 'color': '#40E0D0'},
+          {'valor': 'ROBO A TRANSPORTISTA', 'nombre': 'Robo a transportista', 'color': '#0000FF'}
+     ]
+
 
      if request.method == 'POST' and 'buscar' in request.POST :
           filters = {}
@@ -372,8 +399,6 @@ def main (request):
           calendarios = []
           str_startDate = None
           str_endDate = None
-          
-          
           
           
           calle = request.POST.get('calle')
@@ -467,13 +492,21 @@ def main (request):
 
           eventos_por_mes = defaultdict(list)
           graficos_por_mes = defaultdict(list)
-          
+          cat_color = []
 
          
           for  eventos in eventos_lista:
                date_obj = eventos.get('FechaHoraHecho')
                fecha = date_obj
                categorie = eventos.get('Categoria')
+               
+
+               match = next((item for item in color_delitos if item['valor'] == categorie), None)
+               if match and match not in cat_color:
+                    cat_color.append({'nombre': match['nombre']}, {'color': match['color']})
+
+
+                         
 
 
                if isinstance(fecha,str):
@@ -527,6 +560,7 @@ def main (request):
           request.session['desde_busqueda'] = True
           request.session['AiText'] = mark_safe(AiText)
           request.session['map_config'] = map_config
+          request.session['cat_color'] = cat_color
           return redirect('main') 
           
      error = request.GET.get("error")
@@ -547,7 +581,8 @@ def main (request):
           'AiText': AiText,
           'map_config_json': json.dumps(map_config),
           'error': error,
-          'lista_delitos': lista_delitos
+          'lista_delitos': lista_delitos,
+          'cat_color': cat_color
           
      }
 
@@ -572,7 +607,22 @@ def genGraph(puntos):
           'HOMICIDIO DOLOSO': '#4B0082',  # índigo
           'ROBO A CASA HABITACIÓN CON VIOLENCIA': '#800080',  # morado
           'SECUESTRO': '#FF1493',  # rosa mexicano
-          'ROBO A TRANSPORTISTA CON Y SIN VIOLENCIA': '#0000FF'
+          'ROBO A TRANSPORTISTA CON Y SIN VIOLENCIA': '#0000FF',
+          'AMENAZAS': '#8A2BE2',  # azul violeta
+          'ROBO A NEGOCIO': '#FF69B4',  # misma que "ROBO A NEGOCIO CON VIOLENCIA"
+          'FEMINICIDIO': '#DC143C',  # carmesí
+          'SECUUESTRO': '#FF1493',  # igual que "SECUESTRO"
+          'TRATA DE PERSONAS': '#B22222',  # rojo fuego
+          'ROBO A TRANSEÚNTE': '#00FF00',  # igual que transeúnte con violencia
+          'EXTORSIÓN': '#DAA520',  # dorado oscuro
+          'ROBO A CASA HABITACIÓN': '#800080',  # igual que "CON VIOLENCIA"
+          'NARCOMENUDEO': '#006400',  # verde oscuro
+          'ARMA DE FUEGO': '#00008B',  # igual que lesiones por arma
+          'ROBO DE ACCESORIOS DE AUTO': '#A0522D',  # marrón
+          'ROBO A PASAJERO A BORDO DE MICROBUS': '#FFD700',  # igual que con violencia
+          'ROBO A REPARTIDOR': '#ADFF2F',  # igual que con violencia
+          'ROBO A PASAJERO A BORDO DEL METRO': '#00FFFF',  # igual que con violencia
+          'ROBO A TRANSPORTISTA': '#0000FF',
           }
 
           angulos =[]
@@ -813,7 +863,22 @@ def generateCalendar( year: int, month: int, eventos: list[tuple]) -> str:
           'HOMICIDIO DOLOSO': '#4B0082',  # índigo
           'ROBO A CASA HABITACIÓN CON VIOLENCIA': '#800080',  # morado
           'SECUESTRO': '#FF1493',  # rosa mexicano
-          'ROBO A TRANSPORTISTA CON Y SIN VIOLENCIA': '#0000FF'
+          'ROBO A TRANSPORTISTA CON Y SIN VIOLENCIA': '#0000FF',
+          'AMENAZAS': '#8A2BE2',  # azul violeta
+          'ROBO A NEGOCIO': '#FF69B4',  # misma que "ROBO A NEGOCIO CON VIOLENCIA"
+          'FEMINICIDIO': '#DC143C',  # carmesí
+          'SECUUESTRO': '#FF1493',  # igual que "SECUESTRO"
+          'TRATA DE PERSONAS': '#B22222',  # rojo fuego
+          'ROBO A TRANSEÚNTE': '#00FF00',  # igual que transeúnte con violencia
+          'EXTORSIÓN': '#DAA520',  # dorado oscuro
+          'ROBO A CASA HABITACIÓN': '#800080',  # igual que "CON VIOLENCIA"
+          'NARCOMENUDEO': '#006400',  # verde oscuro
+          'ARMA DE FUEGO': '#00008B',  # igual que lesiones por arma
+          'ROBO DE ACCESORIOS DE AUTO': '#A0522D',  # marrón
+          'ROBO A PASAJERO A BORDO DE MICROBUS': '#FFD700',  # igual que con violencia
+          'ROBO A REPARTIDOR': '#ADFF2F',  # igual que con violencia
+          'ROBO A PASAJERO A BORDO DEL METRO': '#00FFFF',  # igual que con violencia
+          'ROBO A TRANSPORTISTA': '#0000FF',
     }
 
      for i, dias in enumerate(dias_semana):
