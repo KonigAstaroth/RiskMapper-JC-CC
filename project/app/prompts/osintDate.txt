@@ -45,7 +45,7 @@ Tu misión es realizar una investigación minuciosa y detallada basada en el sig
 7. Presenta los hallazgos con:
    - Análisis cuantitativo: estadísticas, porcentajes, tablas o gráficos
    - Análisis cualitativo: narrativas, contexto, factores explicativos
-   - Conclusiones estratégicas: implicaciones tácticas o recomendaciones operativas
+   - Conclusiones estratégicas: implicaciones de seguridad y recomendaciones de proteccion
 
 ---
  Toma una respiración profunda y trabaja en este problema paso a paso.
