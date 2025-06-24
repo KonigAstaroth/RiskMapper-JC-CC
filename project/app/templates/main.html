@@ -31,7 +31,7 @@ Inicio
 
 
     <h4 class="welcome">Bienvenido de nuevo, {{ name }}</h4>
-<div style="display: flex;flex-direction: row; margin-top: 2%; max-height: 75vh;">
+<div style="display: flex;flex-direction: row; margin-top: 2%; height: 75vh;">
     <div class="Search">
         
         <form method="POST">
@@ -115,7 +115,7 @@ Inicio
             <div class="data_analisis">
                 <div style="margin-right: 3%; margin-left: 3%;">
                     <br>
-                    <div class="cartaBanner"><h5 style="color: #FFFFFF; font-weight: 500;">Zona analizada: {{ estado }}, {{ municipio }}</h5></div>
+                    <div class="cartaBanner"><h5 style="color: #FFFFFF; font-weight: 500;">Zona analizada: {{ lugar }}</h5></div>
                     <div class="calendar-and-graphic-container" style="display: flex; justify-content: space-around; align-items: flex-start; flex-wrap: wrap;">
                         {% if calendarios %}
                             <div class="calendars-wrapper" style="flex: 1; min-width: 300px; margin-right: 20px;"> 
@@ -144,7 +144,7 @@ Inicio
                     {% if cat_color%}
                         <ul>
                             {% for cat in cat_color %}
-                                <li color="{{ cat.color }}">{{ cat.nombre }}</li>
+                                <li background-color: {{ cat.color }};>{{ cat.nombre }}</li>
 
                             {% endfor %}
                         </ul>

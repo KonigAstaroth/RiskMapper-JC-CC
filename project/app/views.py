@@ -315,18 +315,17 @@ def main (request):
      calendarios = request.session.get('calendarios', [])
      
      hour_txt = request.session.get('hour_txt', None)
-     AiText = request.session.get('AiText', None)
-     Municipio = request.session.get('municipio')
-     Estado = request.session.get('estado')
+     #AiText = request.session.get('AiText', None)
+     lugar = request.session.get('lugar')
+     cat_color = request.session.get('cat_color')
 
      if request.method != 'POST':
           if not request.session.get('desde_busqueda'):
                request.session.pop('graphic', None)
                request.session.pop('calendarios', None)
-               request.session.pop('municipio', None)
-               request.session.pop('estado', None)
+               request.session.pop('lugar', None)
                request.session.pop('hour_txt', None)
-               request.session.pop('AiText', None)
+               #request.session.pop('AiText', None)
                request.session.pop('cat_color', None)
                map_config = request.session.pop('map_config', {
                     'center': {'lat': 19.42847, 'lng': -99.12766},
@@ -387,7 +386,7 @@ def main (request):
           {'valor': 'LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO', 'nombre': 'Lesiones por arma de fuego', 'color': '#00008B'},
           {'valor': 'HECHO NO DELICTIVO', 'nombre': 'Hecho no delictivo', 'color': '#D3D3D3'},
           {'valor': 'ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA', 'nombre': 'Robo en taxi', 'color': '#40E0D0'},
-          {'valor': 'ROBO A TRANSPORTISTA', 'nombre': 'Robo a transportista', 'color': '#0000FF'}
+          {'valor': 'ROBO A TRANSPORTISTA', 'nombre': 'Robo a transportista', 'color': '#0000FF'},
      ]
 
 
@@ -397,6 +396,7 @@ def main (request):
           direccion = ""
           graphic = []
           calendarios = []
+          banner = []
           str_startDate = None
           str_endDate = None
           
@@ -407,8 +407,6 @@ def main (request):
           estado = request.POST.get('estado')
           startDate_str = request.POST.get('startDate')
           endDate_str = request.POST.get('endDate')
-          Municipio = request.POST.get('municipio')
-          Estado = request.POST.get('estado')
           lat = request.POST.get('lat')
           lng = request.POST.get('lng')
           delitos_select = request.POST.getlist('delitos')
@@ -418,18 +416,22 @@ def main (request):
                filters['Calle_hechos'] = calle
                filtersAi['Calle'] = calle
                direccion += calle + ', '
+               banner.append(calle)
           if colonia:
                filters['ColoniaHechos'] = colonia
                filtersAi['Colonia']= colonia
                direccion += colonia + ', '
+               banner.append(colonia)
           if municipio:
                filters['Municipio_hechos'] = municipio
-               filtersAi['Municipios'] = municipio
+               filtersAi['Municipio'] = municipio
                direccion += municipio + ', '
+               banner.append(municipio)
           if estado:
                filters['Estado_hechos'] = estado
                filtersAi['Estado'] = estado
                direccion += estado + ', '
+               banner.append(estado)
           if lat:
                filters['latitud'] = lat
           if lng:
@@ -444,6 +446,7 @@ def main (request):
                     },
                     'zoom': 14 if lat and lng else 6
                }
+          lugar = ', '.join(f"{k}" for k in banner)
           
  
           if startDate_str and endDate_str:
@@ -468,10 +471,10 @@ def main (request):
                          if isinstance(valor, str):
                               valor = valor.strip() 
                          query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-               if str_startDate and str_endDate:
-                    AiText = genAI(filtersAi, str_startDate,str_endDate)
-               elif str_startDate is None and str_endDate is None:
-                    AiText = genAINoDate(filtersAi)
+               #if str_startDate and str_endDate:
+                    #AiText = genAI(filtersAi, str_startDate,str_endDate)
+               #elif str_startDate is None and str_endDate is None:
+                    #AiText = genAINoDate(filtersAi)
           if delitos_select:
                if len(delitos_select)<= 10:
                     query_ref = query_ref.where(filter=FieldFilter("Categoria", "in", delitos_select))
@@ -499,14 +502,17 @@ def main (request):
                date_obj = eventos.get('FechaHoraHecho')
                fecha = date_obj
                categorie = eventos.get('Categoria')
+               print(categorie)
                
 
                match = next((item for item in color_delitos if item['valor'] == categorie), None)
-               if match and match not in cat_color:
-                    cat_color.append({'nombre': match['nombre']}, {'color': match['color']})
-
-
-                         
+               if match:
+                    if not any(c['nombre'] == match['nombre'] for c in cat_color):
+                         cat_color.append({'nombre': match['nombre'], 'color': match['color']})     
+               elif not match:
+                    if not any (c['nombre'] == 'Otro' for c in cat_color):
+                         cat_color.append({'nombre': 'Otro', 'color': 'gray'})
+               
 
 
                if isinstance(fecha,str):
@@ -551,14 +557,14 @@ def main (request):
                          error_message = "No se pudo la grafica"
                          return redirect(f"/main?error={urllib.parse.quote(error_message)}")
 
+          print(cat_color)
 
           request.session['graphic'] = graphic
           request.session['calendarios'] = calendarios
-          request.session['estado'] = Estado
-          request.session['municipio'] = Municipio
+          request.session['lugar'] = lugar
           request.session['hour_txt'] = hour_txt
           request.session['desde_busqueda'] = True
-          request.session['AiText'] = mark_safe(AiText)
+          #request.session['AiText'] = mark_safe(AiText)
           request.session['map_config'] = map_config
           request.session['cat_color'] = cat_color
           return redirect('main') 
@@ -575,10 +581,9 @@ def main (request):
           'graphic': graphic,
           'calendarios': calendarios,
           'timestamp': int(time()),
-          'municipio': Municipio,
-          'estado': Estado,
+          'lugar': lugar,
           'hour_txt': hour_txt,
-          'AiText': AiText,
+          #'AiText': AiText,
           'map_config_json': json.dumps(map_config),
           'error': error,
           'lista_delitos': lista_delitos,

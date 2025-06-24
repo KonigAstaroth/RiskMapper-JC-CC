@@ -343,8 +343,8 @@ body{
 }
 
 .mapa{
-    height: 75vh;
-    width:65%;
+    height: 100%;
+    width:65vw;
     box-sizing: content-box;
     box-shadow: 10px 0px 20px 6px rgba(0, 0, 0, .15);
     
