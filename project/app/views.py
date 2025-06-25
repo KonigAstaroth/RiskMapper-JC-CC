@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.utils import timezone as dj_timezone
 from google.cloud.firestore import FieldFilter
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import matplotlib
 import calendar
 matplotlib.use('agg')
@@ -317,7 +318,8 @@ def main (request):
      hour_txt = request.session.get('hour_txt', None)
      #AiText = request.session.get('AiText', None)
      lugar = request.session.get('lugar')
-     cat_color = request.session.get('cat_color')
+     tabla = request.session.get('tabla_base64', None)
+     
 
      if request.method != 'POST':
           if not request.session.get('desde_busqueda'):
@@ -326,13 +328,14 @@ def main (request):
                request.session.pop('lugar', None)
                request.session.pop('hour_txt', None)
                #request.session.pop('AiText', None)
-               request.session.pop('cat_color', None)
+               request.session.pop('tabla_base64', None)
                map_config = request.session.pop('map_config', {
                     'center': {'lat': 19.42847, 'lng': -99.12766},
                     'zoom': 6
                     })
           else:
                request.session.pop('desde_busqueda', None)
+               
      
      
      
@@ -390,6 +393,7 @@ def main (request):
      ]
 
 
+     
      if request.method == 'POST' and 'buscar' in request.POST :
           filters = {}
           filtersAi = {}
@@ -397,6 +401,7 @@ def main (request):
           graphic = []
           calendarios = []
           banner = []
+          
           str_startDate = None
           str_endDate = None
           
@@ -513,6 +518,8 @@ def main (request):
                     if not any (c['nombre'] == 'Otro' for c in cat_color):
                          cat_color.append({'nombre': 'Otro', 'color': 'gray'})
                
+               
+               
 
 
                if isinstance(fecha,str):
@@ -556,8 +563,13 @@ def main (request):
                     else:
                          error_message = "No se pudo la grafica"
                          return redirect(f"/main?error={urllib.parse.quote(error_message)}")
+                    
+          
+          tabla = genDataImg(cat_color)
 
+          print(len(tabla))
           print(cat_color)
+          print(tabla[:100])
 
           request.session['graphic'] = graphic
           request.session['calendarios'] = calendarios
@@ -566,7 +578,7 @@ def main (request):
           request.session['desde_busqueda'] = True
           #request.session['AiText'] = mark_safe(AiText)
           request.session['map_config'] = map_config
-          request.session['cat_color'] = cat_color
+          request.session['tabla_base64'] = tabla
           return redirect('main') 
           
      error = request.GET.get("error")
@@ -587,12 +599,50 @@ def main (request):
           'map_config_json': json.dumps(map_config),
           'error': error,
           'lista_delitos': lista_delitos,
-          'cat_color': cat_color
+          'tabla_base64': tabla
           
      }
 
     
      return render (request, 'main.html', context)
+
+def genDataImg(cat_color_cuenta):
+     n = len(cat_color_cuenta)
+     radio = 0.4                  
+     espacio = radio * 3          
+
+     alto_total = n * espacio     
+     fig, ax = plt.subplots(figsize=(6, alto_total * 0.4))  
+     ax.set_aspect('equal')
+     ax.axis('off')
+
+     for i, item in enumerate(cat_color_cuenta):
+        nombre = item['nombre']
+        color = item['color']
+        y = (n - i - 1) * espacio
+
+        
+        icon = mpatches.Circle((0.5, y), radio, color=color)
+        ax.add_patch(icon)
+
+        
+        ax.text(1.2, y, nombre.upper(), va='center', fontsize=12)
+
+    
+     ax.set_xlim(-0.2, 5)
+     ax.set_ylim(-radio - 0.5, alto_total - espacio + radio + 0.2)
+
+     plt.tight_layout(pad=0.5)
+
+     buffer = io.BytesIO()
+     plt.savefig(buffer, format='png', bbox_inches = 'tight')
+     plt.close(fig)
+     buffer.seek(0)
+     img_png = buffer.getvalue()
+     tabla = base64.b64encode(img_png).decode('utf-8')
+     buffer.close()
+
+     return tabla
 
 def genGraph(puntos):
           

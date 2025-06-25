@@ -141,14 +141,9 @@ Inicio
                     </div>
                     <br>
                     <h3>DATA:</h3>
-                    {% if cat_color%}
-                        <ul>
-                            {% for cat in cat_color %}
-                                <li background-color: {{ cat.color }};>{{ cat.nombre }}</li>
-
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
+                        
+                        <img src="data:image/png;base64,{{ tabla_base64 }}" alt="">
+                        
                     <hr>
                     
                     <h3>Rango horario crítico: </h3><span><p>{{ hour_txt }}</p></span>
