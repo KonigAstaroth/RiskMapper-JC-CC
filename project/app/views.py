@@ -26,7 +26,7 @@ from collections import defaultdict
 from django.core.cache import cache
 from .utils import sendEmail
 from docx import Document
-from docx.shared import Inches
+from docx.shared import Inches, Pt
 from io import BytesIO
 from django.http import HttpResponse
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
@@ -35,6 +35,7 @@ from openai import OpenAI
 import os
 import re
 from bs4 import BeautifulSoup
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 
 
@@ -316,7 +317,7 @@ def main (request):
      calendarios = request.session.get('calendarios', [])
      
      hour_txt = request.session.get('hour_txt', None)
-     #AiText = request.session.get('AiText', None)
+     AiText = request.session.get('AiText', None)
      lugar = request.session.get('lugar')
      tabla = request.session.get('tabla_base64', None)
      
@@ -326,16 +327,17 @@ def main (request):
                request.session.pop('desde_busqueda', None)
                
           else:
-               request.session.pop('graphic', None)
-               request.session.pop('calendarios', None)
-               request.session.pop('lugar', None)
-               request.session.pop('hour_txt', None)
-               #request.session.pop('AiText', None)
-               request.session.pop('tabla_base64', None)
-               map_config = request.session.pop('map_config', {
-                    'center': {'lat': 19.42847, 'lng': -99.12766},
-                    'zoom': 6
-                    })
+               if not request.session.get('ready_to_export'):
+                    request.session.pop('graphic', None)
+                    request.session.pop('calendarios', None)
+                    request.session.pop('lugar', None)
+                    request.session.pop('hour_txt', None)
+                    request.session.pop('AiText', None)
+                    request.session.pop('tabla_base64', None)
+                    map_config = request.session.pop('map_config', {
+                         'center': {'lat': 19.42847, 'lng': -99.12766},
+                         'zoom': 6
+                         })
           if 'map_config' in request.session:
                map_config = request.session['map_config']
                
@@ -466,10 +468,10 @@ def main (request):
                          if isinstance(valor, str):
                               valor = valor.strip() 
                          query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-               #if str_startDate and str_endDate:
-                    #AiText = genAI(filtersAi, str_startDate,str_endDate)
-               #elif str_startDate is None and str_endDate is None:
-                    #AiText = genAINoDate(filtersAi)
+               if str_startDate and str_endDate:
+                    AiText = genAI(filtersAi, str_startDate,str_endDate)
+               elif str_startDate is None and str_endDate is None:
+                    AiText = genAINoDate(filtersAi)
           if delitos_select:
                if len(delitos_select)<= 10:
                     query_ref = query_ref.where(filter=FieldFilter("Categoria", "in", delitos_select))
@@ -551,10 +553,7 @@ def main (request):
                          })
                     else:
                          error_message = "No se pudo la grafica"
-                         return redirect(f"/main?error={urllib.parse.quote(error_message)}")
-                    
-          print("contenido de mapa:", map_config)
-                    
+                         return redirect(f"/main?error={urllib.parse.quote(error_message)}")  
           
           tabla = genDataImg(cat_color)
           request.session['graphic'] = graphic
@@ -562,9 +561,10 @@ def main (request):
           request.session['lugar'] = lugar
           request.session['hour_txt'] = hour_txt
           request.session['desde_busqueda'] = True
-          #request.session['AiText'] = mark_safe(AiText)
+          request.session['AiText'] = mark_safe(AiText)
           request.session['map_config'] = map_config
           request.session['tabla_base64'] = tabla
+          request.session['ready_to_export'] = True
           return redirect('main') 
           
      error = request.GET.get("error")
@@ -581,7 +581,7 @@ def main (request):
           'timestamp': int(time()),
           'lugar': lugar,
           'hour_txt': hour_txt,
-          #'AiText': AiText,
+          'AiText': AiText,
           'map_config_json': json.dumps(map_config),
           'error': error,
           'lista_delitos': lista_delitos,
@@ -781,41 +781,63 @@ def cleanAnswer(texto):
     texto = re.sub(r'^#{1,6}\s*(.*)', r'<h3>\1</h3>', texto, flags=re.MULTILINE)
 
     
-    texto = re.sub(r'^[-]{3,}$', '', texto, flags=re.MULTILINE)
-
-    
     texto = re.sub(r'^[\-\*]\s+(.*)', r'<li>\1</li>', texto, flags=re.MULTILINE)
-    texto = re.sub(r'(<li>.*?</li>)', r'<ul>\1</ul>', texto, flags=re.DOTALL)
+    if '<li>' in texto:
+        texto = '<ul>' + texto + '</ul>'
 
-    
     texto = re.sub(r'^\d+\.\s+(.*)', r'<li>\1</li>', texto, flags=re.MULTILINE)
-    texto = re.sub(r'(<li>.*?</li>)', r'<ol>\1</ol>', texto, flags=re.DOTALL)
+    if re.search(r'<li>.*</li>', texto) and not texto.startswith('<ul>'):
+        texto = '<ol>' + texto + '</ol>'
+
+    # Negritas y cursivas
+    texto = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', texto)
+    texto = re.sub(r'\*(.*?)\*', r'<em>\1</em>', texto)
 
     
-    texto = re.sub(r'\*\*(.*?)\*\*', r'\1', texto)
-    texto = re.sub(r'\*(.*?)\*', r'\1', texto)
+    def procesar_tabla(match):
+        tabla = match.group(0)
+        filas = tabla.strip().split('\n')
+        if len(filas) < 2:
+            return tabla
+
+        cabecera = filas[0]
+        cuerpo = filas[2:] if re.match(r'^\|[-\s|]+\|$', filas[1]) else filas[1:]
+
+        def fila_a_html(fila, tag='td'):
+            celdas = [f'<{tag} style="border: 1px solid #000; padding: 5px;">{c.strip()}</{tag}>' for c in fila.strip('|').split('|')]
+            return '<tr>' + ''.join(celdas) + '</tr>'
+
+        tabla_html = '<table style="border-collapse: collapse; width: 100%;">'
+        tabla_html += fila_a_html(cabecera, tag='th')
+        for fila in cuerpo:
+            if fila.strip():
+                tabla_html += fila_a_html(fila)
+        tabla_html += '</table>'
+
+        return tabla_html
 
     
-    texto = re.sub(r'\|[\s\-|]+\|', '', texto)
-    
-    def convertir_tabla(match):
-        fila = match.group(0)
-        celdas = [f'<td>{celda.strip()}</td>' for celda in fila.strip('|').split('|')]
-        return '<tr>' + ''.join(celdas) + '</tr>'
-    texto = re.sub(r'^\|.*\|$', convertir_tabla, texto, flags=re.MULTILINE)
-    
-    texto = re.sub(r'((<tr>.*?</tr>\s*)+)', r'<table>\1</table>', texto, flags=re.DOTALL)
+    texto = re.sub(
+        r'((?:\|.*\|\n)+\|[-\s|]+\|\n(?:\|.*\|\n?)*)',
+        procesar_tabla,
+        texto,
+        flags=re.MULTILINE
+    )
 
     
-    texto = re.sub(r'\n{2,}', '</p><p>', texto)
-    texto = '<p>' + texto + '</p>'
+    bloques = texto.split('\n\n')
+    html_parts = []
+    for b in bloques:
+        b = b.strip()
+        if not b:
+            continue
+        if '<table' in b:
+            html_parts.append(b)
+        else:
+            html_parts.append(f'<p>{b}</p>')
 
-    return texto
+    return ''.join(html_parts)
 
-def html_to_text(html):
-     soup = BeautifulSoup(html, 'html.parser')
-     text = soup.get_text(separator='\n')
-     return text
 
 
 
@@ -825,16 +847,56 @@ def exportarDocx(request):
      horas = request.session.get('hour_txt')
      AiText = request.session.get('AiText')
      text_html = AiText
-     plain_text = html_to_text(text_html)
 
      doc = Document()
      
      doc.add_heading('Análisis de eventos', 0)
-     if AiText:
-          try:
-               doc.add_paragraph(plain_text)
-          except:
-               doc.add_paragraph('No hay texto generado por IA')
+     if text_html:
+        soup = BeautifulSoup(text_html, 'html.parser')
+        for elemento in soup.contents:
+            if elemento.name == 'p':
+                doc.add_paragraph(elemento.get_text())
+            elif elemento.name == 'h3':
+                doc.add_heading(elemento.get_text(), level=2)
+            elif elemento.name == 'ul':
+                for li in elemento.find_all('li'):
+                    doc.add_paragraph('• ' + li.get_text(), style='List Bullet')
+            elif elemento.name == 'ol':
+                for li in elemento.find_all('li'):
+                    doc.add_paragraph(li.get_text(), style='List Number')
+            elif elemento.name == 'table':
+                filas = elemento.find_all('tr')
+                if filas:
+                    num_cols = len(filas[0].find_all(['td', 'th']))
+                    tabla = doc.add_table(rows=1, cols=num_cols)
+                    tabla.style = 'Table Grid'
+
+                    # Encabezado
+                    hdr_cells = tabla.rows[0].cells
+                    for idx, th in enumerate(filas[0].find_all(['td', 'th'])):
+                        hdr_cells[idx].text = th.get_text().strip()
+                        for paragraph in hdr_cells[idx].paragraphs:
+                            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                            for run in paragraph.runs:
+                                run.font.bold = True
+                                run.font.size = Pt(11)
+
+                    # Cuerpo de la tabla
+                    for fila in filas[1:]:
+                        celdas = fila.find_all(['td', 'th'])
+                        row_cells = tabla.add_row().cells
+                        for idx, celda in enumerate(celdas):
+                            row_cells[idx].text = celda.get_text().strip()
+                            for paragraph in row_cells[idx].paragraphs:
+                                paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                                for run in paragraph.runs:
+                                    run.font.size = Pt(10)
+
+                    # Ajustar ancho de columnas (opcional)
+                    ancho_columna = Inches(1.5)
+                    for col_idx in range(num_cols):
+                        for row in tabla.rows:
+                            row.cells[col_idx].width = ancho_columna
 
      for calendario in calendarios:
           img_base64 = calendario.get('img')
@@ -878,6 +940,7 @@ def exportarDocx(request):
      request.session.pop('calendarios', None)
      request.session.pop('hour_txt', None)
      request.session.pop('AiText', None)
+     request.session.pop('ready_to_export', None)
 
      return response
 
@@ -1592,6 +1655,7 @@ def edit_event(request, id):
      
 
      if request.method == 'POST':
+          
           if calle := request.POST.get('calle'):
                updates['Calle_hechos'] = calle
           if colonia := request.POST.get('colonia'):
@@ -1670,11 +1734,20 @@ def edit_event(request, id):
           
 
      if updates:
-          updateNow = datetime.datetime.now(timezone.utc)
-          updates['updatedAt'] = updateNow
-          db.collection('Eventos').document(id).update(updates)
+          try:
+               updateNow = datetime.datetime.now(timezone.utc)
+               updates['updatedAt'] = updateNow
+               db.collection('Eventos').document(id).update(updates)
+               success_message = "Evento modificado con éxito"
+               return redirect(f"/library?success={urllib.parse.quote(success_message)}")
+          except:
+               error_message = "No se pudo actualizar el evento"
+               return redirect(f"/library?error={urllib.parse.quote(error_message)}")
 
-     return redirect('library')
+     success = request.GET.get("success")
+     error = request.GET.get("error") 
+
+     return render(request, 'library.html', {'success': success, 'error': error})
 
 def deleteEvent(request, id):
       
@@ -1683,11 +1756,15 @@ def deleteEvent(request, id):
           doc = doc_ref
           try:
                if doc.exists:
-                    doc_ref.delete()      
+                    doc_ref.delete()
+                    success_message = "Evento eliminado con éxito"
+                    return redirect(f"/library?success={urllib.parse.quote(success_message)}")
           except:
-               print()
-
-     return redirect('library')
+               error_message = "No se encontró el evento"
+               return redirect(f"/library?error={urllib.parse.quote(error_message)}")
+     success = request.GET.get("success")
+     error = request.GET.get("error") 
+     return render(request, 'library.html', {'success': success, 'error': error})
 
 
 

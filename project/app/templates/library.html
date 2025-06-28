@@ -7,6 +7,40 @@ Bibloteca de datos
 {% endblock %}
 
 {% block contenido %}
+
+{% if success %}
+    <div class="alert alert-success" style="width: 50%; text-align: center; z-index: 999; position: fixed; top: 0; left: 25%;" id="success-alert" role="alert">
+        {{ success }}
+        <script>
+            setTimeout(function() {
+                var successbox = document.getElementById("success-alert");
+                if (successbox) {
+                    successbox.style.transition = "opacity 0.75s";
+                    successbox.style.opacity = "0";
+                    setTimeout(() => successbox.remove(), 500); 
+                }
+            }, 3000); 
+        </script>
+    </div>
+{% endif %}
+
+{% if error %}
+    <div class="alert alert-danger" style="width: 50%; text-align: center ; z-index: 999; position: fixed; top: 0; left: 25%;" id="error-alert" role="alert">
+        {{ error }}
+        <script>
+            setTimeout(function() {
+                var alertBox = document.getElementById("error-alert");
+                if (alertBox) {
+                    alertBox.style.transition = "opacity 0.75s";
+                    alertBox.style.opacity = "0";
+                    setTimeout(() => alertBox.remove(), 500); 
+                }
+            }, 3000); 
+        </script>
+    </div>
+{% endif %}
+
+
 <div style="margin-left: 10%; margin-right: 10%;">
      <form method="POST">
             {% csrf_token %}
