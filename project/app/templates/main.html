@@ -55,11 +55,18 @@ Inicio
                         <input type="date" class="form-control" name="endDate">
                     </div>
                 </div>
+                <div class="row" >
+                    <label class="label_filters">Descripción del cliente</label>
+                    <div style="padding-right: 2%; padding-left: 2%;" class="col">
+                        <textarea class="textarea-main"></textarea>
+                    </div>
+                    
+                </div>
 
                 
                 <label  class="label_filters">Categoria</label>
                 <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle = "dropdown" aria-expanded="false">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle = "dropdown" aria-expanded="false" style="background-color: #FFFFFF;color: #838383;font-weight: 400;">
                         Tipos de delito
                     </button>
                     <ul class="dropdown-menu" style="max-height: 300px; overflow-y: auto;">
@@ -97,10 +104,6 @@ Inicio
                         <input class="form-control" type="text" placeholder="Calle" id="calle" name="calle">
                     </div>
                 </div>
-                <hr class="separationTwo">
-                <input class="form-control" type="text" placeholder="Latitud" id="lat" name="lat">
-                <br>
-                <input class="form-control" type="text" placeholder="Longitud" id="lng" name="lng">
             </div>
 
         </form>
@@ -221,8 +224,8 @@ Inicio
                 const config = JSON.parse(document.getElementById('map_config_json').textContent);
 
                 const map = new google.maps.Map(document.getElementById("mapa"), {
-                    zoom: config.zoom || 6,
-                    center: config.center || { lat: 19.42847, lng: -99.12766 },
+                    zoom: config.zoom,
+                    center: config.center,
                     mapId: "mapa"
                 });
 
@@ -246,7 +249,6 @@ Inicio
                             return;
                         }
 
-                        console.log("Geocoding para:", direccion);
 
                         geocoder.geocode({ address: direccion }, (results, status) => {
                             if (status === 'OK') {

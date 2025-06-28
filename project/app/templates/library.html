@@ -14,22 +14,44 @@ Bibloteca de datos
             <h5 >Filtros</h5>
             <div class="row">
                 <div class="col">
-                    <label class="labels">Fecha de inicio</label>
+                    <label class="label_filters">Fecha de inicio</label>
                     <input type="date" class="form-control" name="startDate">
                     
                 </div>
                 <div class="col">
-                    <label class="labels">Fecha final</label>
+                    <label class="label_filters">Fecha final</label>
                     <input type="date" class="form-control" name="endDate">
                 </div>
                 <div class="col">
-                    <label  class="label_filters">Evento</label>
-                <select class="form-select" name="event"
-                    style="font-family: Inter, sans-serif;color: #838383;">
-                    <option selected class="options">Selecciona un tipo de evento</option>
-                    <option value="true" class="options">Otorgar permisos</option>
-                    <option value="false" class="options">Denegar permisos</option>
-                </select>
+                    <label class="label_filters">Categoría</label>
+                    
+                        <select class="form-select" name="categoria">
+                            <option selected class="options">Seleccione una categoría</option>
+                            <option value="AMENAZAS" class="options">Amenazas</option>
+                            <option value="ROBO A NEGOCIO" class="options">Robo a negocio</option>
+                            <option value="HOMICIDIO DOLOSO" class="options">Homicidio doloso</option>
+                            <option value="FEMINICIDIO" class="options">Feminicidio</option>
+                            <option value="SECUUESTRO" class="options">Secuestro</option>
+                            <option value="TRATA DE PERSONAS" class="options">Trata de personas</option>
+                            <option value="ROBO A TRANSEÚNTE" class="options">Robo a transeúnte</option>
+                            <option value="EXTORSIÓN" class="options">Extorsión</option>
+                            <option value="ROBO A CASA HABITACIÓN" class="options">Robo a casa habitación</option>
+                            <option value="VIOLACIÓN" class="options">Violación</option>
+                            <option value="NARCOMENUDEO" class="options">Narcomenudeo</option>
+                            <option value="CATEGORIA DE BAJO IMPACTO" class="options">Delito de bajo impacto</option>
+                            <option value="ARMA DE FUEGO" class="options">Lesión con arma de fuego</option>
+                            <option value="ROBO DE ACCESORIOS DE AUTO" class="options">Robo de accesorios de auto</option>
+                            <option value="ROBO A CUENTAHABIENTE SALIENDO DEL CAJERO CON VIOLENCIA" class="options">Robo a cuentahabiente</option>
+                            <option value="ROBO DE VEHÍCULO" class="options">Robo de vehículo</option>
+                            <option value="ROBO A PASAJERO A BORDO DE MICROBUS" class="options">Robo en microbús</option>
+                            <option value="ROBO A REPARTIDOR" class="options">Robo a repartidor</option>
+                            <option value="ROBO A PASAJERO A BORDO DEL METRO" class="options">Robo en metro</option>
+                            <option value="LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO" class="options">Lesiones por arma de fuego</option>
+                            <option value="HECHO NO DELICTIVO" class="options">Hecho no delictivo</option>
+                            <option value="ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA" class="options">Robo en taxi</option>
+                            <option value="ROBO A TRANSPORTISTA" class="options">Robo a transportista</option>
+                        </select>
+                
                 </div>
                     
             </div>
@@ -37,7 +59,7 @@ Bibloteca de datos
                 <label  class="label_filters" style="margin-top:1%">Ubicación</label>
                 <div class="col col-sm-2">
                     <select class="form-select" name="searchBy" required>
-                        <option value="full">Direccion completa</option>
+                        <option value="full">Dirección completa</option>
                         <option value="estado">Estado</option>
                         <option value="municipio">Municipio</option>
                         <option value="estadoMunicipio">Estado y municipio</option>
@@ -46,7 +68,7 @@ Bibloteca de datos
                 </div>
                 <div class="col">
                     <div class="input-group">
-                        <input class="form-control" type="search" placeholder="Direccion" aria-label="Search" name="direccion" required>
+                        <input class="form-control" type="search" placeholder="Dirección" aria-label="Search" name="direccion" required>
                         <button class="btn btn-primary px-4" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
@@ -69,6 +91,9 @@ Bibloteca de datos
                     <th>Estado</th>
                     <th>Fecha</th>
                     <th>Hora</th>
+                    {% if priv %}
+                        <th>Editar</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody >
@@ -82,6 +107,16 @@ Bibloteca de datos
                             <td>{{ evento.Estado_hechos}}</td> 
                             <td>{{ evento.FechaHoraHecho| date:"d F Y" }}</td>
                             <td>{{ evento.FechaHoraHecho| date:"h:i A" }}</td>
+                            {% if priv %}
+                                <td>
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                        data-bs-target="#editEventModal_{{ evento.id }}"><i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                        data-bs-target="#deleteEventModal_{{ evento.id }}"><i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                 {% else %}
@@ -91,4 +126,175 @@ Bibloteca de datos
         </table>
     </div>
 </div>
+
+
+{% for evento in eventos %}
+<!-- Modal eliminar -->
+<div class="modal fade" id="deleteEventModal_{{ evento.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'delete_event' evento.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="uid" value="{{ evento.uid }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">¿Estás seguro de eliminar a este evento?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Dirección:</strong> {{ evento.Calle_hechos }}, {{ evento.ColoniaHechos }}, {{ evento.Municipio_hechos }}, {{ evento.Estado_hechos }} </p>
+                    <p><strong>Delito:</strong> {{ evento.Delito }}</p>
+                    <p><strong>Categoría:</strong> {{ evento.Categoria }}</p>
+                    <p><strong>Fecha: </strong> {{ evento.FechaHoraHecho| date:"d F Y" }}, <strong>Hora: </strong>{{ evento.FechaHoraHecho| date:"h:i A" }} </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% for evento in eventos %}
+<div class="modal fade modal-xl" id="editEventModal_{{ evento.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{% url 'edit_event' evento.id %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar evento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="margin-top: 2%;">
+                        <div class="col">
+                            <label class="form-label">Calle</label>
+                            <input type="text" class="form-control" name="calle" value="{{ evento.Calle_hechos }}">
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Colonia</label>
+                            <input type="text" class="form-control" name="colonia" value="{{ evento.ColoniaHechos }}">
+                        </div>
+
+                    </div>
+                    
+                    <div class="row" style="margin-top: 2%;">
+                        <div class="col">
+                            <label class="form-label">Municipio</label>
+                            <input type="text" class="form-control" name="municipio" value="{{ evento.Municipio_hechos }}">
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Estado</label>
+                            <input type="text" class="form-control" name="estado" value="{{ evento.Estado_hechos }}">
+                        </div>
+
+                    </div>
+
+                    <div class="row" style="margin-top: 2%;">
+                        <div class="col">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select" name="categoria">
+                                <option selected class="options">{{ evento.Categoria }}</option>
+                                <option value="AMENAZAS" class="options">Amenazas</option>
+                                <option value="ROBO A NEGOCIO" class="options">Robo a negocio</option>
+                                <option value="HOMICIDIO DOLOSO" class="options">Homicidio doloso</option>
+                                <option value="FEMINICIDIO" class="options">Feminicidio</option>
+                                <option value="SECUUESTRO" class="options">Secuestro</option>
+                                <option value="TRATA DE PERSONAS" class="options">Trata de personas</option>
+                                <option value="ROBO A TRANSEÚNTE" class="options">Robo a transeúnte</option>
+                                <option value="EXTORSIÓN" class="options">Extorsión</option>
+                                <option value="ROBO A CASA HABITACIÓN" class="options">Robo a casa habitación</option>
+                                <option value="VIOLACIÓN" class="options">Violación</option>
+                                <option value="NARCOMENUDEO" class="options">Narcomenudeo</option>
+                                <option value="CATEGORIA DE BAJO IMPACTO" class="options">Delito de bajo impacto</option>
+                                <option value="ARMA DE FUEGO" class="options">Lesión con arma de fuego</option>
+                                <option value="ROBO DE ACCESORIOS DE AUTO" class="options">Robo de accesorios de auto</option>
+                                <option value="ROBO A CUENTAHABIENTE SALIENDO DEL CAJERO CON VIOLENCIA" class="options">Robo a cuentahabiente</option>
+                                <option value="ROBO DE VEHÍCULO" class="options">Robo de vehículo</option>
+                                <option value="ROBO A PASAJERO A BORDO DE MICROBUS" class="options">Robo en microbús</option>
+                                <option value="ROBO A REPARTIDOR" class="options">Robo a repartidor</option>
+                                <option value="ROBO A PASAJERO A BORDO DEL METRO" class="options">Robo en metro</option>
+                                <option value="LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO" class="options">Lesiones por arma de fuego</option>
+                                <option value="HECHO NO DELICTIVO" class="options">Hecho no delictivo</option>
+                                <option value="ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA" class="options">Robo en taxi</option>
+                                <option value="ROBO A TRANSPORTISTA" class="options">Robo a transportista</option>
+                            </select>
+                        </div>
+
+                        <div class="col">
+                            <label class="form-label">Seleccione un icono</label>
+                            <select class="form-select" name="icons">
+                                <!----->
+                                <option selected class="options">{{ evento.icono }}</option>
+                                <option value="amenazas" class="options">Amenazas</option>
+                                <option value="robo a negocio" class="options">Robo a negocio</option>
+                                <option value="homicidio doloso" class="options">Homicidio doloso</option>
+                                <option value="feminicidio" class="options">Feminicidio</option>
+                                <option value="secuestro" class="options">Secuestro</option>
+                                <option value="trata de personas" class="options">Trata de personas</option>
+                                <option value="robo a transeúnte" class="options">Robo a transeúnte</option>
+                                <option value="extorsión" class="options">Extorsión</option>
+                                <option value="robo a casa habitación" class="options">Robo a casa habitación</option>
+                                <option value="violación" class="options">Violación</option>
+                                <option value="narcomenudeo" class="options">Narcomenudeo</option>
+                                <option value="categoria de bajo impacto" class="options">Delito de bajo impacto</option>
+                                <option value="arma de fuego" class="options">Lesión con arma de fuego</option>
+                                <option value="robo de accesorios de auto" class="options">Robo de accesorios de auto</option>
+                                <option value="robo a cuentahabiente saliendo del cajero con violencia" class="options">Robo a cuentahabiente</option>
+                                <option value="robo de vehículo" class="options">Robo de vehículo</option>
+                                <option value="robo a pasajero a bordo de microbus" class="options">Robo en microbús</option>
+                                <option value="robo a repartidor" class="options">Robo a repartidor</option>
+                                <option value="robo a pasajero a bordo del metro" class="options">Robo en metro</option>
+                                <option value="lesiones dolosas por disparo de arma de fuego" class="options">Lesiones por arma de fuego</option>
+                                <option value="hecho no delictivo" class="options">Hecho no delictivo</option>
+                                <option value="robo a pasajero a bordo de taxi con violencia" class="options">Robo en taxi</option>
+                                <option value="robo a transportista" class="options">Robo a transportista</option>
+                                <option value="default" class="options">Icono por default</option>
+                            </select>
+                        </div>
+                    </div>
+
+                   
+                    <div style="margin-top: 2%;" class="row">
+                        <div class="col">
+                            <label class="form-label">Delito</label>
+                            <input type="text" class="form-control" name="delito" value="{{ evento.Delito }}">
+                        </div>
+                        <div class="col">
+                             <label class="form-label">Fecha y hora</label>
+                            <input type="datetime-local" class="form-control" name="FechaHoraHecho" value="{{ evento.FechaHoraHecho|date:'Y-m-d\\TH:i' }}">
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="col" style="margin-top: 2%;">
+
+                        <label class="form-label">Descripción</label>
+                        <textarea id= "descripcion" name="descripcion" class="form-control" style="resize: none;" maxlength="700" oninput="contarCaracteres()">{{ evento.Descripcion }} </textarea>
+                        <small class="form-text text-muted" id="contador"></small>
+                    </div>
+
+                    <script>
+                        function contarCaracteres(){
+                            var textarea = document.getElementById('descripcion')
+                            var contador = document.getElementById('contador')
+
+                            contador.textContent = textarea.value.length + "/ 700 caracteres" ;
+                        }
+
+                        document.addEventListener("DOMContentLoaded", function(){
+                            contarCaracteres();
+                        });
+                    </script>
+                    
+                
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-outline-primary">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
 {% endblock %}

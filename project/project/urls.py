@@ -35,5 +35,7 @@ urlpatterns = [
     path('loadFiles/', views.loadFiles, name='loadFiles'),
     path('library/', views.library, name='library'),
     path('recoverPass/<token>/', views.recoverPass, name='recoverPass'),
-    path('exportDocx/', views.exportarDocx, name='export')
+    path('exportDocx/', views.exportarDocx, name='export'),
+    path('edit_event<str:id>/', views.edit_event, name='edit_event'),
+    path('delete_event<str:id>/', views.deleteEvent, name='delete_event')
 ]
