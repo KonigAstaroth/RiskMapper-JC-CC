@@ -61,7 +61,7 @@ Inicio
                 <div class="row" >
                     <label class="label_filters">Descripción del cliente</label>
                     <div style="padding-right: 2%; padding-left: 2%;" class="col">
-                        <textarea class="textarea-main"></textarea>
+                        <textarea class="textarea-main" placeholder="Agregue una descripción apropiada de acuerdo al tipo de cliente"></textarea>
                     </div>
                     
                 </div>
@@ -238,7 +238,10 @@ Inicio
                 const geocoder = new google.maps.Geocoder();
 
                 marcadores.forEach((marcador) => {
-                    const iconoUrl = iconos[marcador.icono];
+                    let iconoUrl = iconos[marcador.icono];
+                    if (!iconoUrl || iconoUrl.trim() == ""){
+                        iconoUrl = iconos['default']
+                    }
                     const iconImg = document.createElement('img');
                     iconImg.src = iconoUrl;
                     iconImg.width = 40;
@@ -268,12 +271,12 @@ Inicio
                                 marker.addListener('gmp-click', () => {
                                     infoWindow.setContent(`
                             <h4> Categoria: ${marcador.Categoria || 'Sin categoría'}</h4>
-                            <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'} </p>
-                            <p> <b>Colonia:</b> ${marcador.colonia || 'Desconocido'}</p>
-                            <p> <b>Estado:</b> ${marcador.estado || 'Desconocido'}</p>
-                            <p> <b>Municipio:</b> ${marcador.municipio || 'Desconocido'}</p>
+                            <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'}, <b>Colonia:</b> ${marcador.colonia || 'Desconocido'} </p>
+                            <p> <b>Estado:</b> ${marcador.estado || 'Desconocido'}, <b>Municipio:</b> ${marcador.municipio || 'Desconocido'}</p>
                             <p> <b>Delito:</b> ${marcador.delito || 'Desconocido'}</p>
                             <p> <b>Fecha:</b> ${marcador.fecha || 'No disponible'}</p>
+                            <h6>Descripción</h6>
+                            <p>${marcador.descripcion || 'Sin descripción'}</p>
                         `);
                                     infoWindow.setPosition(latlng);
                                     infoWindow.open(map);
@@ -299,10 +302,12 @@ Inicio
                         marker.addListener('gmp-click', () => {
                             infoWindow.setContent(`
                             <h4> Categoria: ${marcador.Categoria || 'Sin categoría'}</h4>
-                            <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'} </p>
-                            <p> <b>Colonia:</b> ${marcador.colonia || 'Desconocido'}</p>
+                            <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'}, <b>Colonia:</b> ${marcador.colonia || 'Desconocido'} </p>
+                            <p> <b>Estado:</b> ${marcador.estado || 'Desconocido'}, <b>Municipio:</b> ${marcador.municipio || 'Desconocido'}</p>
                             <p> <b>Delito:</b> ${marcador.delito || 'Desconocido'}</p>
                             <p> <b>Fecha:</b> ${marcador.fecha || 'No disponible'}</p>
+                            <h6>Descripción</h6>
+                            <p>${marcador.descripcion || 'Sin descripción'}</p>
                 `);
                             infoWindow.setPosition(position);
                             infoWindow.open(map);

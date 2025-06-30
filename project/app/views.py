@@ -302,7 +302,8 @@ def main (request):
                     'calle': valor.get('Calle_hechos'),
                     'colonia': valor.get('ColoniaHechos'),
                     'estado': valor.get('Estado_hechos'),
-                    'municipio': valor.get('Municipio_hechos')
+                    'municipio': valor.get('Municipio_hechos'),
+                    'descripcion': valor.get('Descripcion')
                }
                list_markers.append(marker)
           cache.set(CACHE_KEY_MARKERS, list_markers, None)
@@ -1363,6 +1364,11 @@ def loadFiles(request):
             categoria = request.POST.get("categ")
             lat = request.POST.get('lat')
             lng = request.POST.get('lng')
+            descripcion = request.POST.get('descripcion')
+
+            if not descripcion:
+                 descripcion = ""
+                 
             
             crime_str = str(categoria).upper()
           # Este segmento es sobre los iconos
@@ -1488,7 +1494,8 @@ def loadFiles(request):
                               'Ano_hecho': year,
                               'Ano_inicio': year,
                               'Mes_hecho': mes,
-                              'Mes_inicio': mes
+                              'Mes_inicio': mes,
+                              'Descripcion': descripcion
                               })
                     if (( calle and colonia and  estado and  municipio) and (not lat and not lng)):
                          direccion=f"{calle}, {colonia}, {estado}, {municipio}"
@@ -1512,7 +1519,8 @@ def loadFiles(request):
                                'Ano_hecho': year,
                                'Ano_inicio': year,
                                'Mes_hecho': mes,
-                               'Mes_inicio': mes
+                               'Mes_inicio': mes,
+                               'Descripcion': descripcion
                                })
                          
 
@@ -1533,7 +1541,8 @@ def loadFiles(request):
                               'Ano_hecho': year,
                               'Ano_inicio': year,
                               'Mes_hecho': mes,
-                              'Mes_inicio': mes
+                              'Mes_inicio': mes,
+                              'Descripcion': descripcion
                               })
                     success_message = "Datos agregados exitosamente"
                     return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")

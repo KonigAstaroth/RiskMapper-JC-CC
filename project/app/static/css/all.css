@@ -374,6 +374,7 @@ body{
     border: none;
     border-radius: 4px;
     padding-left: 10px;
+    padding-top: 10px;
 }
 .textarea-main:focus{
     outline: none;

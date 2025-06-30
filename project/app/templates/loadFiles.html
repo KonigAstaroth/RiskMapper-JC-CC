@@ -133,6 +133,25 @@ Carga de datos
             
             <br>
             <div class="row">
+                <div class="col">
+                    <label class="labels">Descripción del evento (opcional)</label>
+                    <textarea class="form-control" style="resize: none; height: 6em;" placeholder="Agregue una descripción detallada" maxlength="700" id= "descripcion" name="descripcion" oninput="contarCaracteres()"></textarea>
+                    <small class="form-text text-muted" id="contador"></small>
+                </div>
+            </div>
+            <script>
+                function contarCaracteres(){
+                    var textarea = document.getElementById('descripcion')
+                    var contador = document.getElementById('contador')
+                    contador.textContent = textarea.value.length + '/ 700 caracteres';
+                }
+
+                document.addEventListener("DOMContentLoaded", function(){
+                    contarCaracteres();
+                });
+            </script>
+            <br>
+            <div class="row">
                 <label class="labels">Dirección</label>
                 <div class="col">
                     
@@ -142,17 +161,11 @@ Carga de datos
                 <div class="col">
                     <input type="text" class="form-control" id="colonia" placeholder="Colonia" name="colonia">
                 </div>
-                
-            </div>
-            <br>
-            <div class="row">
                 <div class="col">
-                    <label class="labels">Municipio</label>
                     <input type="text" class="form-control" id="municipio" placeholder="Municipio" name="municipio">
                 </div>
         
                 <div class="col">
-                    <label class="labels">Estado</label>
                     <input type="text" class="form-control" id="estado" placeholder="Estado" name="estado">
                 </div>
             </div>
