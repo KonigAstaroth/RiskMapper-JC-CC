@@ -92,7 +92,7 @@ def login(request):
                         value=session_cookie,
                         max_age=expires_in.total_seconds(),
                         httponly=True,
-                        secure=False  # Cambiar a True en producción con HTTPS
+                        secure=True  # Cambiar a True en producción con HTTPS
                     )
                     decoded_claims = auth.verify_session_cookie(session_cookie)
                     uid = decoded_claims["uid"]

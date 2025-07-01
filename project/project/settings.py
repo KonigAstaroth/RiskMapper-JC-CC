@@ -19,10 +19,13 @@ FIREBASE_API_KEY = config('FIREBASE_API_KEY')
 import firebase_admin
 from firebase_admin import credentials
 import os
+
+import json
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))  
 
-cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
-cred = credentials.Certificate(cred_path)
+firebase_json = json.loads(config('FIREBASE_JSON'))
+#cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
+cred = credentials.Certificate(firebase_json)
 
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
