@@ -52,7 +52,7 @@ SECRET_KEY = 'django-insecure-6*8u+zlsi%bl%er)f_d4#hc@(z=#b5e_&80)!s-q-0^$rhntc-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['riskmapper-jc-cc.onrender.com']
 
 
 # Application definition
