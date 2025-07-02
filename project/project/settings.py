@@ -32,6 +32,7 @@ print("FIREBASE_JSON starts with:", firebase_json_str[:100])
 
 
 firebase_json = json.loads(firebase_json_str) 
+firebase_json['private_key'] = firebase_json['private_key'].replace('\\n', '\n')
 print("private_key starts with:", firebase_json['private_key'][:30])
 cred = credentials.Certificate(firebase_json)
 
