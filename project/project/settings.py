@@ -22,21 +22,21 @@ import os
 
 import json
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print("BASE_DIR =", BASE_DIR)
 
 
-#firebase_json_str = os.getenv('FIREBASE_JSON')
+
+firebase_json_str = os.getenv('FIREBASE_JSON')
 
 
-#firebase_json = json.loads(config('FIREBASE_JSON'))
-cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
+firebase_json = json.loads(config('FIREBASE_JSON'))
+#cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
 
 
-#firebase_json = json.loads(firebase_json_str) 
-#firebase_json['private_key'] = firebase_json['private_key'].replace('\\n', '\n')
+firebase_json = json.loads(firebase_json_str) 
+firebase_json['private_key'] = firebase_json['private_key'].replace('\\n', '\n')
 
-#cred = credentials.Certificate(firebase_json)
-cred = credentials.Certificate(cred_path)
+cred = credentials.Certificate(firebase_json)
+#cred = credentials.Certificate(cred_path)
 
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
