@@ -122,7 +122,7 @@ def forgotpass (request):
                user = auth.get_user_by_email(email)
                if user:
                     token = generate_token(email, user.uid)
-                    link = request.build_absolute_uri(f"http://127.0.0.1:8000/recoverPass/{token}/")
+                    link = request.build_absolute_uri(f"https://riskmapper-jc-cc.onrender.com/recoverPass/{token}/")
                     sendEmail(email, link)
                     success_message = "Correo para restablecer contraseña ha sido enviado"
                     return redirect(f"/forgotPassword?success={urllib.parse.quote(success_message)}")
