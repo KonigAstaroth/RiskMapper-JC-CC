@@ -21,26 +21,28 @@ from firebase_admin import credentials
 import os
 
 import json
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print("BASE_DIR =", BASE_DIR)
 
-firebase_json_str = os.getenv('FIREBASE_JSON')
-print("FIREBASE_JSON length:", len(firebase_json_str))
-print("FIREBASE_JSON starts with:", firebase_json_str[:100]) 
+
+#firebase_json_str = os.getenv('FIREBASE_JSON')
+
 
 #firebase_json = json.loads(config('FIREBASE_JSON'))
-#cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
+cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
 
 
-firebase_json = json.loads(firebase_json_str) 
-firebase_json['private_key'] = firebase_json['private_key'].replace('\\n', '\n')
-print("private_key starts with:", firebase_json['private_key'][:30])
-cred = credentials.Certificate(firebase_json)
+#firebase_json = json.loads(firebase_json_str) 
+#firebase_json['private_key'] = firebase_json['private_key'].replace('\\n', '\n')
+
+#cred = credentials.Certificate(firebase_json)
+cred = credentials.Certificate(cred_path)
 
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -76,6 +78,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -104,7 +107,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -146,10 +149,13 @@ USE_TZ = True
 import os
 from decouple import config
 
-STATIC_URL = 'static/'
+
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR , 'app/static'),
+    os.path.join(BASE_DIR , 'app', 'static'),
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 
@@ -157,6 +163,8 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 RECAPTCHA_PUBLIC_KEY = '6Le8_DErAAAAADo-5P5aRsFEQUN_PY-ZK-VWNaFU'
 RECAPTCHA_PRIVATE_KEY = '6Le8_DErAAAAAK9GtI8lLVSRJdXfn0n5DSqcMjnY'
