@@ -32,7 +32,7 @@ from django.http import HttpResponse
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from collections import Counter
 from openai import OpenAI
-import os
+import os,psutil
 import re
 from bs4 import BeautifulSoup
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -570,6 +570,10 @@ def main (request):
           return redirect('main') 
           
      error = request.GET.get("error")
+
+     process = psutil.Process(os.getpid())
+     mem = process.memory_info().rss / 1024**2
+     print(f"[MEMORIA] Uso de memoria actual: {mem:.2f} MB")
                
 
      context = {
