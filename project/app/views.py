@@ -36,6 +36,7 @@ import os
 import re
 from bs4 import BeautifulSoup
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+import gc
 
 
 
@@ -275,7 +276,7 @@ def main (request):
      }
 
      if query_has_update:
-          data = ref.get() or []
+          data = ref.limit(500).get() or []
           list_markers = []
           max_update = last_update
 
@@ -626,10 +627,13 @@ def genDataImg(cat_color_cuenta):
      buffer = io.BytesIO()
      plt.savefig(buffer, format='png', bbox_inches = 'tight')
      plt.close(fig)
+     ax.clear()
      buffer.seek(0)
      img_png = buffer.getvalue()
      tabla = base64.b64encode(img_png).decode('utf-8')
      buffer.close()
+     del fig, ax, buffer, img_png
+     gc.collect()
 
      return tabla
 
@@ -697,7 +701,11 @@ def genGraph(puntos):
           buffer.seek(0)
           img_png = buffer.getvalue()
           graphic = base64.b64encode(img_png).decode('utf-8')
+          plt.close(fig)
+          ax.clear()
           buffer.close()
+          del fig, ax, buffer, img_png
+          gc.collect()
           return graphic
 
 def getLatLng(direccion):
@@ -1569,94 +1577,112 @@ def getEstadoMunicipio(location):
      return municipio, estado
 
 def library(request):
-     sessionCookie = request.COOKIES.get('session')
-     priv = getPrivileges(request)
+    sessionCookie = request.COOKIES.get('session')
+    priv = getPrivileges(request)
 
-     if not sessionCookie:
-          return redirect ("login")
-     try:
-          decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
-          uid = decoded_claims["uid"]
-     except:
-          return redirect("login")
-     usuarios = getUsers()
-     ref = db.collection('Eventos')
-     
-     eventos =[]
-     if request.method == 'POST':
-          filters = {}
-          
-          startDate_str = request.POST.get('startDate')
-          endDate_str = request.POST.get('endDate')
-          direccion = request.POST.get('direccion' , '')
-          search = request.POST.get('searchBy')
-          categoria = request.POST.get('categoria')
+    if not sessionCookie:
+        return redirect("login")
+    try:
+        decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
+        uid = decoded_claims["uid"]
+    except:
+        return redirect("login")
 
-          partes_direccion = [parte.strip() for parte in direccion.split(',') if parte.strip()]
+    usuarios = getUsers()
+    ref = db.collection('Eventos')
+    eventos = []
 
-          if(search =="full"):
-               calle = partes_direccion[0] if len(partes_direccion) > 0 else None
-               colonia = partes_direccion[1] if len(partes_direccion) > 1 else None
-               municipio = partes_direccion[2] if len(partes_direccion) > 2 else None
-               estado = partes_direccion[3] if len(partes_direccion) > 3 else None
+    # ✅ Usar cualquier POST para actualizar filtros (no forzar startDate)
+    if request.method == 'POST':
+        filters = {}
 
-               if calle:
-                    filters['Calle_hechos'] = calle
-               if colonia:
-                    filters['ColoniaHechos'] = colonia
-               if municipio:
-                    filters['Municipio_hechos'] = municipio
-               if estado:
-                    filters['Estado_hechos'] = estado
-          elif (search =="estado"):
-               estado = partes_direccion[0] if len(partes_direccion) > 0 else None
-               if estado:
-                    filters['Estado_hechos'] = estado
-          elif (search =="municipio"):
-               municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
-               if municipio:
-                    filters['Municipio_hechos'] = municipio
-          elif (search=="estadoMunicipio"):
-               
-               municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
-               estado = partes_direccion[1] if len(partes_direccion) > 1 else None
-               if municipio:
-                    filters['Municipio_hechos'] = municipio.strip()
-               if estado:
-                    filters['Estado_hechos'] = estado.strip()
-               
-          
- 
-          if startDate_str and endDate_str:
-               startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-               endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
-               filters['startDate']=startDate
-               filters['endDate']=endDate
+        startDate_str = request.POST.get('startDate')
+        endDate_str = request.POST.get('endDate')
+        direccion = request.POST.get('direccion', '')
+        search = request.POST.get('searchBy')
+        categoria = request.POST.get('categoria')
 
-          if categoria:
-               filters['Categoria'] = categoria
-          
-          query_ref = ref
+        partes_direccion = [parte.strip() for parte in direccion.split(',') if parte.strip()]
 
-          if filters:
-               for campo, valor in filters.items():
-                    if campo == "startDate":
-                         query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '>=', valor))
-                    elif campo == "endDate":
-                         query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '<=', valor))
-                    else:
-                         if isinstance(valor, str):
-                              valor = valor.strip() 
-                         query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-          resultados = query_ref.stream()
-          
-          for doc in resultados:
-               data = doc.to_dict()
-               data['id'] = doc.id
-               eventos.append(data)
-          
+        if search == "full":
+            calle = partes_direccion[0] if len(partes_direccion) > 0 else None
+            colonia = partes_direccion[1] if len(partes_direccion) > 1 else None
+            municipio = partes_direccion[2] if len(partes_direccion) > 2 else None
+            estado = partes_direccion[3] if len(partes_direccion) > 3 else None
+
+            if calle:
+                filters['Calle_hechos'] = calle
+            if colonia:
+                filters['ColoniaHechos'] = colonia
+            if municipio:
+                filters['Municipio_hechos'] = municipio
+            if estado:
+                filters['Estado_hechos'] = estado
+        elif search == "estado":
+            estado = partes_direccion[0] if len(partes_direccion) > 0 else None
+            if estado:
+                filters['Estado_hechos'] = estado
+        elif search == "municipio":
+            municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
+            if municipio:
+                filters['Municipio_hechos'] = municipio
+        elif search == "estadoMunicipio":
+            municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
+            estado = partes_direccion[1] if len(partes_direccion) > 1 else None
+            if municipio:
+                filters['Municipio_hechos'] = municipio.strip()
+            if estado:
+                filters['Estado_hechos'] = estado.strip()
+
+        # ✅ Si fechas están, se agregan
+        if startDate_str and endDate_str:
+            filters['startDate'] = startDate_str
+            filters['endDate'] = endDate_str
+
+        if categoria:
+            filters['Categoria'] = categoria
+
+        request.session['filters'] = filters
+
+    
+    filters = request.session.get('filters', {})
+
+    if filters:
+        query_ref = ref
+
+        startDate_str = filters.get('startDate')
+        endDate_str = filters.get('endDate')
+
         
-     return render(request, 'library.html', {'usuarios': usuarios, 'eventos': eventos, 'priv': priv})
+        if startDate_str and endDate_str:
+            startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
+            query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '>=', startDate))
+            query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '<=', endDate))
+
+        
+        filters_sin_fechas = {k: v for k, v in filters.items() if k not in ['startDate', 'endDate']}
+
+        print("Filtros recibidos:", filters)
+        for campo, valor in filters_sin_fechas.items():
+            print(f"Campo: {campo}, Valor: {valor}")
+            if isinstance(valor, str):
+                valor = valor.strip()
+            query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
+
+        resultados = query_ref.stream()
+        for doc in resultados:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            eventos.append(data)
+
+    print(eventos)
+
+    return render(request, 'library.html', {
+        'usuarios': usuarios,
+        'eventos': eventos,
+        'priv': priv
+    })
 
 def edit_event(request, id):
 
@@ -1747,33 +1773,24 @@ def edit_event(request, id):
                updateNow = datetime.datetime.now(timezone.utc)
                updates['updatedAt'] = updateNow
                db.collection('Eventos').document(id).update(updates)
-               success_message = "Evento modificado con éxito"
-               return redirect(f"/library?success={urllib.parse.quote(success_message)}")
-          except:
-               error_message = "No se pudo actualizar el evento"
-               return redirect(f"/library?error={urllib.parse.quote(error_message)}")
+          except Exception as e:
+               print(e)
 
-     success = request.GET.get("success")
-     error = request.GET.get("error") 
 
-     return render(request, 'library.html', {'success': success, 'error': error})
+     return library(request)
 
 def deleteEvent(request, id):
       
      if request.method == 'POST':
           doc_ref = db.collection('Eventos').document(id)
-          doc = doc_ref
+          doc = doc_ref.get()
           try:
                if doc.exists:
                     doc_ref.delete()
-                    success_message = "Evento eliminado con éxito"
-                    return redirect(f"/library?success={urllib.parse.quote(success_message)}")
-          except:
-               error_message = "No se encontró el evento"
-               return redirect(f"/library?error={urllib.parse.quote(error_message)}")
-     success = request.GET.get("success")
-     error = request.GET.get("error") 
-     return render(request, 'library.html', {'success': success, 'error': error})
+          except Exception as e:
+               print(e)
+     
+     return library(request)
 
 
 

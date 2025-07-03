@@ -24,19 +24,18 @@ import json
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-
+#Produccion
 firebase_json_str = os.getenv('FIREBASE_JSON')
-
-
 firebase_json = json.loads(config('FIREBASE_JSON'))
-#cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
-
-
 firebase_json = json.loads(firebase_json_str) 
 firebase_json['private_key'] = firebase_json['private_key'].replace('\\n', '\n')
 
 cred = credentials.Certificate(firebase_json)
-#cred = credentials.Certificate(cred_path)
+
+
+#Pruebas en localhost
+# cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
+# cred = credentials.Certificate(cred_path)
 
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
@@ -52,9 +51,9 @@ if not firebase_admin._apps:
 SECRET_KEY = 'django-insecure-6*8u+zlsi%bl%er)f_d4#hc@(z=#b5e_&80)!s-q-0^$rhntc-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['riskmapper-jc-cc.onrender.com']
+ALLOWED_HOSTS = ['riskmapper-jc-cc.onrender.com', '127.0.0.1']
 
 
 # Application definition
@@ -174,3 +173,4 @@ GOOGLE_MAPS_KEY = config('GOOGLE_MAPS_KEY')
 SENDER_PASSWORD = config('SENDER_PASSWORD')
 SENDER_EMAIL= config('SENDER_EMAIL')
 OPENAI_API_KEY = config('OPENAI_API_KEY')
+FIREBASE_JSON = config('FIREBASE_JSON')
