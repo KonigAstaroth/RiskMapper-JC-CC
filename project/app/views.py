@@ -37,6 +37,7 @@ import re
 from bs4 import BeautifulSoup
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import gc
+import tracemalloc
 
 
 
@@ -402,6 +403,13 @@ def main (request):
 
      
      if request.method == 'POST' and 'buscar' in request.POST :
+          process = psutil.Process(os.getpid())
+          mem_inicio = process.memory_info().rss / 1024**2
+          cpu_inicio = psutil.cpu_percent(interval=0.1)
+
+          print(f"[ANTES] Memoria: {mem_inicio:.2f} MB, CPU: {cpu_inicio}%")
+
+          tracemalloc.start() 
           filters = {}
           filtersAi = {}
           direccion = ""
@@ -485,6 +493,12 @@ def main (request):
 
           eventos_lista=[doc.to_dict() for doc in resultados]
 
+          mem_despues = process.memory_info().rss / 1024**2
+          cpu_despues = psutil.cpu_percent(interval=0.1)
+
+          print(f"[DESPUÉS] Memoria: {mem_despues:.2f} MB, CPU: {cpu_despues}%")
+          print(f"[DIFERENCIA] Memoria usada durante proceso: {mem_despues - mem_inicio:.2f} MB")
+
           hora_critica, cantidad = getRange(eventos_lista)
 
           if hora_critica is not None:
@@ -558,6 +572,13 @@ def main (request):
                          return redirect(f"/main?error={urllib.parse.quote(error_message)}")  
           
           tabla = genDataImg(cat_color)
+
+          snapshot = tracemalloc.take_snapshot()
+          top_stats = snapshot.statistics('lineno')
+
+          print("[TRACEMALLOC] Top 10 líneas con mayor consumo de memoria:")
+          for stat in top_stats[:10]:
+               print(stat)
           request.session['graphic'] = graphic
           request.session['calendarios'] = calendarios
           request.session['lugar'] = lugar
@@ -571,9 +592,7 @@ def main (request):
           
      error = request.GET.get("error")
 
-     process = psutil.Process(os.getpid())
-     mem = process.memory_info().rss / 1024**2
-     print(f"[MEMORIA] Uso de memoria actual: {mem:.2f} MB")
+     
                
 
      context = {

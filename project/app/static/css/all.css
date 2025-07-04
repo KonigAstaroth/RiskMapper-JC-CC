@@ -267,11 +267,14 @@ body{
     margin-bottom: 1%;
     padding-left: 5%;
     padding-right: 5%;
+    overflow-y: auto;
+    max-height: 600px;
 }
 
 .loadData h3{
     font-family: "Inter", sans-serif;
     font-weight: 700;
+    
 }
 
 .formLoad{
@@ -279,6 +282,7 @@ body{
 }
 .loadFormu{
     width: 100%;
+    
 }
 
 .uploadFile{
