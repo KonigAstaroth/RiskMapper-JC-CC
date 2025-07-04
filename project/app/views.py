@@ -1615,7 +1615,7 @@ def library(request):
     ref = db.collection('Eventos')
     eventos = []
 
-    # ✅ Usar cualquier POST para actualizar filtros (no forzar startDate)
+    
     if request.method == 'POST':
         filters = {}
 
@@ -1657,7 +1657,7 @@ def library(request):
             if estado:
                 filters['Estado_hechos'] = estado.strip()
 
-        # ✅ Si fechas están, se agregan
+        
         if startDate_str and endDate_str:
             filters['startDate'] = startDate_str
             filters['endDate'] = endDate_str
