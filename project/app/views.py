@@ -419,6 +419,7 @@ def main (request):
           
           str_startDate = None
           str_endDate = None
+          descripcion_cliente = ""
           
           
           calle = request.POST.get('calle')
@@ -428,6 +429,7 @@ def main (request):
           startDate_str = request.POST.get('startDate')
           endDate_str = request.POST.get('endDate')
           delitos_select = request.POST.getlist('delitos')
+          descripcion_cliente = request.POST.get('descripcion_cliente')
 
 
           if calle:
@@ -478,10 +480,9 @@ def main (request):
                          if isinstance(valor, str):
                               valor = valor.strip() 
                          query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-               if str_startDate and str_endDate:
-                    AiText = genAI(filtersAi, str_startDate,str_endDate)
-               elif str_startDate is None and str_endDate is None:
-                    AiText = genAINoDate(filtersAi)
+               
+               AiText = genAI(filtersAi, str_startDate,str_endDate, descripcion_cliente)
+               
           if delitos_select:
                if len(delitos_select)<= 10:
                     query_ref = query_ref.where(filter=FieldFilter("Categoria", "in", delitos_select))
@@ -524,10 +525,6 @@ def main (request):
                elif not match:
                     if not any (c['nombre'] == 'Otro' for c in cat_color):
                          cat_color.append({'nombre': 'Otro', 'color': 'gray'})
-               
-               
-               
-
 
                if isinstance(fecha,str):
                     fecha = datetime.fromisoformat(fecha)
@@ -760,19 +757,13 @@ def loadOsintDate(name = "osintDate.txt" ):
      with open (ruta, 'r', encoding='utf-8')as f:
           return f.read()
      
-def loadOsintNoDate(name = "osintNoDate.txt"):
-     ruta = os.path.join(settings.BASE_DIR,'app', 'prompts', name)
-     with open (ruta, 'r', encoding='utf-8')as f:
-          return f.read()
+ 
 
-
-     
-
-def genAI(filters,start,end):
+def genAI(filters,start,end, descripcion_cliente):
      client = OpenAI(api_key=settings.OPENAI_API_KEY)
      lugar = ', '.join(f"{k}:{v}" for k,v in filters.items())
      template = loadOsintDate()
-     content= template.format(start=start, end = end, lugar = lugar)
+     content= template.format(start=start, end = end, lugar = lugar, descripcion_cliente = descripcion_cliente)
      completion =client.chat.completions.create(
           model='gpt-4.1-mini',
           store = True,
@@ -782,19 +773,6 @@ def genAI(filters,start,end):
      
      return cleanAnswer(text)
 
-def genAINoDate(filters):
-     client = OpenAI(api_key=settings.OPENAI_API_KEY)
-     lugar = ', '.join(f"{k}:{v}" for k,v in filters.items())
-     template = loadOsintNoDate()
-     content= template.format(lugar = lugar)
-     completion =client.chat.completions.create(
-          model='gpt-4.1-mini',
-          store = True,
-          messages=[{'role': 'user', 'content': content}]
-     )
-     text = completion.choices[0].message.content.strip()
-    
-     return cleanAnswer(text)
 
 def cleanAnswer(texto):
     texto = texto.strip()
