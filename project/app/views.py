@@ -1665,41 +1665,37 @@ def library(request):
         if categoria:
             filters['Categoria'] = categoria
 
-        request.session['filters'] = filters
+        
+    if filters:
+          query_ref = ref
+
+          startDate_str = filters.get('startDate')
+          endDate_str = filters.get('endDate')
+
+          
+          if startDate_str and endDate_str:
+               startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+               endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
+               query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '>=', startDate))
+               query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '<=', endDate))
+
+          
+          filters_sin_fechas = {k: v for k, v in filters.items() if k not in ['startDate', 'endDate']}
+
+          
+          for campo, valor in filters_sin_fechas.items():
+               print(f"Campo: {campo}, Valor: {valor}")
+               if isinstance(valor, str):
+                    valor = valor.strip()
+               query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
+
+          resultados = query_ref.stream()
+          for doc in resultados:
+               data = doc.to_dict()
+               data['id'] = doc.id
+               eventos.append(data)
 
     
-    filters = request.session.get('filters', {})
-
-    if filters:
-        query_ref = ref
-
-        startDate_str = filters.get('startDate')
-        endDate_str = filters.get('endDate')
-
-        
-        if startDate_str and endDate_str:
-            startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-            endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
-            query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '>=', startDate))
-            query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '<=', endDate))
-
-        
-        filters_sin_fechas = {k: v for k, v in filters.items() if k not in ['startDate', 'endDate']}
-
-        print("Filtros recibidos:", filters)
-        for campo, valor in filters_sin_fechas.items():
-            print(f"Campo: {campo}, Valor: {valor}")
-            if isinstance(valor, str):
-                valor = valor.strip()
-            query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-
-        resultados = query_ref.stream()
-        for doc in resultados:
-            data = doc.to_dict()
-            data['id'] = doc.id
-            eventos.append(data)
-
-    print(eventos)
 
     return render(request, 'library.html', {
         'usuarios': usuarios,
