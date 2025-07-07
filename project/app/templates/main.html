@@ -62,15 +62,16 @@ Inicio
                     <label class="label_filters">Descripción del cliente</label>
                     <div style="padding-right: 2%; padding-left: 2%;" class="col">
                         <textarea class="textarea-main" placeholder="Agregue una descripción apropiada de acuerdo al tipo de cliente" name="descripcion_cliente" id="descripcion_cliente" oninput="contarCaracteres()" maxlength="1000"></textarea>
-                        <small id="contador" class="form-text text-muted"></small>
+                        
                     </div>
+                    
 
                     <script>
                         function contarCaracteres(){
                             var textarea = document.getElementById('descripcion_cliente')
                             var contador = document.getElementById('contador')
 
-                            contador.textContent = textarea.value.length() + '/1000'
+                            contador.textContent = textarea.value.length + '/1000'
                         }
 
                         document.addEventListener("DOMContentLoaded", function(){
@@ -78,6 +79,9 @@ Inicio
                         });
                     </script>
                     
+                </div>
+                <div class="row">
+                    <small id="contador"  style="color: #e6e6e6; font-family: Insert, sans-serif;"></small>
                 </div>
 
                 <br>

@@ -24,6 +24,8 @@ from app import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.login, name='login'),
+    path('signup/', views.signup, name='signup'),
+    path('subscriptions/', views.subscriptions, name='subs'),
     path('policy/', views.policy, name='policy'),
     path('forgotPassword/', views.forgotpass, name='pass'),
     path('main/', views.main, name='main'),
