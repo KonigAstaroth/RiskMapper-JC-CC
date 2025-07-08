@@ -50,7 +50,6 @@ CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
 FIREBASE_AUTH_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={settings.FIREBASE_API_KEY}"
 
 def signup(request):
-     email = ""
      if request.method == 'POST':
           name = request.POST.get('name')
           lastName = request.POST.get('lastName')
@@ -60,16 +59,20 @@ def signup(request):
           client = request.POST.get('client')
           try:
                if name and lastName and email and password == repassword:
-                    user = auth.create_user(email=email, password=password)
-                    db.collection("Usuarios").document(user.uid).set({
-                    "email": email,
-                    "name": name,
-                    "lastname": lastName,
-                    "privileges":False,
-                    "lastAccess": None,
-                    "Tipo_cliente": client
-                    })
-                    request.session['email'] = email
+                    # user = auth.create_user(email=email, password=password)
+                    # db.collection("Usuarios").document(user.uid).set({
+                    # "email": email,
+                    # "name": name,
+                    # "lastname": lastName,
+                    # "privileges":False,
+                    # "lastAccess": None,
+                    # "Tipo_cliente": client
+                    # })
+                    request.session['name_usr'] = name
+                    request.session['lastname_usr'] = lastName
+                    request.session['email_usr'] = email
+                    request.session['password_usr'] = password
+                    request.session['client_usr'] = client
                     return redirect('subs')
                elif repassword != password:
                     error_message = "La contraseña no coicide"
@@ -84,6 +87,11 @@ def signup(request):
      return render(request, 'signup.html', {"error": error})
 
 def subscriptions(request):
+     # if  not all( k in request.session for k in ['name_usr', 'lastname_usr', 'email_usr', 'password_usr', 'client_usr' ]):
+     #      return redirect('signup')
+     if request.method == "POST":
+          plan = request.POST.get('plan')
+          request.session['plan'] = plan
 
      return render(request, 'selectSub.html')
 

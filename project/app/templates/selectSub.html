@@ -10,54 +10,134 @@
     <link rel="icon" type="image/png" href="{% static 'icons/web-icon-Eclipse.png' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
-<body>
-    
-    
+<body style="overflow-x: hidden;">
     <div class="sub_bckgrnd">
         
-        <div class="cartas_sub">
-            <div class="card" style="width: 20rem;">
-                <div class="card-body">
-                    <h5 class="card-title">Titulo</h5>
-                    <p>dasdasdasdsadsa</p>
+        <h1>CONOCE NUESTROS PLANES DE SUSCRIPCIÓN</h1>
+        <h3>Escoge un plan que se adecúe a tus necesidades </h3>
+        
+        
+    </div>
+    <div class="cartas_sub">
+            
+        <div class="card" style="width: 20rem; border: none;">
+            <div class="card-body">
+                <h4 class="card-title" style="color: #414141;">Esencial</h4>
+                <br>
+                <div class="prices">
+                    <h5>$100 USD</h5><span class="text-muted">Al mes</span>
+                    
                 </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Cras justo odio</li>
-                    <li class="list-group-item">Dapibus ac facilisis in</li>
-                    <li class="list-group-item">Vestibulum at eros</li>
-                </ul>
-                <div class="card-body">
-                    <button>dsadsa</button>
-                </div>
+                <small class="text-muted">*Cargo por cobro no incluido</small>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">10 reportes con IA</li>
+                <li class="list-group-item">ISO 31000 manual</li>
+                <li class="list-group-item">Soporte general</li>
+            </ul>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" value="esencial" name="plan">
+                    <button class="es_bttn">CONTRATAR</button>
+                </form>
                 
             </div>
+            
+        </div>
 
-            <div class="card" style="width: 20rem;">
-                <div class="card-body">
-                    <h5 class="card-title">Titulo</h5>
-                    <p>dasdasdasdsadsa</p>
-                </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Cras justo odio</li>
-                    <li class="list-group-item">Dapibus ac facilisis in</li>
-                    <li class="list-group-item">Vestibulum at eros</li>
-                </ul>
+        <div class="card card-premium" style="width: 20rem; border: none;">
+            <div class="card-header header-recomendado" style="background-color: #303130; color: #f4f4f4;border-color: #303130;">
+                <span><i class="bi bi-star-fill" style="margin-right: 1%;"></i></span>RECOMENDADO
             </div>
-
-            <div class="card" style="width: 20rem;">
-                <div class="card-body">
-                    <h5 class="card-title">Titulo</h5>
-                    <p>dasdasdasdsadsa</p>
+            <div class="card-body">
+                <h4 class="card-title" style="color: #0C6CC9;">PREMIUM</h4>
+                <br>
+                <div class="prices">
+                    <h5>$100 USD</h5><span class="text-muted">Al mes</span>
                 </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Cras justo odio</li>
-                    <li class="list-group-item">Dapibus ac facilisis in</li>
-                    <li class="list-group-item">Vestibulum at eros</li>
-                </ul>
+                <small class="text-muted">*Cargo por cobro no incluido</small>
+                
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">50 reportes generados con IA</li>
+                <li class="list-group-item">ISO 31000 con generado con IA</li>
+                <li class="list-group-item">Soporte preferencial</li>
+            </ul>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" value="premium" name="plan">
+                    <button class="pre_bttn">CONTRATAR</button>
+                </form>
             </div>
         </div>
+
+        <div class="card" style="width: 20rem; border: none;">
+            <div class="card-body">
+                <h4 class="card-title" style="color: #4F01C8;">Profesional</h4>
+                <br>
+                <div class="prices">
+                    <h5>$100 USD</h5><span class="text-muted">Al mes</span>
+                </div>
+                <small class="text-muted">*Cargo por cobro no incluido</small>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">80 reportes generados con IA</li>
+                <li class="list-group-item">ISO 31000 con generado con IA</li>
+                <li class="list-group-item">Soporte VIP</li>
+            </ul>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" value="profesional" name="plan">
+                    <button class="pro_bttn">CONTRATAR</button>
+                </form>
+            </div>
+        </div>
+        
     </div>
+    <div style="margin-top: 20%;">
+        <div style="margin: auto; width: 60vw;">
+            <h2>Características incluidas en nuestros planes</h2>
+            <table class="table table-striped-columns">
+                <th>
+                    <tr>
+                        <td></td>
+                        <td style="color: #303130; font-weight: bold;">Esencial</td>
+                        <td style="color: #0C6CC9; font-weight: bold;">Premium</td>
+                        <td style="color: #4F01C8; font-weight: bold;">Profesional</td>
+                    </tr>
+                </th>
+                <tbody>
+                    <tr>
+                        <td><strong>Reportes IA</strong><br>Filtrado de datos y hechos historicos</td>
+                        <td><i class="bi bi-check-lg" style="color: green;"></i> 10 reportes al mes</td>
+                        <td><i class="bi bi-check-lg" style="color: green;"></i> 50 reportes al mes</td>
+                        <td><i class="bi bi-check-lg" style="color: green;"></i> 80 reportes al mes</td>
+                        
+                        
+                    </tr>
+                    <tr>
+                        <td><strong>Reportes ISO 31000 con IA</strong><br>Análisis detallados</td>
+                        <td><i class="bi bi-x-lg" style="color: #303130;"></i> Reportes generados manualmente</td>
+                        <td><i class="bi bi-check-lg" style="color: green;"></i> 10 reportes al mes</td>
+                        <td><i class="bi bi-check-lg" style="color: green;"></i> 30 reportes al mes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Soporte especializado</strong><br>Soporte personalizado y atención prioritaria</td>
+                        <td><i class="bi bi-x-lg" style="color: #303130;"></i> Soporte general</td>
+                        <td><i class="bi bi-x-lg" style="color: #303130;"></i> Soporte preferencial</td>
+                        <td><i class="bi bi-check-lg" style="color: green;"></i> Soporte especializado</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
     
 </body>
 </html>
