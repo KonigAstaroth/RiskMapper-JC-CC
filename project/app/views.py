@@ -1638,10 +1638,10 @@ def library(request):
     usuarios = getUsers()
     ref = db.collection('Eventos')
     eventos = []
-
+    filters = {}
     
     if request.method == 'POST':
-        filters = {}
+        
 
         startDate_str = request.POST.get('startDate')
         endDate_str = request.POST.get('endDate')
