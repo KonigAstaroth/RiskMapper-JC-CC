@@ -38,6 +38,7 @@ from bs4 import BeautifulSoup
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import gc
 import tracemalloc
+import stripe
 
 
 
@@ -59,20 +60,16 @@ def signup(request):
           client = request.POST.get('client')
           try:
                if name and lastName and email and password == repassword:
-                    # user = auth.create_user(email=email, password=password)
-                    # db.collection("Usuarios").document(user.uid).set({
-                    # "email": email,
-                    # "name": name,
-                    # "lastname": lastName,
-                    # "privileges":False,
-                    # "lastAccess": None,
-                    # "Tipo_cliente": client
-                    # })
-                    request.session['name_usr'] = name
-                    request.session['lastname_usr'] = lastName
+                    user = auth.create_user(email=email, password=password)
+                    db.collection("Usuarios").document(user.uid).set({
+                    "email": email,
+                    "name": name,
+                    "lastname": lastName,
+                    "privileges":False,
+                    "lastAccess": None,
+                    "Tipo_cliente": client
+                    })
                     request.session['email_usr'] = email
-                    request.session['password_usr'] = password
-                    request.session['client_usr'] = client
                     return redirect('subs')
                elif repassword != password:
                     error_message = "La contraseña no coicide"
@@ -94,6 +91,26 @@ def subscriptions(request):
           request.session['plan'] = plan
 
      return render(request, 'selectSub.html')
+
+def create_stripe_user(request):
+     email = request.session.get('email_usr')
+     user = auth.get_user_by_email(email)
+
+     if not user:
+          return HttpResponse("Usuario no autenticado", status=401)
+
+     user_doc = db.collection('Usuarios').document(user.uid)
+     user_data = user_doc.get().to_dict()
+
+     if not 'stripe_customer_id' in user_data:
+          customer = stripe.Customer.create(
+               email= user_data.get('email'),
+               name= user_data.get('name') + " " + user_data.get('lastname')
+          )
+          user_doc.update({'stripe_customer_id': customer.id})
+     else:
+          customer_id = user_doc.get('stripe_customer_id')
+     return
 
 def login(request):
     sessionCookie = request.COOKIES.get('session')
