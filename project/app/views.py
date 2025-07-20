@@ -44,6 +44,7 @@ import stripe
 
 
 
+
 db = firestore.client()
 CACHE_KEY_MARKERS = 'firebase_markers'
 CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
@@ -277,7 +278,6 @@ def getRange(eventos):
         elif isinstance(fecha, datetime.datetime):
             fecha_dt = fecha
         else:
-            print("Tipo de fecha no reconocido:", type(fecha))
             continue
 
         if fecha_dt.tzinfo is not None:
@@ -466,13 +466,13 @@ def main (request):
 
      
      if request.method == 'POST' and 'buscar' in request.POST :
-          process = psutil.Process(os.getpid())
-          mem_inicio = process.memory_info().rss / 1024**2
-          cpu_inicio = psutil.cpu_percent(interval=0.1)
+          # process = psutil.Process(os.getpid())
+          # mem_inicio = process.memory_info().rss / 1024**2
+          # cpu_inicio = psutil.cpu_percent(interval=0.1)
 
-          print(f"[ANTES] Memoria: {mem_inicio:.2f} MB, CPU: {cpu_inicio}%")
+          # print(f"[ANTES] Memoria: {mem_inicio:.2f} MB, CPU: {cpu_inicio}%")
 
-          tracemalloc.start() 
+          # tracemalloc.start() 
           filters = {}
           filtersAi = {}
           direccion = ""
@@ -517,8 +517,11 @@ def main (request):
                banner.append(estado)
 
           
+
+          
           map_config = getLatLng(direccion)
           lugar = ', '.join(f"{k}" for k in banner)
+          
           
  
           if startDate_str and endDate_str:
@@ -530,7 +533,24 @@ def main (request):
                filters['endDate']=endDate
           else:
                pass
+
+          now = datetime.datetime.now(timezone.utc)
+          AiText = genAI(filtersAi, str_startDate,str_endDate, descripcion_cliente, now)
           
+
+          if not (('startDate' in filters and 'endDate' in filters) or any(k in filters for k in ['Municipio_hechos', 'Estado_hechos', 'Calle_hechos', 'ColoniaHechos'])):
+               request.session['graphic'] = []
+               request.session['calendarios'] = []
+               request.session['tabla_base64'] = None
+               request.session['ready_to_export'] = True
+               request.session['hour_txt'] = "No se encontraron eventos para graficar."
+               request.session['AiText'] = mark_safe(AiText)
+               request.session['lugar'] = lugar
+               request.session['map_config'] = map_config
+               return redirect("main")
+               
+          
+
           query_ref = ref
 
           if filters:
@@ -543,60 +563,87 @@ def main (request):
                          if isinstance(valor, str):
                               valor = valor.strip() 
                          query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-               
-               AiText = genAI(filtersAi, str_startDate,str_endDate, descripcion_cliente)
-               
           if delitos_select:
                if len(delitos_select)<= 10:
                     query_ref = query_ref.where(filter=FieldFilter("Categoria", "in", delitos_select))
                else:
                     error_message = "Demasiados delitos seleccionados para aplicar filtro 'in'"
                     return redirect(f"/main?error={urllib.parse.quote(error_message)}")
+               
+          preview = list(query_ref.limit(1).stream())
 
-          resultados = list(query_ref.stream())
+          if not preview:
+               request.session['graphic'] = []
+               request.session['calendarios'] = []
+               request.session['tabla_base64'] = None
+               request.session['ready_to_export'] = True
+               request.session['hour_txt'] = "No se encontraron eventos para graficar."
+               request.session['AiText'] = mark_safe(AiText)
+               request.session['lugar'] = lugar
+               request.session['map_config'] = map_config
+               return redirect("main")
 
-          eventos_lista=[doc.to_dict() for doc in resultados]
+          # mem_despues = process.memory_info().rss / 1024**2
+          # cpu_despues = psutil.cpu_percent(interval=0.1)
 
-          mem_despues = process.memory_info().rss / 1024**2
-          cpu_despues = psutil.cpu_percent(interval=0.1)
+          # print(f"[DESPUÉS] Memoria: {mem_despues:.2f} MB, CPU: {cpu_despues}%")
+          # print(f"[DIFERENCIA] Memoria usada durante proceso: {mem_despues - mem_inicio:.2f} MB")
 
-          print(f"[DESPUÉS] Memoria: {mem_despues:.2f} MB, CPU: {cpu_despues}%")
-          print(f"[DIFERENCIA] Memoria usada durante proceso: {mem_despues - mem_inicio:.2f} MB")
-
-          hora_critica, cantidad = getRange(eventos_lista)
-
-          if hora_critica is not None:
-               hour_txt = f"{hora_critica}:00 a {hora_critica+1}:00, contiene una cantidad de {cantidad} de eventos"
-          else:
-               hour_txt = "No hay eventos para calcular rango horario crítico."
+          
 
           eventos_por_mes = defaultdict(list)
           graficos_por_mes = defaultdict(list)
           cat_color = []
 
-         
+          
+
+          resultados = list(query_ref.stream())
+
+          eventos_lista=[doc.to_dict() for doc in resultados]
+          conteo_delitos = defaultdict(int)
+          
+
+          hora_critica, cantidad = getRange(eventos_lista)
+          
+          if hora_critica is not None:
+               if cantidad > 1:
+                    hour_txt = f"Entre las {hora_critica}:00 y las {hora_critica+1}:00 horas se registró {cantidad} eventos, lo que destaca este intervalo como un posible punto de riesgo."
+               elif cantidad == 1:
+                     hour_txt = f"Entre las {hora_critica}:00 y las {hora_critica+1}:00 horas se registró {cantidad} evento, lo que destaca este intervalo como un posible punto de riesgo."
+          else:
+               hour_txt = "No hay eventos para calcular rango horario crítico."
+
+          
           for  eventos in eventos_lista:
                date_obj = eventos.get('FechaHoraHecho')
+               if not date_obj:
+                    continue
                fecha = date_obj
                categorie = eventos.get('Categoria')
                
 
                match = next((item for item in color_delitos if item['valor'] == categorie), None)
                if match:
-                    if not any(c['nombre'] == match['nombre'] for c in cat_color):
-                         cat_color.append({'nombre': match['nombre'], 'color': match['color']})     
-               elif not match:
-                    if not any (c['nombre'] == 'Otro' for c in cat_color):
-                         cat_color.append({'nombre': 'Otro', 'color': 'gray'})
+                    nombre = match['nombre']
+                    color = match['color']
+               else:
+                    nombre = 'Otro'
+                    color = 'gray'
 
-               if isinstance(fecha,str):
-                    fecha = datetime.fromisoformat(fecha)
-               elif hasattr(fecha, 'to_datetime'):
-                    fecha = fecha.to_datetime()
+               conteo_delitos[nombre] += 1
 
-               year = fecha.year
-               month = fecha.month
-               day = fecha.day
+               if not any(c['nombre'] == nombre for c in cat_color):
+                    cat_color.append({'nombre': nombre, 'color': color})
+
+               if fecha:
+                    if isinstance(fecha,str):
+                         fecha = datetime.fromisoformat(fecha)
+                    elif hasattr(fecha, 'to_datetime'):
+                         fecha = fecha.to_datetime()
+
+                    year = fecha.year
+                    month = fecha.month
+                    day = fecha.day
                
 
                eventos_por_mes[(year, month)].append((day, categorie))
@@ -613,32 +660,47 @@ def main (request):
                          graficos_por_mes[(year, month)].append((angulo, dia, categorie))
                     
           for (year, month), day in eventos_por_mes.items():
-                    imagen_base64  = generateCalendar(year, month, day)
-                    if imagen_base64:
-                         calendarios.append({
-                              'img': imagen_base64 
-                         })
+                    if not day:
+                         continue
                     else:
-                         error_message = "No se pudo el calendario"
-                         return redirect(f"/main?error={urllib.parse.quote(error_message)}")
+                         imagen_base64  = generateCalendar(year, month, day)
+                         if imagen_base64:
+                              calendarios.append({
+                                   'img': imagen_base64 
+                              })
+                         else:
+                              error_message = "No se pudo el calendario"
+                              return redirect(f"/main?error={urllib.parse.quote(error_message)}")
                     puntos_mes = graficos_por_mes.get((year,month), [])
-                    if puntos_mes:
-                         graphic_img = genGraph(puntos_mes)
-                         graphic.append({
-                              'img': graphic_img
-                         })
+                    if not puntos_mes:
+                         continue
                     else:
-                         error_message = "No se pudo la grafica"
-                         return redirect(f"/main?error={urllib.parse.quote(error_message)}")  
+                         if puntos_mes:
+                              graphic_img = genGraph(puntos_mes)
+                              graphic.append({
+                                   'img': graphic_img
+                              })
+                         else:
+                              error_message = "No se pudo la grafica"
+                              return redirect(f"/main?error={urllib.parse.quote(error_message)}")  
+                         
+          cat_color_cuenta = []
+          for item in cat_color:
+               nombre = item['nombre']
+               color = item['color']
+               cuenta = conteo_delitos.get(nombre, 0)
+               cat_color_cuenta.append({'nombre': nombre, 'color': color, 'cuenta': cuenta})
           
-          tabla = genDataImg(cat_color)
+          tabla = genDataImg(cat_color_cuenta)
+          
+     
 
-          snapshot = tracemalloc.take_snapshot()
-          top_stats = snapshot.statistics('lineno')
+          # snapshot = tracemalloc.take_snapshot()
+          # top_stats = snapshot.statistics('lineno')
 
-          print("[TRACEMALLOC] Top 10 líneas con mayor consumo de memoria:")
-          for stat in top_stats[:10]:
-               print(stat)
+          # print("[TRACEMALLOC] Top 10 líneas con mayor consumo de memoria:")
+          # for stat in top_stats[:10]:
+          #      print(stat)
           request.session['graphic'] = graphic
           request.session['calendarios'] = calendarios
           request.session['lugar'] = lugar
@@ -699,7 +761,9 @@ def genDataImg(cat_color_cuenta):
         ax.add_patch(icon)
 
         
-        ax.text(1.2, y, nombre.upper(), va='center', fontsize=12)
+        cuenta = item.get('cuenta', 0)
+        texto = f"{nombre.upper()}: {cuenta}"
+        ax.text(1.2, y, texto, va='center', fontsize=12)
 
     
      ax.set_xlim(-0.2, 5)
@@ -721,6 +785,8 @@ def genDataImg(cat_color_cuenta):
      return tabla
 
 def genGraph(puntos):
+          if not puntos:
+               return None
           
           colores_cat ={
           'DELITO DE BAJO IMPACTO': '#A0A0A0',  # gris
@@ -822,16 +888,19 @@ def loadOsintDate(name = "osintDate.txt" ):
      
  
 
-def genAI(filters,start,end, descripcion_cliente):
+def genAI(filters,start,end, descripcion_cliente,now):
      client = OpenAI(api_key=settings.OPENAI_API_KEY)
-     lugar = ', '.join(f"{k}:{v}" for k,v in filters.items())
+     
+     lugar = ', '.join(f"{k}:{v}" for k,v in filters.items()) if filters else "No especificado"
      template = loadOsintDate()
-     content= template.format(start=start, end = end, lugar = lugar, descripcion_cliente = descripcion_cliente)
+     content= template.format(start=start, end = end, lugar = lugar, descripcion_cliente = descripcion_cliente, now = now)
      completion =client.chat.completions.create(
           model='gpt-4.1-mini',
           store = True,
           messages=[{'role': 'user', 'content': content}]
      )
+
+     
      text = completion.choices[0].message.content.strip()
      
      return cleanAnswer(text)
@@ -920,6 +989,7 @@ def exportarDocx(request):
      horas = request.session.get('hour_txt')
      AiText = request.session.get('AiText')
      text_html = AiText
+     tabla = request.session.get('tabla_base64')
 
      doc = Document()
      
@@ -996,8 +1066,21 @@ def exportarDocx(request):
                     doc.add_picture(graphic_stream, width=Inches(4))  
                except:
                     doc.add_paragraph('Error al agregar calendario')
+
+     if tabla:
+          
+          try:
+               if isinstance(tabla, str) and tabla.startswith('data:image'):
+                    tabla = tabla.split(',')[1]
+               tabla_data = base64.b64decode(tabla)
+               tabla_stream = BytesIO(tabla_data)
+               doc.add_heading('Tabla de datos:', level= 2)
+               doc.add_picture(tabla_stream, width=Inches(3))
+          except:
+               doc.add_paragraph('Error en la tabla de datos')
      if horas:
           try:
+               doc.add_heading('Rango horario crítico:', level= 2)
                doc.add_paragraph( horas)
           except:
                doc.add_paragraph("No hay rango horario crítico")
@@ -1007,13 +1090,16 @@ def exportarDocx(request):
           content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
      )
 
-     response['Content-Disposition'] = 'attachment; filename ="Analisis_de_eventos.docx"'
+     fechaHora = datetime.datetime.now(timezone.utc)
+
+     response['Content-Disposition'] = f'attachment; filename =Analisis_de_eventos{fechaHora}.docx'
      doc.save(response)
      request.session.pop('graphic', None)
      request.session.pop('calendarios', None)
      request.session.pop('hour_txt', None)
      request.session.pop('AiText', None)
      request.session.pop('ready_to_export', None)
+     request.session.pop('tabla_base64', None)
 
      return response
 
@@ -1280,23 +1366,27 @@ def loadFiles(request):
                 df = pd.read_excel(excel_file, engine='openpyxl')
 
                 def convertir_fecha(fecha):
-                    if isinstance(fecha, str):
-                        try:
-                            return datetime.datetime.fromisoformat(fecha)
-                        except:
-                            return None
+                    if isinstance(fecha, pd.Timestamp):
+                         return fecha.to_pydatetime()
                     if isinstance(fecha, datetime.datetime):
-                        return fecha
+                         return fecha
+                    if isinstance(fecha, str):
+                         for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%m/%d/%Y"):
+                              try:
+                                   return datetime.datetime.strptime(fecha, fmt)
+                              except:
+                                   continue
                     return None
 
                 def convertir_hora(h):
                     if isinstance(h, str):
-                        try:
-                            return datetime.datetime.strptime(h, "%H:%M:%S").time()
-                        except:
-                            return None
+                         for fmt in ("%H:%M:%S", "%H:%M"):
+                              try:
+                                   return datetime.datetime.strptime(h, fmt).time()
+                              except:
+                                   continue
                     if isinstance(h, datetime.time):
-                        return h
+                         return h
                     return None
 
                 if "FechaHecho" in df.columns:
@@ -1317,8 +1407,7 @@ def loadFiles(request):
 
                 df.drop(columns=["FechaHecho", "HoraHecho"], inplace=True, errors='ignore')
 
-                if "HoraInicio" in df.columns:
-                     df["HoraInicio"] = df["HoraInicio"].astype(str)
+               
 
                 datos = df.where(pd.notnull(df), None).to_dict(orient='records')
 
@@ -1409,6 +1498,9 @@ def loadFiles(request):
                         
                         evento['icono'] = icono
                         evento['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
+                        categoria = evento.get('Categoria', '').upper()
+                        evento['Categoria'] = categoria
+                        
                         db.collection('Eventos').add(evento)
 
                     except Exception as e:
@@ -1509,11 +1601,6 @@ def loadFiles(request):
                         dt=datetime.datetime.strptime(fechaValue, "%Y-%m-%d %H:%M:%S")
 
                     timestamp = dj_timezone.make_aware(dt)
-                    if dt:
-                         year = dt.year
-                         month = dt.month
-                         meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-                         mes = meses[month-1]
                         
                  except Exception as e:
                       return render(request, 'loadFiles.HTML', {
@@ -1563,10 +1650,6 @@ def loadFiles(request):
                               "latitud": lat,
                               "longitud": lng,
                               'updatedAt': now,
-                              'Ano_hecho': year,
-                              'Ano_inicio': year,
-                              'Mes_hecho': mes,
-                              'Mes_inicio': mes,
                               'Descripcion': descripcion
                               })
                     if (( calle and colonia and  estado and  municipio) and (not lat and not lng)):
@@ -1588,10 +1671,6 @@ def loadFiles(request):
                                "latitud": lat_geo,
                                "longitud": lng_geo,
                                'updatedAt': now,
-                               'Ano_hecho': year,
-                               'Ano_inicio': year,
-                               'Mes_hecho': mes,
-                               'Mes_inicio': mes,
                                'Descripcion': descripcion
                                })
                          
@@ -1610,10 +1689,6 @@ def loadFiles(request):
                               "latitud": lat,
                               "longitud": lng,
                               'updatedAt': now,
-                              'Ano_hecho': year,
-                              'Ano_inicio': year,
-                              'Mes_hecho': mes,
-                              'Mes_inicio': mes,
                               'Descripcion': descripcion
                               })
                     success_message = "Datos agregados exitosamente"

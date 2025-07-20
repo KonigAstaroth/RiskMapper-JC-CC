@@ -133,7 +133,7 @@ Inicio
     
 </div>
 
-    {% if graphic and calendarios %}
+    {% if graphic or calendarios or AiText %}
         <div class="carta">
             <h2 class="analisis">ANALISIS DE PATRONES  </h2>
             <div class="data_analisis">
@@ -150,7 +150,7 @@ Inicio
                                 {% endfor %}
                             </div>
                         {% else %}
-                            <p>No hay calendario</p>
+
                         {% endif %}
                         
                         {% if graphic %} 
@@ -164,11 +164,13 @@ Inicio
                     
                     </div>
                     <br>
-                    <h3>DATA:</h3>
-                        
-                        <img src="data:image/png;base64,{{ tabla_base64 }}" alt="">
-                        
-                    <hr>
+                    {% if graphic and calendarios %}
+                        <h3>DATA:</h3>
+                            
+                            <img src="data:image/png;base64,{{ tabla_base64 }}" alt="">
+                            
+                        <hr>
+                    {% endif %}
                     
                     <h3>Rango horario crítico: </h3><span><p>{{ hour_txt }}</p></span>
                     <h3>Resumen de hechos violentos en el periodo</h3>
