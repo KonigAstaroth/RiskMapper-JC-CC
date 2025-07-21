@@ -1411,36 +1411,40 @@ def loadFiles(request):
 
                 datos = df.where(pd.notnull(df), None).to_dict(orient='records')
 
+                campos = ['latitud', 'longitud', 'Estado_hechos', 'Municipio_hechos', 'ColoniaHechos', 'Calle_hechos']
+
                 for evento in datos:
                     try:
                         if 'latitud'  in df.columns and 'longitud'  in df.columns and evento.get('latitud') != 'NA' and evento.get('longitud') != 'NA':
-                              if 'Municipio_hechos' not in df.columns and 'Estado_hechos' not in df.columns:
-                                   geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
-                                   latitud = evento.get('latitud', '')
-                                   longitud = evento.get('longitud', '')
-                                   location = geolocator.reverse((latitud,longitud))
-                                   municipio_geo, estado_geo = getEstadoMunicipio(location)
-                                   if municipio_geo:
-                                        evento['Municipio_hechos'] = municipio_geo
-                                   if estado_geo:
-                                        evento['Estado_hechos'] = estado_geo
+                              continue
+                        elif 'Municipio_hechos' not in df.columns and 'Estado_hechos' not in df.columns:
+                              geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
+                              latitud = evento.get('latitud', '')
+                              longitud = evento.get('longitud', '')
+                              location = geolocator.reverse((latitud,longitud))
+                              municipio_geo, estado_geo = getEstadoMunicipio(location)
+                              if municipio_geo:
+                                   evento['Municipio_hechos'] = municipio_geo
+                              if estado_geo:
+                                   evento['Estado_hechos'] = estado_geo
+                        elif 'latitud' not in df.columns and 'longitud' not in df.columns and evento.get('latitud') == 'NA' and evento.get('longitud') == 'NA':
+                              geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
+                              calle_dir = evento.get('Calle_hechos')
+                              col_dir = evento.get('ColoniaHechos')
+                              if 'Calle_hechos2' in df.columns and evento.get('Calle_hechos2') != 'NA':
+                                   calle_dir_dos = evento.get('Calle_hechos2')
+                                   direccion = f"{calle_dir}, {calle_dir_dos}, {col_dir}"
                               else:
-                                   geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
-                                   calle_dir = evento.get('Calle_hechos')
-                                   col_dir = evento.get('ColoniaHechos')
-                                   if 'Calle_hechos2' in df.columns and evento.get('Calle_hechos2') != 'NA':
-                                        calle_dir_dos = evento.get('Calle_hechos2')
-                                        direccion = f"{calle_dir}, {calle_dir_dos}, {col_dir}"
-                                   else:
-                                        direccion = f"{calle_dir}, {col_dir}"
-               
-                                   location = geolocator.geocode(direccion)
-                                   municipio_geo, estado_geo = getEstadoMunicipio(location)
+                                   direccion = f"{calle_dir}, {col_dir}"
+          
+                              location = geolocator.geocode(direccion)
+                              municipio_geo, estado_geo = getEstadoMunicipio(location)
 
-                                   if municipio_geo:
-                                        evento['Municipio_hechos'] = municipio_geo
-                                   if estado_geo:
-                                        evento['Estado_hechos'] = estado_geo
+                              if municipio_geo:
+                                   evento['Municipio_hechos'] = municipio_geo
+                              if estado_geo:
+                                   evento['Estado_hechos'] = estado_geo
+                             
 
                         categoria = evento.get('Categoria', '')
                         icono = None
