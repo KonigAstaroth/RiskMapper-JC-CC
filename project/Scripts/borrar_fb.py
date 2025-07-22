@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import os
 
-# 1. Inicializa la app con tu archivo JSON de credenciales
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
 cred = credentials.Certificate(cred_path)
@@ -12,9 +12,9 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 
 # 3. Configura los parámetros del filtro
-coleccion = "Eventos"         # ← cambia esto
-campo_filtro = "Estado_hechos"                # ← cambia esto
-valor_a_borrar = "Estado de México"            # ← cambia esto
+coleccion = "Eventos"         
+campo_filtro = "Estado_hechos"                
+valor_a_borrar = "Estado de México"           
 
 # 4. Obtener y borrar documentos que coincidan
 docs = db.collection(coleccion).where(campo_filtro, "==", valor_a_borrar).stream()

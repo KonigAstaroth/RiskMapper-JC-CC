@@ -1,3 +1,4 @@
+from google_crc32c import exc
 import requests
 from django.shortcuts import render,redirect
 from django.conf import settings
@@ -50,6 +51,7 @@ CACHE_KEY_MARKERS = 'firebase_markers'
 CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
 
 FIREBASE_AUTH_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={settings.FIREBASE_API_KEY}"
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def signup(request):
      if request.method == 'POST':
@@ -109,9 +111,31 @@ def create_stripe_user(request):
                name= user_data.get('name') + " " + user_data.get('lastname')
           )
           user_doc.update({'stripe_customer_id': customer.id})
-     else:
-          customer_id = user_doc.get('stripe_customer_id')
-     return
+
+     plan = request.session.get('plan')
+     prices = {
+          'essencial': 'prod_SjCwh2mfPxTtVo',
+          'premium': 'prod_SjCyrPCKCTFUwo',
+          'profesional': 'prod_SjD1fnEMOGj3Dv'
+     }
+
+     checkout_session = stripe.checkout.Session.create(
+          customer= customer.id,
+          payment_method_types=['card'],
+          line_items=[{
+               'price': prices[plan],
+               'quantity': 1
+          }],
+          mode= 'subscription',
+          success_url='https://tusitio.com/success?session_id={CHECKOUT_SESSION_ID}',
+          cancel_url='https://tusitio.com/cancel',
+          metadata={
+                'firebase_uid': user.uid,
+                'plan': plan
+          }
+
+     )
+     return redirect(checkout_session.url)
 
 def login(request):
     sessionCookie = request.COOKIES.get('session')
@@ -1358,6 +1382,7 @@ def loadFiles(request):
     if not sessionCookie:
         return redirect("login")
     usuarios = getUsers()
+    geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
 
     if request.method == "POST":
         if 'archivo' in request.FILES:
@@ -1410,40 +1435,59 @@ def loadFiles(request):
                
 
                 datos = df.where(pd.notnull(df), None).to_dict(orient='records')
-
-                campos = ['latitud', 'longitud', 'Estado_hechos', 'Municipio_hechos', 'ColoniaHechos', 'Calle_hechos']
+                campos_ubicacion=['latitud', 'longitud', 'Estado_hechos', 'Municipio_hechos', 'ColoniaHechos', 'Calle_hechos' ]
 
                 for evento in datos:
                     try:
-                        if 'latitud'  in df.columns and 'longitud'  in df.columns and evento.get('latitud') != 'NA' and evento.get('longitud') != 'NA':
-                              continue
-                        elif 'Municipio_hechos' not in df.columns and 'Estado_hechos' not in df.columns:
-                              geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
-                              latitud = evento.get('latitud', '')
-                              longitud = evento.get('longitud', '')
-                              location = geolocator.reverse((latitud,longitud))
-                              municipio_geo, estado_geo = getEstadoMunicipio(location)
-                              if municipio_geo:
-                                   evento['Municipio_hechos'] = municipio_geo
-                              if estado_geo:
-                                   evento['Estado_hechos'] = estado_geo
-                        elif 'latitud' not in df.columns and 'longitud' not in df.columns and evento.get('latitud') == 'NA' and evento.get('longitud') == 'NA':
-                              geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
-                              calle_dir = evento.get('Calle_hechos')
-                              col_dir = evento.get('ColoniaHechos')
-                              if 'Calle_hechos2' in df.columns and evento.get('Calle_hechos2') != 'NA':
-                                   calle_dir_dos = evento.get('Calle_hechos2')
-                                   direccion = f"{calle_dir}, {calle_dir_dos}, {col_dir}"
-                              else:
-                                   direccion = f"{calle_dir}, {col_dir}"
-          
-                              location = geolocator.geocode(direccion)
-                              municipio_geo, estado_geo = getEstadoMunicipio(location)
+                        if location_check(evento, campos_ubicacion):
+                              pass
+                        else:
+                         if check_valid_value(evento.get('latitud')) and check_valid_value(evento.get('longitud')):
+                                   calle_dir = evento.get('Calle_hechos')
+                                   col_dir = evento.get('ColoniaHechos')
+                                   estado_dir = evento.get('Estado_hechos')
+                                   municipio_dir = evento.get('Municipio_hechos')
+                                   if check_valid_value(estado_dir) and check_valid_value(municipio_dir):
+                                        try:
+                                             if 'Calle_hechos2' in df.columns and check_valid_value(evento.get('Calle_hechos2')):
+                                                  calle_dir_dos = evento.get('Calle_hechos2')
+                                                  direccion = f"{calle_dir}, {calle_dir_dos}, {col_dir}, {municipio_dir}, {estado_dir}"
+                                             else:
+                                                  direccion = f"{calle_dir}, {col_dir}, {municipio_dir}, {estado_dir}"
+                                             location = geolocator.geocode(direccion)
+                                             if location:
+                                                  evento['latitud'] = location.latitude
+                                                  evento['longitud'] = location.longitude
+                                        except:
+                                             error_message = "No se encontraron las coordenadas: Revise la dirección"
+                                             return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
+                                   else:
+                                        
+                                        municipio_geo, estado_geo = getEstadoMunicipio(location)
 
-                              if municipio_geo:
-                                   evento['Municipio_hechos'] = municipio_geo
-                              if estado_geo:
-                                   evento['Estado_hechos'] = estado_geo
+                                        if municipio_geo:
+                                             evento['Municipio_hechos'] = municipio_geo
+                                        if estado_geo:
+                                             evento['Estado_hechos'] = estado_geo
+                         if check_valid_value(evento.get('Estado_hechos')) and check_valid_value(evento.get('Municipio_hechos')):
+                                   
+                                   try:
+                                        latitud = evento.get('latitud', '')
+                                        longitud = evento.get('longitud', '')
+                                        if latitud and longitud:
+                                             location = geolocator.reverse((latitud,longitud))
+                                             if location:
+                                                  municipio_geo, estado_geo = getEstadoMunicipio(location)
+                                                  if municipio_geo:
+                                                       evento['Municipio_hechos'] = municipio_geo
+                                                  if estado_geo:
+                                                       evento['Estado_hechos'] = estado_geo
+                                   except:
+                                        error_message = "No se encontró el estado y/o municipio: Error en las coordenadas"
+                                        return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
+                        
+                        
+                        
                              
 
                         categoria = evento.get('Categoria', '')
@@ -1618,7 +1662,6 @@ def loadFiles(request):
                 now = datetime.datetime.now(datetime.timezone.utc)
                 try:
                     if ((not calle and not colonia and not estado and not municipio) and lat and lng):
-                         geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
                          
                          location = geolocator.reverse((lat,lng))
                          if location and location.raw:
@@ -1658,7 +1701,6 @@ def loadFiles(request):
                               })
                     if (( calle and colonia and  estado and  municipio) and (not lat and not lng)):
                          direccion=f"{calle}, {colonia}, {estado}, {municipio}"
-                         geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
                          location = geolocator.geocode(direccion)
                          lat_geo = location.latitude
                          lng_geo = location.longitude
@@ -1707,6 +1749,14 @@ def loadFiles(request):
     success = request.GET.get("success")
     error = request.GET.get("error")
     return render(request, "loadFiles.html", {"error": error, 'success': success, 'usuarios': usuarios, 'priv': priv,})
+
+def check_valid_value(valor):
+     return not(
+          valor is None or str(valor).strip().upper() in ['NA', 'N/A', '', 'None']
+     )
+
+def location_check(evento, campos):
+     return all(evento.get(campo) not in ['', None, 'NA', 'N/a', 'n/a', 'N/A', 'na'] for campo in campos)
 
 def getEstadoMunicipio(location):
      municipio = estado = None
