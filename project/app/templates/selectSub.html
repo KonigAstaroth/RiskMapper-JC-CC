@@ -38,7 +38,7 @@
                 <li class="list-group-item">Soporte general</li>
             </ul>
             <div class="card-body">
-                <form method="POST">
+                <form method="POST" action="{% url 'subs' %}">
                     {% csrf_token %}
                     <input type="hidden" value="esencial" name="plan">
                     <button class="es_bttn">CONTRATAR</button>
@@ -67,7 +67,7 @@
                 <li class="list-group-item">Soporte preferencial</li>
             </ul>
             <div class="card-body">
-                <form method="POST">
+                <form method="POST" action="{% url 'subs' %}">
                     {% csrf_token %}
                     <input type="hidden" value="premium" name="plan">
                     <button class="pre_bttn">CONTRATAR</button>
@@ -90,7 +90,7 @@
                 <li class="list-group-item">Soporte VIP</li>
             </ul>
             <div class="card-body">
-                <form method="POST">
+                <form method="POST" action="{% url 'subs' %}">
                     {% csrf_token %}
                     <input type="hidden" value="profesional" name="plan">
                     <button class="pro_bttn">CONTRATAR</button>

@@ -1,4 +1,4 @@
-from google_crc32c import exc
+
 import requests
 from django.shortcuts import render,redirect
 from django.conf import settings
@@ -70,7 +70,7 @@ def signup(request):
                     "lastname": lastName,
                     "privileges":False,
                     "lastAccess": None,
-                    "Tipo_cliente": client
+                    "client_type": client
                     })
                     request.session['email_usr'] = email
                     return redirect('subs')
@@ -92,43 +92,59 @@ def subscriptions(request):
      if request.method == "POST":
           plan = request.POST.get('plan')
           request.session['plan'] = plan
+          return create_stripe_user(request)
 
      return render(request, 'selectSub.html')
 
 def create_stripe_user(request):
      email = request.session.get('email_usr')
-     user = auth.get_user_by_email(email)
+     plan = request.session.get('plan')
+     customer= None
 
-     if not user:
-          return HttpResponse("Usuario no autenticado", status=401)
+     if not email or not plan:
+          return HttpResponse("Faltan datos en la sesión", status=400)
+     
+     try:
+          
+          user = auth.get_user_by_email(email)
+     except:
+          return HttpResponse('Usuario no autenticado', status=401)
+
 
      user_doc = db.collection('Usuarios').document(user.uid)
      user_data = user_doc.get().to_dict()
+
+     customer_id = user_data.get('stripe_customer_id')
 
      if not 'stripe_customer_id' in user_data:
           customer = stripe.Customer.create(
                email= user_data.get('email'),
                name= user_data.get('name') + " " + user_data.get('lastname')
           )
-          user_doc.update({'stripe_customer_id': customer.id})
+          customer_id = customer.id
+          user_doc.update({'stripe_customer_id': customer_id})
 
-     plan = request.session.get('plan')
+
+     
      prices = {
-          'essencial': 'prod_SjCwh2mfPxTtVo',
-          'premium': 'prod_SjCyrPCKCTFUwo',
-          'profesional': 'prod_SjD1fnEMOGj3Dv'
+          'esencial': 'price_1RnkWOPF5qcM1JsRRk5zLJlj',
+          'premium': 'price_1RnkZ2PF5qcM1JsRiwtjRrw4',
+          'profesional': 'price_1RnkbEPF5qcM1JsRSjBsHD9l'
      }
 
+     if plan not in prices:
+        return HttpResponse("Plan inválido", status=400)
+
      checkout_session = stripe.checkout.Session.create(
-          customer= customer.id,
+          customer= customer_id,
           payment_method_types=['card'],
           line_items=[{
                'price': prices[plan],
                'quantity': 1
           }],
           mode= 'subscription',
-          success_url='https://tusitio.com/success?session_id={CHECKOUT_SESSION_ID}',
-          cancel_url='https://tusitio.com/cancel',
+          success_url='http://127.0.0.1:8000/success?session_id={CHECKOUT_SESSION_ID}',
+          cancel_url='http://127.0.0.1:8000/cancel',
           metadata={
                 'firebase_uid': user.uid,
                 'plan': plan
@@ -136,6 +152,50 @@ def create_stripe_user(request):
 
      )
      return redirect(checkout_session.url)
+
+def success(request):
+     plan = request.session.get('plan')
+     email = request.session.get('email_usr')
+     try:
+          
+          user = auth.get_user_by_email(email)
+     except:
+          return HttpResponse('Usuario no autenticado', status=401)
+     
+     if plan not in ['esencial', 'premium', 'profesional']:
+          return HttpResponse("Plan inválido", status=400)
+     
+     PLAN_CONFIG ={
+          'esencial': {'requests': 10, 'events': 100},
+          'premium': {'requests': 50, 'events': 200},
+          'profesional': {'requests': 80, 'events': 2000}
+     }
+
+     config=PLAN_CONFIG[plan]
+     sub_type = plan
+     requests = config['requests']
+     events = config['events']
+
+     user_doc = db.collection('Usuarios').document(user.uid)
+
+     now = datetime.datetime.now(timezone.utc)
+     endSub = now + datetime.timedelta(days=30)
+     end_sub = datetime.datetime.combine(endSub.date(), time(23,59), tzinfo=timezone.utc)
+     try:
+          user_doc.update({
+               'sub_type': sub_type,
+               'requests': requests,
+               'events': events,
+               'start_sub': now,
+               'last_sub': now,
+               'end_sub': end_sub,
+               'status': "active"
+
+          })
+     except Exception as e:
+          return HttpResponse('Usuario no encontrado', status=401)
+
+     return render(request, 'success.html')
 
 def login(request):
     sessionCookie = request.COOKIES.get('session')
