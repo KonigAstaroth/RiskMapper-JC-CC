@@ -347,3 +347,45 @@ body{
 .prices span{
     margin-left: 2%;
 }
+
+.checkout_banner{
+    box-sizing: content-box;
+    width: 100vw;
+    height: 60vh;
+    background-image: linear-gradient(45deg, rgb(29, 32, 185), rgb(13, 170, 237)); 
+    z-index: 0;
+    top: 0;
+    position: absolute;
+    text-align: center;
+}
+
+.checkout_banner h1{
+    text-align: center;
+    margin-top: 3%;
+    font-family: "Lato", sans-serif;
+    color: #f4f4f4;
+    font-size: 3rem;
+}
+
+.checkout_banner h3{
+    text-align: center;
+    margin-top: 4%;
+    font-family: "Lato", sans-serif;
+    color: #d9d9d9;
+    font-size: large;
+}
+
+.agreement h5{
+    font-weight: 700;
+}
+
+.agreement_text{
+    text-align: center;
+    width: 50vw;
+}
+
+.agreement_text p {
+    font-family: 'Inter', sans-serif;
+    color: #8d8d8d;
+    font-weight: 500;
+}

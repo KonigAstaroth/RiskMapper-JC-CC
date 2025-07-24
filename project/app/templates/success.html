@@ -1,12 +1,140 @@
+
+{% load static %}
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Success</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'icons/web-icon-Eclipse.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
-<body>
-    <div>
-        <h1>Gracias por tu compra</h1>
+<body style="overflow-x: hidden; margin: 0;">
+    
+    <div class="checkout_banner">
+        <div style="margin-top: 10vh;"> 
+            <i class="bi bi-check-circle" style="font-size: 6rem; color: white;"></i>
+        </div>
+        
+        <h1>¡Gracias por suscribirte a Cerberus!</h1>
+        <h3>Tu suscripción ha sido registrada correctamente. Ahora tienes acceso completo a nuestras herramientas de monitoreo y análisis de seguridad.</h3>
     </div>
+    <div style="display: flex;margin-top: 70vh; justify-content: center; ">
+        <div  class="agreement_text">
+            <h3>Términos de servicios</h3>
+            <p>Antes de continuar, te invitamos a leer cuidadosamente nuestro Acuerdo de Licencia de Usuario Final (EULA), el cual contiene información importante sobre el uso del servicio, tus derechos y responsabilidades como usuario.</p>
+            <p>Al continuar, usted declara que es mayor de 18 años, que ha leído detenidamente y acepta los términos establecidos en el Acuerdo de Licencia de Usuario Final (EULA). Es obligatorio aceptar este acuerdo para poder iniciar sesión y utilizar los servicios de Cerberus.</p>
+            
+            <p>Puede consultar el acuerdo completo en el siguiente enlace: <a href="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Ver Acuerdo de Licencia de Usuario Final (EULA)</a></p>
+            
+        </div>
+        
+    </div>
+
+
+<!-- Modal -->
+<div class="modal fade modal-dialog-scrollable modal-lg" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">ACUERDO DE LICENCIA DE USUARIO FINAL (EULA)</h1>
+      </div>
+      <div class="modal-body agreement">
+        <section>
+            <strong>Última actualización: 23 de julio de 2025</strong>
+            <p>Este Acuerdo de Licencia de Usuario Final ("EULA") es un contrato legal entre usted (el "Usuario") y Cerberus ("la Plataforma", "nosotros", "nuestro" o "nos") con respecto al uso del servicio web, software y cualquier contenido, funcionalidad y datos proporcionados por Cerberus.</p>
+        </section>
+        <section>
+            <h5>1. ACEPTACIÓN DEL ACUERDO</h5>
+            <p>Al registrarse, acceder o utilizar Cerberus, usted acepta este EULA y se compromete a cumplirlo en su totalidad. Si no está de acuerdo con los términos, no debe usar el servicio.</p>
+        </section>
+        <section>
+            <h5>2.LICENCIA DE USO</h5>
+            <p>Cerberus otorga al Usuario una licencia limitada, no exclusiva, no transferible y revocable para acceder y utilizar la Plataforma, exclusivamente como servicio bajo suscripción. Esta licencia no implica propiedad del software ni de los datos generados.</p>
+        </section>
+        <section>
+            <h5>3.RESTRICCIONES</h5>
+            <ul>
+                <li>Copiar, modificar, descompilar, realizar ingeniería inversa o distribuir el software.</li>
+                <li>Utilizar la Plataforma con fines comerciales, revender servicios o redistribuir los datos proporcionados.</li>
+                <li>Suministrar información falsa, inexacta o incompleta.</li>
+                <li>Utilizar la Plataforma para actividades ilegales, fraudulentas o que comprometan la seguridad.</li>
+            </ul>
+        </section>
+        <section>
+            <h5>4. RESPONSABILIDAD DEL USUARIO</h5>
+            <p>El Usuario se compromete a:</p>
+            <ul>
+                <li>Verificar la información que visualiza en la plataforma antes de tomar decisiones basadas en ella.</li>
+                <li>Usar el sistema de forma responsable, manteniendo la confidencialidad de su cuenta y asegurando la veracidad de los datos proporcionados.</li>
+                <li>No compartir información sensible o confidencial de forma indebida.</li>
+            </ul>
+        </section>
+        <section>
+            <h5>5.PROPIEDAD</h5>
+            <p>Todo el software, interfaces, bases de datos, gráficos, marcas y contenido generado por Cerberus son propiedad exclusiva de los desarrolladores de Cerberus. El Usuario <strong>no adquiere derechos de propiedad</strong> por el uso del servicio.</p>
+        </section>
+        <section>
+            <h5>6.DATOS PERSONALES</h5>
+            <p>El uso de Cerberus implica la recolección de ciertos datos personales. El tratamiento de estos datos se rige por nuestra Política de Privacidad, que el Usuario acepta junto con este EULA.</p>
+        </section>
+        <section>
+            <h5>7. LIMITACIÓN DE RESPONSABILIDAD</h5>
+            <p>Cerberus no garantiza la exactitud o integridad de los datos proporcionados. El Usuario reconoce que es su <strong>responsabilidad confirmar y validar cualquier información</strong> mostrada antes de utilizarla. Cerberus no se hace responsable de daños directos o indirectos derivados del uso del servicio.</p>
+        </section>
+        <section>
+            <h5>8. CANCELACIÓN Y TERMINACIÓN</h5>
+            <p>Cerberus se reserva el derecho de suspender o cancelar el acceso del Usuario en caso de incumplimiento de este acuerdo, sin necesidad de previo aviso.</p>
+        </section>
+        <section>
+            <h5>9. CAMBIOS EN EL ACUERDO</h5>
+            <p>Cerberus podrá modificar este EULA en cualquier momento. El uso continuo del servicio después de cualquier cambio constituirá aceptación de los nuevos términos.</p>
+        </section>
+        <section>
+            <h5>10. JURISDICCIÓN Y LEY APLICABLE</h5>
+            <p>Este acuerdo se rige por las leyes de los Estados Unidos Mexicanos, y cualquier disputa relacionada será resuelta en los tribunales competentes de dicha jurisdicción.</p>
+        </section>
+        <section>
+            <h5>11. POLÍTICA DE REEMBOLSOS</h5>
+            <p> <strong>Todas las suscripciones y pagos realizados a Cerberus son finales y no reembolsables.</strong></p> 
+            <p>No se emitirán reembolsos, compensaciones ni créditos por cancelaciones anticipadas, períodos no utilizados o interrupciones del servicio. Al realizar un pago, el Usuario acepta esta política sin excepción.</p>
+        </section>
+        
+      </div>
+      <div class="modal-footer">
+        <input type="checkbox" name="eula_check" id="eula_check">
+        <label for="eula_check">Acepto los términos y condiciones establecidos en el acuerdo de usuario.</label>
+        <a href="" id="link">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="login" disabled>Iniciar sesión</button>
+        </a>
+        
+        <script>
+            document.addEventListener("DOMContentLoaded", function(){
+                const check = document.getElementById('eula_check')
+                const bttn = document.getElementById('login')
+                const link = document.getElementById('link')
+
+                check.addEventListener('change', function () {
+                    if(check.checked){
+                        bttn.className="btn btn-primary";
+                        bttn.disabled = false;
+                        link.href="{% url 'login' %}"
+                    }else{
+                        bttn.className="btn btn-secondary";
+                        bttn.disabled = true;
+                        link.href=""
+                    }
+                });  
+            });
+            
+        </script>
+      </div>
+    </div>
+  </div>
+</div>
+    
 </body>
 </html>
