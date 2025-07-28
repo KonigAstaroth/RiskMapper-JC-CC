@@ -1,8 +1,10 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 import os
+from django.core.cache import cache
 
-
+CACHE_KEY_MARKERS = 'firebase_markers'
+CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
 cred = credentials.Certificate(cred_path)
@@ -14,7 +16,7 @@ db = firestore.client()
 # 3. Configura los parámetros del filtro
 coleccion = "Eventos"         
 campo_filtro = "Estado_hechos"                
-valor_a_borrar = "Estado de México"           
+valor_a_borrar = "Guanajuato"           
 
 # 4. Obtener y borrar documentos que coincidan
 docs = db.collection(coleccion).where(campo_filtro, "==", valor_a_borrar).stream()
@@ -24,5 +26,8 @@ for doc in docs:
     print(f"Borrando documento ID: {doc.id}")
     db.collection(coleccion).document(doc.id).delete()
     contador += 1
+
+# cache.delete(CACHE_KEY_LAST_UPDATE)
+# cache.delete(CACHE_KEY_MARKERS)
 
 print(f"✅ Total de documentos eliminados: {contador}")

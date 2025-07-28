@@ -2036,6 +2036,8 @@ def deleteEvent(request, id):
           try:
                if doc.exists:
                     doc_ref.delete()
+                    cache.delete(CACHE_KEY_LAST_UPDATE)
+                    cache.delete(CACHE_KEY_MARKERS)
           except Exception as e:
                print(e)
      
