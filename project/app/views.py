@@ -1456,7 +1456,14 @@ def loadFiles(request):
                     if isinstance(fecha, datetime.datetime):
                          return fecha
                     if isinstance(fecha, str):
-                         for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%m/%d/%Y"):
+                         fecha = fecha.strip()
+                         formatos_validos = [
+                              "%d/%m/%Y",    
+                              "%Y-%m-%d",      
+                              "%-d/%-m/%Y",    
+                              "%#d/%#m/%Y"     
+                         ]
+                         for fmt in formatos_validos:
                               try:
                                    return datetime.datetime.strptime(fecha, fmt)
                               except:
@@ -1475,7 +1482,7 @@ def loadFiles(request):
                     return None
 
                 if "FechaHecho" in df.columns:
-                    df["FechaHecho"] = df["FechaHecho"].apply(convertir_fecha)
+                    df['FechaHecho'] = pd.to_datetime(df['FechaHecho'], dayfirst=True, errors='coerce')
                 if "HoraHecho" in df.columns:
                     df["HoraHecho"] = df["HoraHecho"].apply(convertir_hora)
 

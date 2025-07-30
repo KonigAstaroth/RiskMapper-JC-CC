@@ -12,7 +12,7 @@ def sendEmail(email, link):
     sender_pass = settings.SENDER_PASSWORD
     receiver = email
     subject = "Restablecer contraseña"
-    body = """Para restablecer su contraseña, haga click en el siguiente link: http://127.0.0.1:8000/recoverPass/"""
+    # body = """Para restablecer su contraseña, haga click en el siguiente link: http://127.0.0.1:8000/recoverPass/"""
     route_image = os.path.join(settings.BASE_DIR, 'app', 'static', 'images', 'eclipse-letterless.png')
 
     html_body = f"""
