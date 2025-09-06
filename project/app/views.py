@@ -550,13 +550,13 @@ def main (request):
 
      
      if request.method == 'POST' and 'buscar' in request.POST :
-          # process = psutil.Process(os.getpid())
-          # mem_inicio = process.memory_info().rss / 1024**2
-          # cpu_inicio = psutil.cpu_percent(interval=0.1)
+          process = psutil.Process(os.getpid())
+          mem_inicio = process.memory_info().rss / 1024**2
+          cpu_inicio = psutil.cpu_percent(interval=0.1)
 
-          # print(f"[ANTES] Memoria: {mem_inicio:.2f} MB, CPU: {cpu_inicio}%")
+          print(f"[ANTES] Memoria: {mem_inicio:.2f} MB, CPU: {cpu_inicio}%")
 
-          # tracemalloc.start() 
+          tracemalloc.start() 
           filters = {}
           filtersAi = {}
           direccion = ""
@@ -667,11 +667,11 @@ def main (request):
                request.session['map_config'] = map_config
                return redirect("main")
 
-          # mem_despues = process.memory_info().rss / 1024**2
-          # cpu_despues = psutil.cpu_percent(interval=0.1)
+          mem_despues = process.memory_info().rss / 1024**2
+          cpu_despues = psutil.cpu_percent(interval=0.1)
 
-          # print(f"[DESPUÉS] Memoria: {mem_despues:.2f} MB, CPU: {cpu_despues}%")
-          # print(f"[DIFERENCIA] Memoria usada durante proceso: {mem_despues - mem_inicio:.2f} MB")
+          print(f"[DESPUÉS] Memoria: {mem_despues:.2f} MB, CPU: {cpu_despues}%")
+          print(f"[DIFERENCIA] Memoria usada durante proceso: {mem_despues - mem_inicio:.2f} MB")
 
           
 
@@ -779,12 +779,12 @@ def main (request):
           
      
 
-          # snapshot = tracemalloc.take_snapshot()
-          # top_stats = snapshot.statistics('lineno')
+          snapshot = tracemalloc.take_snapshot()
+          top_stats = snapshot.statistics('lineno')
 
-          # print("[TRACEMALLOC] Top 10 líneas con mayor consumo de memoria:")
-          # for stat in top_stats[:10]:
-          #      print(stat)
+          print("[TRACEMALLOC] Top 10 líneas con mayor consumo de memoria:")
+          for stat in top_stats[:10]:
+               print(stat)
           request.session['graphic'] = graphic
           request.session['calendarios'] = calendarios
           request.session['lugar'] = lugar
@@ -1482,7 +1482,7 @@ def loadFiles(request):
                     return None
 
                 if "FechaHecho" in df.columns:
-                    df['FechaHecho'] = pd.to_datetime(df['FechaHecho'], dayfirst=True, errors='coerce')
+                    df['FechaHecho'] = df['FechaHecho'].apply(convertir_fecha)
                 if "HoraHecho" in df.columns:
                     df["HoraHecho"] = df["HoraHecho"].apply(convertir_hora)
 
@@ -1628,7 +1628,7 @@ def loadFiles(request):
                 return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
 
             except Exception as e:
-                error_message = "Error general"
+                error_message = str(e)
                 return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
 
         # Carga manual
