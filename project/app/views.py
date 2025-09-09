@@ -40,6 +40,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 import gc
 import tracemalloc
 import stripe
+import math
 
 
 
@@ -423,6 +424,11 @@ def main (request):
         'zoom': 6
      }
 
+     def clean_value(v):
+          if isinstance(v, float) and math.isnan(v):
+               return None
+          return v
+
      if query_has_update:
           data = ref.limit(500).get() or []
           list_markers = []
@@ -442,17 +448,17 @@ def main (request):
                     fecha_local = dj_timezone.localtime(fecha_obj)
                     fecha_str = fecha_local.strftime('%d/%m/%Y, %H:%M:%S')
                marker = {
-                    'lat': valor.get('latitud'),
-                    'lng': valor.get('longitud'),
-                    'Categoria': valor.get('Categoria'),
-                    'icono': valor.get('icono'),
-                    'delito': valor.get('Delito'),
+                    'lat': clean_value(valor.get('latitud')),
+                    'lng': clean_value(valor.get('longitud')),
+                    'Categoria': clean_value(valor.get('Categoria')),
+                    'icono': clean_value(valor.get('icono')),
+                    'delito': clean_value(valor.get('Delito')),
                     'fecha': fecha_str,
-                    'calle': valor.get('Calle_hechos'),
-                    'colonia': valor.get('ColoniaHechos'),
-                    'estado': valor.get('Estado_hechos'),
-                    'municipio': valor.get('Municipio_hechos'),
-                    'descripcion': valor.get('Descripcion')
+                    'calle': clean_value(valor.get('Calle_hechos')),
+                    'colonia': clean_value(valor.get('ColoniaHechos')),
+                    'estado': clean_value(valor.get('Estado_hechos')),
+                    'municipio': clean_value(valor.get('Municipio_hechos')),
+                    'descripcion': clean_value(valor.get('Descripcion'))
                }
                list_markers.append(marker)
           cache.set(CACHE_KEY_MARKERS, list_markers, None)
@@ -1479,6 +1485,8 @@ def loadFiles(request):
                                    continue
                     if isinstance(h, datetime.time):
                          return h
+                    if isinstance(h, datetime.datetime):
+                         return h.time()
                     return None
 
                 if "FechaHecho" in df.columns:
