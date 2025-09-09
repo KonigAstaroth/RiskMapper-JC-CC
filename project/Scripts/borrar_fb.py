@@ -3,6 +3,7 @@ from firebase_admin import credentials, firestore
 import os
 from django.core.cache import cache
 import django
+from datetime import datetime, timezone
 
 CACHE_KEY_MARKERS = 'firebase_markers'
 CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
@@ -19,19 +20,35 @@ db = firestore.client()
 
 # 3. Configura los parámetros del filtro
 coleccion = "Eventos"         
-campo_filtro = "Estado_hechos"                
-valor_a_borrar = "Colima"           
+# campo_filtro = "Estado_hechos"                
+# valor_a_borrar = "Colima"    
+# 
+inicio_dia = datetime(2025, 9, 9, 0, 0, 0, tzinfo=timezone.utc)
+fin_dia = datetime(2025, 9, 9, 23, 59, 59, 999999, tzinfo=timezone.utc)
 
-# 4. Obtener y borrar documentos que coincidan
-docs = db.collection(coleccion).where(campo_filtro, "==", valor_a_borrar).stream()
+docs = db.collection(coleccion) \
+         .where('updatedAt', '>=', inicio_dia) \
+         .where('updatedAt', '<=', fin_dia) \
+         .get()
 
-contador = 0
+print(f"Se van a borrar {len(docs)} documentos subidos hoy:")
+
 for doc in docs:
     print(f"Borrando documento ID: {doc.id}")
-    db.collection(coleccion).document(doc.id).delete()
-    contador += 1
+    doc.reference.delete()
+
+print("Documentos eliminados con éxito.")
+
+# 4. Obtener y borrar documentos que coincidan
+# docs = db.collection(coleccion).where(campo_filtro, "==", valor_a_borrar).stream()
+
+# contador = 0
+# for doc in docs:
+#     print(f"Borrando documento ID: {doc.id}")
+#     db.collection(coleccion).document(doc.id).delete()
+#     contador += 1
 
 # cache.delete(CACHE_KEY_LAST_UPDATE)
 # cache.delete(CACHE_KEY_MARKERS)
 
-print(f"✅ Total de documentos eliminados: {contador}")
+# print(f"✅ Total de documentos eliminados: {contador}")

@@ -1454,7 +1454,7 @@ def loadFiles(request):
         if 'archivo' in request.FILES:
             try:
                 excel_file = request.FILES['archivo']
-                df = pd.read_excel(excel_file, engine='openpyxl')
+                df = pd.read_excel(excel_file, engine='openpyxl', keep_default_na=False)
 
                 def convertir_fecha(fecha):
                     if isinstance(fecha, pd.Timestamp):
@@ -1522,6 +1522,23 @@ def loadFiles(request):
                                    col_dir = evento.get('ColoniaHechos')
                                    estado_dir = evento.get('Estado_hechos')
                                    municipio_dir = evento.get('Municipio_hechos')
+                                   lat = evento.get('latitud')
+                                   lng = evento.get('longitud')
+                                   if not check_valid_value(estado_dir) or not check_valid_value(municipio_dir):
+                                        try:
+                                             ubicacion = geolocator.reverse((lat,lng))
+                                             municipio_geo, estado_geo = getEstadoMunicipio(ubicacion)
+                                             if municipio_geo: evento['Municipio_hechos'] = municipio_geo if municipio_geo else ''
+                                             if estado_geo: evento['Estado_hechos'] = estado_geo if estado_geo else ''
+                                             print(ubicacion)
+                                             print(ubicacion.raw.get('address_components', []))
+                                        except Exception as e:
+                                             error_message = "Error geocoding inverso: ", str(e)
+                                             return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
+                                   lat = evento.get('latitud')
+                                   lng = evento.get('longitud')
+                                   estado_dir = evento.get('Estado_hechos')
+                                   municipio_dir = evento.get('Municipio_hechos')
                                    if check_valid_value(estado_dir) and check_valid_value(municipio_dir):
                                         try:
                                              if 'Calle_hechos2' in df.columns and check_valid_value(evento.get('Calle_hechos2')):
@@ -1536,35 +1553,9 @@ def loadFiles(request):
                                         except:
                                              error_message = "No se encontraron las coordenadas: Revise la dirección"
                                              return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
-                                   else:
-                                        
-                                        municipio_geo, estado_geo = getEstadoMunicipio(location)
-
-                                        if municipio_geo:
-                                             evento['Municipio_hechos'] = municipio_geo
-                                        if estado_geo:
-                                             evento['Estado_hechos'] = estado_geo
-                         if check_valid_value(evento.get('Estado_hechos')) and check_valid_value(evento.get('Municipio_hechos')):
                                    
-                                   try:
-                                        latitud = evento.get('latitud', '')
-                                        longitud = evento.get('longitud', '')
-                                        if latitud and longitud:
-                                             location = geolocator.reverse((latitud,longitud))
-                                             if location:
-                                                  municipio_geo, estado_geo = getEstadoMunicipio(location)
-                                                  if municipio_geo:
-                                                       evento['Municipio_hechos'] = municipio_geo
-                                                  if estado_geo:
-                                                       evento['Estado_hechos'] = estado_geo
-                                   except:
-                                        error_message = "No se encontró el estado y/o municipio: Error en las coordenadas"
-                                        return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
                         
                         
-                        
-                             
-
                         categoria = evento.get('Categoria', '')
                         icono = None
                         if isinstance(categoria, str):
@@ -1623,6 +1614,7 @@ def loadFiles(request):
                         evento['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
                         categoria = evento.get('Categoria', '').upper()
                         evento['Categoria'] = categoria
+                        print(evento)
                         
                         db.collection('Eventos').add(evento)
 
@@ -1826,9 +1818,13 @@ def loadFiles(request):
     return render(request, "loadFiles.html", {"error": error, 'success': success, 'usuarios': usuarios, 'priv': priv,})
 
 def check_valid_value(valor):
-     return not(
-          valor is None or str(valor).strip().upper() in ['NA', 'N/A', '', 'None']
-     )
+     if valor is None:
+        return False
+     if pd.isna(valor):
+          return False
+     if isinstance(valor, float) and math.isnan(valor):
+        return False
+     return str(valor).strip().upper() not in ['NA', 'N/A', '', 'NONE']
 
 def location_check(evento, campos):
      return all(evento.get(campo) not in ['', None, 'NA', 'N/a', 'n/a', 'N/A', 'na'] for campo in campos)
@@ -1838,7 +1834,7 @@ def getEstadoMunicipio(location):
      if location and location.raw.get('address_components', []):
           for comp in location.raw['address_components']:
                tipos = comp['types']
-               if 'locality' in tipos:
+               if 'locality' in tipos or 'sublocality' in tipos or 'administrative_area_level_2' in tipos:
                     municipio = comp['long_name']
                elif 'administrative_area_level_1' in tipos:
                     estado = comp['long_name']
