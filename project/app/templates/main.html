@@ -85,14 +85,14 @@ Inicio
                 </div>
 
                 <br>
-                <label  class="label_filters">Categoria</label>
+                <label  class="label_filters">Categoría</label>
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle = "dropdown" aria-expanded="false" style="background-color: #FFFFFF;color: #838383;font-weight: 400;">
                         Tipos de delito
                     </button>
                     <ul class="dropdown-menu" style="max-height: 300px; overflow-y: auto;">
                         <li>
-                            <p>Seleccionar máximo 10 categorias de delito</p>
+                            <p>Seleccionar máximo 10 categorías de delito</p>
                         </li>
                         {% for delito in lista_delitos %}
                         <li>
@@ -290,7 +290,7 @@ Inicio
 
                                 marker.addListener('gmp-click', () => {
                                     infoWindow.setContent(`
-                            <h4> Categoria: ${marcador.Categoria || 'Sin categoría'}</h4>
+                            <h4> Categoría: ${marcador.Categoria || 'Sin categoría'}</h4>
                             <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'}, <b>Colonia:</b> ${marcador.colonia || 'Desconocido'} </p>
                             <p> <b>Estado:</b> ${marcador.estado || 'Desconocido'}, <b>Municipio:</b> ${marcador.municipio || 'Desconocido'}</p>
                             <p> <b>Delito:</b> ${marcador.delito || 'Desconocido'}</p>
@@ -321,7 +321,7 @@ Inicio
 
                         marker.addListener('gmp-click', () => {
                             infoWindow.setContent(`
-                            <h4> Categoria: ${marcador.Categoria || 'Sin categoría'}</h4>
+                            <h4> Categoría: ${marcador.Categoria || 'Sin categoría'}</h4>
                             <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'}, <b>Colonia:</b> ${marcador.colonia || 'Desconocido'} </p>
                             <p> <b>Estado:</b> ${marcador.estado || 'Desconocido'}, <b>Municipio:</b> ${marcador.municipio || 'Desconocido'}</p>
                             <p> <b>Delito:</b> ${marcador.delito || 'Desconocido'}</p>
