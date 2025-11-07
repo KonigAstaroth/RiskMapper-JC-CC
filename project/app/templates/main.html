@@ -197,7 +197,20 @@ Inicio
     {% endif %}
     
     
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let idioma = navigator.language || navigator.userLanguage;
+            const match = document.cookie.match(/googtrans=\/([^/]+)\/([^/]+)/);
+            if (match) idioma = match[2];
 
+            // Redirige agregando el idioma como parámetro GET si no está presente
+            if (!window.location.search.includes("idioma=")) {
+                const url = new URL(window.location.href);
+                url.searchParams.set("idioma", idioma.substring(0, 2)); // 'es', 'en', etc.
+                window.location.replace(url.toString());
+            }
+        });
+    </script>
     
 
     <script id="marcadores-json" type="application/json">

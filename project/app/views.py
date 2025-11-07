@@ -383,6 +383,8 @@ def getRange(eventos):
 def main (request):
      sessionCookie = request.COOKIES.get('session')
      priv = getPrivileges(request)
+     idioma = request.GET.get("idioma", "es")
+     request.session['lang'] = idioma
 
      if not sessionCookie:
           return redirect ("login")
@@ -556,19 +558,20 @@ def main (request):
 
      
      if request.method == 'POST' and 'buscar' in request.POST :
-          process = psutil.Process(os.getpid())
-          mem_inicio = process.memory_info().rss / 1024**2
-          cpu_inicio = psutil.cpu_percent(interval=0.1)
+          # process = psutil.Process(os.getpid())
+          # mem_inicio = process.memory_info().rss / 1024**2
+          # cpu_inicio = psutil.cpu_percent(interval=0.1)
 
-          print(f"[ANTES] Memoria: {mem_inicio:.2f} MB, CPU: {cpu_inicio}%")
+          # print(f"[ANTES] Memoria: {mem_inicio:.2f} MB, CPU: {cpu_inicio}%")
 
-          tracemalloc.start() 
+          # tracemalloc.start() 
           filters = {}
           filtersAi = {}
           direccion = ""
           graphic = []
           calendarios = []
           banner = []
+          tabla = None
           
           str_startDate = None
           str_endDate = None
@@ -625,7 +628,8 @@ def main (request):
                pass
 
           now = datetime.datetime.now(timezone.utc)
-          AiText = genAI(filtersAi, str_startDate,str_endDate, descripcion_cliente, now)
+          lang = request.session.get('lang')
+          AiText = genAI(filtersAi, str_startDate,str_endDate, descripcion_cliente, now, request)
           
 
           if not (('startDate' in filters and 'endDate' in filters) or any(k in filters for k in ['Municipio_hechos', 'Estado_hechos', 'Calle_hechos', 'ColoniaHechos'])):
@@ -673,11 +677,11 @@ def main (request):
                request.session['map_config'] = map_config
                return redirect("main")
 
-          mem_despues = process.memory_info().rss / 1024**2
-          cpu_despues = psutil.cpu_percent(interval=0.1)
+          # mem_despues = process.memory_info().rss / 1024**2
+          # cpu_despues = psutil.cpu_percent(interval=0.1)
 
-          print(f"[DESPUÉS] Memoria: {mem_despues:.2f} MB, CPU: {cpu_despues}%")
-          print(f"[DIFERENCIA] Memoria usada durante proceso: {mem_despues - mem_inicio:.2f} MB")
+          # print(f"[DESPUÉS] Memoria: {mem_despues:.2f} MB, CPU: {cpu_despues}%")
+          # print(f"[DIFERENCIA] Memoria usada durante proceso: {mem_despues - mem_inicio:.2f} MB")
 
           
 
@@ -697,9 +701,15 @@ def main (request):
           
           if hora_critica is not None:
                if cantidad > 1:
-                    hour_txt = f"Entre las {hora_critica}:00 y las {hora_critica+1}:00 horas se registró {cantidad} eventos, lo que destaca este intervalo como un posible punto de riesgo."
+                    if lang == 'en':
+                         hour_txt = f"Between {hora_critica}:00 and {hora_critica+1}:00 it was registered {cantidad} events, which highlights this interval as a possible risk point."
+                    elif lang == 'es':
+                         hour_txt = f"Entre las {hora_critica}:00 y las {hora_critica+1}:00 horas se registró {cantidad} eventos, lo que destaca este intervalo como un posible punto de riesgo."
                elif cantidad == 1:
-                     hour_txt = f"Entre las {hora_critica}:00 y las {hora_critica+1}:00 horas se registró {cantidad} evento, lo que destaca este intervalo como un posible punto de riesgo."
+                    if lang == 'en':
+                         hour_txt = f"Between {hora_critica}:00 and {hora_critica+1}:00 it was registered {cantidad} event, which highlights this interval as a possible risk point."
+                    elif lang == 'es':
+                         hour_txt = f"Entre las {hora_critica}:00 y las {hora_critica+1}:00 horas se registró {cantidad} evento, lo que destaca este intervalo como un posible punto de riesgo."
           else:
                hour_txt = "No hay eventos para calcular rango horario crítico."
 
@@ -782,15 +792,17 @@ def main (request):
                cat_color_cuenta.append({'nombre': nombre, 'color': color, 'cuenta': cuenta})
           
           tabla = genDataImg(cat_color_cuenta)
+          print(tabla)
+          print("Idioma:",request.session.get('lang'))
           
      
 
-          snapshot = tracemalloc.take_snapshot()
-          top_stats = snapshot.statistics('lineno')
+          # snapshot = tracemalloc.take_snapshot()
+          # top_stats = snapshot.statistics('lineno')
 
-          print("[TRACEMALLOC] Top 10 líneas con mayor consumo de memoria:")
-          for stat in top_stats[:10]:
-               print(stat)
+          # print("[TRACEMALLOC] Top 10 líneas con mayor consumo de memoria:")
+          # for stat in top_stats[:10]:
+          #      print(stat)
           request.session['graphic'] = graphic
           request.session['calendarios'] = calendarios
           request.session['lugar'] = lugar
@@ -822,7 +834,7 @@ def main (request):
           'map_config_json': json.dumps(map_config),
           'error': error,
           'lista_delitos': lista_delitos,
-          'tabla_base64': tabla
+          'tabla_base64': tabla,
           
      }
 
@@ -978,12 +990,11 @@ def loadOsintDate(name = "osintDate.txt" ):
      
  
 
-def genAI(filters,start,end, descripcion_cliente,now):
+def genAI(filters,start,end, descripcion_cliente,now, request):
      client = OpenAI(api_key=settings.OPENAI_API_KEY)
-     
      lugar = ', '.join(f"{k}:{v}" for k,v in filters.items()) if filters else "No especificado"
      template = loadOsintDate()
-     content= template.format(start=start, end = end, lugar = lugar, descripcion_cliente = descripcion_cliente, now = now)
+     content= template.format(start=start, end = end, lugar = lugar, descripcion_cliente = descripcion_cliente, now = now, lang = request.session.get('lang'))
      completion =client.chat.completions.create(
           model='gpt-4.1-mini',
           store = True,
@@ -1078,12 +1089,15 @@ def exportarDocx(request):
      calendarios = request.session.get('calendarios', [])
      horas = request.session.get('hour_txt')
      AiText = request.session.get('AiText')
+     lang = request.session.get('lang')
      text_html = AiText
-     tabla = request.session.get('tabla_base64')
+     tabla_img = request.session.get('tabla_base64')
 
      doc = Document()
-     
-     doc.add_heading('Análisis de eventos', 0)
+     if lang == 'en':
+          doc.add_heading('Event analysis', 0)
+     elif lang == 'es':
+          doc.add_heading('Análisis de eventos', 0)
      if text_html:
         soup = BeautifulSoup(text_html, 'html.parser')
         for elemento in soup.contents:
@@ -1139,7 +1153,10 @@ def exportarDocx(request):
                try:
                     calendario_data = base64.b64decode(img_base64)
                     calendario_stream = BytesIO(calendario_data)
-                    doc.add_heading('Gráfico de distribución por fecha:', level= 2)
+                    if lang == 'en':
+                         doc.add_heading('Distribution graphic by date:', level= 2)
+                    elif lang == 'es':
+                         doc.add_heading('Gráfico de distribución por fecha:', level= 2)
                     doc.add_picture(calendario_stream, width=Inches(3))  
                except:
                     doc.add_paragraph('Error al cargar calendario')
@@ -1152,25 +1169,39 @@ def exportarDocx(request):
                try:
                     graphic_data = base64.b64decode(img)
                     graphic_stream = BytesIO(graphic_data)
-                    doc.add_heading('Gráfico de distribución horaria:', level= 2)
+                    if lang == 'en':
+                         doc.add_heading('Distribution graphic by time:', level= 2)
+                    elif lang == 'es':
+                         doc.add_heading('Gráfico de distribución horaria:', level= 2)
                     doc.add_picture(graphic_stream, width=Inches(4))  
                except:
                     doc.add_paragraph('Error al agregar calendario')
 
-     if tabla:
+     if tabla_img:
           
           try:
-               if isinstance(tabla, str) and tabla.startswith('data:image'):
-                    tabla = tabla.split(',')[1]
-               tabla_data = base64.b64decode(tabla)
+               if isinstance(tabla_img, bytes):
+                    tabla_img = tabla_img.decode('utf-8')
+               tabla_img = tabla_img.strip().replace('\n', '')
+               if tabla_img.startswith('data:image'):
+                    tabla_img = tabla_img.split(',')[1]
+
+               # Decodificar
+               tabla_data = base64.b64decode(tabla_img)
                tabla_stream = BytesIO(tabla_data)
-               doc.add_heading('Tabla de datos:', level= 2)
+               if lang == 'en':
+                    doc.add_heading('Data table:', level= 2)
+               elif lang == 'es':
+                    doc.add_heading('Tabla de datos:', level= 2)
                doc.add_picture(tabla_stream, width=Inches(3))
           except:
                doc.add_paragraph('Error en la tabla de datos')
      if horas:
           try:
-               doc.add_heading('Rango horario crítico:', level= 2)
+               if lang == 'en':
+                    doc.add_heading('Critic time range:', level= 2)
+               elif lang == 'es':
+                    doc.add_heading('Rango horario crítico:', level= 2)
                doc.add_paragraph( horas)
           except:
                doc.add_paragraph("No hay rango horario crítico")
