@@ -41,7 +41,7 @@
             <h1 class="login">LOGIN</h1>
             <br>
 
-            <form method="POST">
+            <form method="POST" action="{% url 'login-process' %}">
                 {% csrf_token %}
                 <div class="form-group">
                     <label>Correo electrónico</label>

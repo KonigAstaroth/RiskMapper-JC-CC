@@ -3,7 +3,6 @@ import requests
 from django.shortcuts import render,redirect
 from django.conf import settings
 from django.contrib import messages
-from firebase_admin import firestore, auth
 from datetime import timedelta
 import urllib.parse
 import datetime
@@ -42,16 +41,19 @@ import tracemalloc
 import stripe
 import math
 
+# Quitar despues, solo es para evitar errores
+from app.core.auth.firebase_config import db, FIREBASE_AUTH_URL, auth
 
 
 
 
 
-db = firestore.client()
+
+
 CACHE_KEY_MARKERS = 'firebase_markers'
 CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
 
-FIREBASE_AUTH_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={settings.FIREBASE_API_KEY}"
+
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def signup(request):
@@ -206,56 +208,6 @@ def login(request):
          db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
          return redirect ("main")
 
-    if request.method == 'POST':
-        recaptcha_response = request.POST.get('g-recaptcha-response')
-
-        data = {
-            'secret': settings.RECAPTCHA_SECRET_KEY,
-            'response': recaptcha_response
-        }
-        verify_url = 'https://www.google.com/recaptcha/api/siteverify'
-        result = requests.post(verify_url, data=data).json()
-
-        if not result.get('success'):
-            messages.error(request, "Se debe de validar el CAPTCHA")
-            return redirect('/')
-        
-        email = request.POST["email"]
-        password = request.POST["password"]
-        remember = request.POST.get("remember")
-             
-        login = {"email": email, "password": password, "returnSecureToken": True}
-        auth_response = requests.post(FIREBASE_AUTH_URL, json=login)
-        
-        if auth_response.status_code == 200:
-                user_data = auth_response.json()
-                id_token = user_data["idToken"]
-                if remember == "checked":
-                     expires_in = timedelta(days=14)
-                else: 
-                    expires_in = timedelta(days=1)
-
-                try:
-                    session_cookie = auth.create_session_cookie(id_token, expires_in=expires_in)
-                    response_redirect = redirect("main")
-                    response_redirect.set_cookie(
-                        key='session',
-                        value=session_cookie,
-                        max_age=expires_in.total_seconds(),
-                        httponly=True,
-                        secure=True  # Cambiar a True en producción con HTTPS
-                    )
-                    decoded_claims = auth.verify_session_cookie(session_cookie)
-                    uid = decoded_claims["uid"]
-                    db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
-                    
-                    return response_redirect
-                except Exception as e:
-                    messages.error(request, "Error al crear la cookie de sesión:", str(e))
-                    return redirect('/')
-        else:
-             messages.error(request, "Correo o contraseña incorrectos") 
-             return redirect('/')
     return render(request, 'login.html')
 
 def policy (request):
