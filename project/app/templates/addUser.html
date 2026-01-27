@@ -41,56 +41,56 @@ Agregar usuarios
 
 <div class="addUsers">
 
-    <form method="POST">
-    {% csrf_token %}
-    <br>
-    <div class="banner">
-        <h1 class="bann_title">Agregar un nuevo usuario</h1>
-        <button type="submit" class="send">Agregar</button>
-        
-    </div>
-    <div class="addInput">
-        <hr class="separation">
-
-        <div class="input-box">
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    
-                    <label class="labels">Correo electrónico</label>
-                    <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
-                    
-                </div>
-                <div class="col-md-6 mb-4">
-                    <label class="labels">Contraseña</label>
-                    <input class="form-control" type="text" placeholder="Contraseña"  id="password" name="password">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <label class="labels">Nombre</label>
-                    <input class="form-control" type="text" placeholder="Nombre"  id="name" name="name">
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <label class="labels">Apellido</label>
-                    <input class="form-control" type="text" placeholder="Apellido"  id="lastname" name="lastname">
-                </div>
-
-                <div class="col-md-6 mb-4">
-                    <select class="form-select"  name="privileges" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
-                    <option selected class="options">Seleccionar permisos de administrador</option>
-                    <option value="true" class="options">Otorgar permisos</option>
-                    <option value="false" class="options">Denegar permisos</option>
-                    </select>
-                </div>
-                
-            </div>
+    <form method="POST" action="{% url 'admin-adduser' %}">
+        {% csrf_token %}
+        <br>
+        <div class="banner">
+            <h1 class="bann_title">Agregar un nuevo usuario</h1>
+            <button type="submit" class="send">Agregar</button>
+            
         </div>
-        
-        
-    </div>
+        <div class="addInput">
+            <hr class="separation">
+
+            <div class="input-box">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        
+                        <label class="labels">Correo electrónico</label>
+                        <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
+                        
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="labels">Contraseña</label>
+                        <input class="form-control" type="text" placeholder="Contraseña"  id="password" name="password">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label class="labels">Nombre</label>
+                        <input class="form-control" type="text" placeholder="Nombre"  id="name" name="name">
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label class="labels">Apellido</label>
+                        <input class="form-control" type="text" placeholder="Apellido"  id="lastname" name="lastname">
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <select class="form-select"  name="privileges" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
+                        <option selected class="options">Seleccionar permisos de administrador</option>
+                        <option value="true" class="options">Otorgar permisos</option>
+                        <option value="false" class="options">Denegar permisos</option>
+                        </select>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            
+        </div>
     
-</form>
+    </form>
 </div>
 
 

@@ -55,7 +55,7 @@
             <h3 class="fs-6 fw-normal text-secondary m-0">Proporcione la dirección de correo electrónico asociada a su cuenta para restablecer su contraseña. Si no aparece en su bandeja de correo, revisar la bandeja de correo no deseado o spam</h3>
             <br>
 
-            <form style="margin-top: 6%;" method="POST">
+            <form style="margin-top: 6%;" method="POST" action="{% url 'send-recover-mail' %}">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="email" class="form-label">Ingrese su correo<span class="text-danger">*</span></label>

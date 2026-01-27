@@ -24,37 +24,27 @@ from time import time
 from geopy.geocoders import GoogleV3
 from collections import defaultdict
 from django.core.cache import cache
-from .utils import sendEmail
-from docx import Document
-from docx.shared import Inches, Pt
-from io import BytesIO
-from django.http import HttpResponse
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+
 from collections import Counter
 from openai import OpenAI
 import os,psutil
 import re
-from bs4 import BeautifulSoup
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+
+
 import gc
 import tracemalloc
-import stripe
+
 import math
 
 # Quitar despues, solo es para evitar errores
 from app.core.auth.firebase_config import db, FIREBASE_AUTH_URL, auth
 
-
-
-
-
-
+# Imports needed for context & display important info
+from app.src.admin_service.admins import getPrivileges
+from app.src.utils.users import getUsers
 
 CACHE_KEY_MARKERS = 'firebase_markers'
 CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
-
-
-stripe.api_key = settings.STRIPE_SECRET_KEY
 
 def signup(request):
      if request.method == 'POST':
@@ -90,71 +80,9 @@ def signup(request):
      return render(request, 'signup.html', {"error": error})
 
 def subscriptions(request):
-     # if  not all( k in request.session for k in ['name_usr', 'lastname_usr', 'email_usr', 'password_usr', 'client_usr' ]):
-     #      return redirect('signup')
-     if request.method == "POST":
-          plan = request.POST.get('plan')
-          request.session['plan'] = plan
-          return create_stripe_user(request)
-
      return render(request, 'selectSub.html')
 
-def create_stripe_user(request):
-     email = request.session.get('email_usr')
-     plan = request.session.get('plan')
-     customer= None
 
-     if not email or not plan:
-          return HttpResponse("Faltan datos en la sesión", status=400)
-     
-     try:
-          
-          user = auth.get_user_by_email(email)
-     except:
-          return HttpResponse('Usuario no autenticado', status=401)
-
-
-     user_doc = db.collection('Usuarios').document(user.uid)
-     user_data = user_doc.get().to_dict()
-
-     customer_id = user_data.get('stripe_customer_id')
-
-     if not 'stripe_customer_id' in user_data:
-          customer = stripe.Customer.create(
-               email= user_data.get('email'),
-               name= user_data.get('name') + " " + user_data.get('lastname')
-          )
-          customer_id = customer.id
-          user_doc.update({'stripe_customer_id': customer_id})
-
-
-     
-     prices = {
-          'esencial': 'price_1RnkWOPF5qcM1JsRRk5zLJlj',
-          'premium': 'price_1RnkZ2PF5qcM1JsRiwtjRrw4',
-          'profesional': 'price_1RnkbEPF5qcM1JsRSjBsHD9l'
-     }
-
-     if plan not in prices:
-        return HttpResponse("Plan inválido", status=400)
-
-     checkout_session = stripe.checkout.Session.create(
-          customer= customer_id,
-          payment_method_types=['card'],
-          line_items=[{
-               'price': prices[plan],
-               'quantity': 1
-          }],
-          mode= 'subscription',
-          success_url='http://127.0.0.1:8000/success?session_id={CHECKOUT_SESSION_ID}',
-          cancel_url='http://127.0.0.1:8000/cancel',
-          metadata={
-                'firebase_uid': user.uid,
-                'plan': plan
-          }
-
-     )
-     return redirect(checkout_session.url)
 
 def success(request):
      # plan = request.session.get('plan')
@@ -213,68 +141,12 @@ def login(request):
 def policy (request):
     return render(request, 'policy.html')
 
-def generate_token(email, uid):
-     s = URLSafeTimedSerializer(settings.SECRET_KEY)
-     return s.dumps(email, salt="recover-pass")
-
-def forgotpass (request):
-    if request.method == "POST":
-          try:
-               
-               email = request.POST.get('email')
-               user = auth.get_user_by_email(email)
-               if user:
-                    token = generate_token(email, user.uid)
-                    link = request.build_absolute_uri(f"https://riskmapper-jc-cc.onrender.com/recoverPass/{token}/")
-                    sendEmail(email, link)
-                    success_message = "Correo para restablecer contraseña ha sido enviado"
-                    return redirect(f"/forgotPassword?success={urllib.parse.quote(success_message)}")
-                    
-          except Exception as e:
-               error_message = f"{e}"
-               return redirect(f"/forgotPassword?error={urllib.parse.quote(error_message)}")
-                  
+def forgotpass (request):             
     error = request.GET.get("error")
     success = request.GET.get("success")
     return render(request, 'forgotPass.html', {'error':error, 'success': success})
 
 def recoverPass (request, token):
-     s = URLSafeTimedSerializer(settings.SECRET_KEY)
-     
-     try:
-          email = s.loads(token, salt="recover-pass", max_age = 900)
-     except SignatureExpired:
-          error_message = "El enlace ha expirado. Solicita uno nuevo."
-          return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}") 
-     except BadSignature:
-          error_message = "El enlace es inválido."
-          return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}") 
-     
-     if not email:
-          return redirect('login')
-     contra = request.POST.get('password')
-     repassword = request.POST.get('repassword')
-     
-     if request.method == 'POST':
-          
-          if not contra or not repassword:
-               error_message = "Faltan campos por llenar"
-               return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}") 
-          if contra != repassword:
-               error_message = "Las contraseñas no coinciden"
-               return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}")  
-          
-          try:
-               
-               user = auth.get_user_by_email(email)
-               auth.update_user(user.uid, password=contra)
-               success_message = "Contraseña restablecida"
-               return redirect(f"/recoverPass/{token}?success={urllib.parse.quote(success_message)}")
-          except Exception as e:
-               error_message = str(e)
-               return redirect(f"/recoverPass/{token}?error={urllib.parse.quote(error_message)}") 
-          
-
      error = request.GET.get("error")
      success = request.GET.get('success')
      return render(request, 'recoverPass.html', {'error': error, 'success':success})
@@ -1034,148 +906,6 @@ def cleanAnswer(texto):
     return ''.join(html_parts)
 
 
-
-
-def exportarDocx(request):
-     graphic = request.session.get('graphic')
-     calendarios = request.session.get('calendarios', [])
-     horas = request.session.get('hour_txt')
-     AiText = request.session.get('AiText')
-     lang = request.session.get('lang')
-     text_html = AiText
-     tabla_img = request.session.get('tabla_base64')
-
-     doc = Document()
-     if lang == 'en':
-          doc.add_heading('Event analysis', 0)
-     elif lang == 'es':
-          doc.add_heading('Análisis de eventos', 0)
-     if text_html:
-        soup = BeautifulSoup(text_html, 'html.parser')
-        for elemento in soup.contents:
-            if elemento.name == 'p':
-                doc.add_paragraph(elemento.get_text())
-            elif elemento.name == 'h3':
-                doc.add_heading(elemento.get_text(), level=2)
-            elif elemento.name == 'ul':
-                for li in elemento.find_all('li'):
-                    doc.add_paragraph('• ' + li.get_text(), style='List Bullet')
-            elif elemento.name == 'ol':
-                for li in elemento.find_all('li'):
-                    doc.add_paragraph(li.get_text(), style='List Number')
-            elif elemento.name == 'table':
-                filas = elemento.find_all('tr')
-                if filas:
-                    num_cols = len(filas[0].find_all(['td', 'th']))
-                    tabla = doc.add_table(rows=1, cols=num_cols)
-                    tabla.style = 'Table Grid'
-
-                    # Encabezado
-                    hdr_cells = tabla.rows[0].cells
-                    for idx, th in enumerate(filas[0].find_all(['td', 'th'])):
-                        hdr_cells[idx].text = th.get_text().strip()
-                        for paragraph in hdr_cells[idx].paragraphs:
-                            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                            for run in paragraph.runs:
-                                run.font.bold = True
-                                run.font.size = Pt(11)
-
-                    # Cuerpo de la tabla
-                    for fila in filas[1:]:
-                        celdas = fila.find_all(['td', 'th'])
-                        row_cells = tabla.add_row().cells
-                        for idx, celda in enumerate(celdas):
-                            row_cells[idx].text = celda.get_text().strip()
-                            for paragraph in row_cells[idx].paragraphs:
-                                paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                                for run in paragraph.runs:
-                                    run.font.size = Pt(10)
-
-                    # Ajustar ancho de columnas (opcional)
-                    ancho_columna = Inches(1.5)
-                    for col_idx in range(num_cols):
-                        for row in tabla.rows:
-                            row.cells[col_idx].width = ancho_columna
-
-     for calendario in calendarios:
-          img_base64 = calendario.get('img')
-          if img_base64:
-               if img_base64.startswith('data:image'):
-                    img_base64 = img_base64.split(',')[1]
-               try:
-                    calendario_data = base64.b64decode(img_base64)
-                    calendario_stream = BytesIO(calendario_data)
-                    if lang == 'en':
-                         doc.add_heading('Distribution graphic by date:', level= 2)
-                    elif lang == 'es':
-                         doc.add_heading('Gráfico de distribución por fecha:', level= 2)
-                    doc.add_picture(calendario_stream, width=Inches(3))  
-               except:
-                    doc.add_paragraph('Error al cargar calendario')
-
-     if graphic :
-          for g in graphic:
-               img = g.get('img')
-               if img.startswith('data:image'):
-                    img = img.split(',')[1]
-               try:
-                    graphic_data = base64.b64decode(img)
-                    graphic_stream = BytesIO(graphic_data)
-                    if lang == 'en':
-                         doc.add_heading('Distribution graphic by time:', level= 2)
-                    elif lang == 'es':
-                         doc.add_heading('Gráfico de distribución horaria:', level= 2)
-                    doc.add_picture(graphic_stream, width=Inches(4))  
-               except:
-                    doc.add_paragraph('Error al agregar calendario')
-
-     if tabla_img:
-          
-          try:
-               if isinstance(tabla_img, bytes):
-                    tabla_img = tabla_img.decode('utf-8')
-               tabla_img = tabla_img.strip().replace('\n', '')
-               if tabla_img.startswith('data:image'):
-                    tabla_img = tabla_img.split(',')[1]
-
-               # Decodificar
-               tabla_data = base64.b64decode(tabla_img)
-               tabla_stream = BytesIO(tabla_data)
-               if lang == 'en':
-                    doc.add_heading('Data table:', level= 2)
-               elif lang == 'es':
-                    doc.add_heading('Tabla de datos:', level= 2)
-               doc.add_picture(tabla_stream, width=Inches(3))
-          except:
-               doc.add_paragraph('Error en la tabla de datos')
-     if horas:
-          try:
-               if lang == 'en':
-                    doc.add_heading('Critic time range:', level= 2)
-               elif lang == 'es':
-                    doc.add_heading('Rango horario crítico:', level= 2)
-               doc.add_paragraph( horas)
-          except:
-               doc.add_paragraph("No hay rango horario crítico")
-     
-
-     response = HttpResponse(
-          content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-     )
-
-     fechaHora = datetime.datetime.now(timezone.utc)
-
-     response['Content-Disposition'] = f'attachment; filename =Analisis_de_eventos{fechaHora}.docx'
-     doc.save(response)
-     request.session.pop('graphic', None)
-     request.session.pop('calendarios', None)
-     request.session.pop('hour_txt', None)
-     request.session.pop('AiText', None)
-     request.session.pop('ready_to_export', None)
-     request.session.pop('tabla_base64', None)
-
-     return response
-
 def generateCalendar( year: int, month: int, eventos: list[tuple]) -> str:
      cal = calendar.monthcalendar(year, month)
      fig, ax = plt.subplots(figsize=(5,5))
@@ -1248,17 +978,6 @@ def generateCalendar( year: int, month: int, eventos: list[tuple]) -> str:
      plt.close()
      return imagen_base64 
 
-def getPrivileges(request):
-      sessionCookie = request.COOKIES.get('session')
-      decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
-      uid = decoded_claims["uid"]
-      doc_ref = db.collection("Usuarios").document(uid)
-      doc = doc_ref.get()
-      if doc.exists:
-           return doc.to_dict().get("privileges",False)
-      else:
-           return False
-
 
 def logout (request):
      response = redirect("login")
@@ -1267,56 +986,10 @@ def logout (request):
      
      return response
 
-def add (request):
-     priv = getPrivileges(request)
-     sessionCookie = request.COOKIES.get('session')
-     
-     try:
-          decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
-          uid = decoded_claims["uid"]
-     except:
-          return redirect("login")
-     
-     priv = getPrivileges(request)
-     if not priv:
-               return redirect("main")
-     
-     if not sessionCookie:
-          return redirect ("login")
-     
-     if request.method == "POST":
-          
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        name = request.POST.get("name")
-        lastname = request.POST.get("lastname")
-        privileges = request.POST.get('privileges')
-
-        if name and lastname and password and email and privileges:
-             
-             try:
-                  user = auth.create_user(email=email, password=password)
-                  db.collection("Usuarios").document(user.uid).set({
-                    "email": email,
-                    "name": name,
-                    "lastname": lastname,
-                    "privileges":privileges,
-                    "lastAccess": None
-                    
-                    })
-                  success_message = "Usuario agregado correctamente"
-                  return redirect(f"/add?success={urllib.parse.quote(success_message)}")
-             except Exception as e:
-                  error_message = str(e)
-                  return redirect(f"/add?error={urllib.parse.quote(error_message)}")
-                  
-        else:
-             error_message = "Faltan campos por ser llenados"
-             return redirect(f"/add?error={urllib.parse.quote(error_message)}")
-                  
+def add (request):            
      success = request.GET.get("success")
      error = request.GET.get("error")
-     return render (request, "addUser.html", {"success": success, "error": error,'priv': priv})
+     return render (request, "addUser.html", {"success": success, "error": error})
 
 def manage_user(request):
      usuarios = getUsers()
@@ -1328,60 +1001,12 @@ def manage_user(request):
           uid = decoded_claims["uid"]
      except:
           return redirect("login")
-     
-     priv = getPrivileges(request)
      if not priv:
-               return redirect("main")
+          return redirect("main")
      
      if not sessionCookie:
           return redirect ("login")
-     return render(request, 'manageUser.html', {"usuarios": usuarios, "priv":priv})
-
-def getUsers():
-     docs = db.collection("Usuarios").stream()
-     listUsers=[]
-
-     for doc in docs:
-          datos = doc.to_dict()
-          datos['id'] = doc.id
-          listUsers.append(datos)
-
-     return listUsers
-
-def editUser(request, id):
-     
-     if request.method == 'POST':
-        uid = id
-        updates = {}
-
-        if name := request.POST.get('name'):
-            updates['name'] = name
-
-        if lastname := request.POST.get('lastname'):
-            updates['lastname'] = lastname
-
-        if email := request.POST.get('email'):
-            updates['email'] = email
-            if uid:
-                try:
-                    auth.update_user(uid, email=email)
-                except Exception as e:
-                    print("Error actualizando email:", e)
-
-        if password := request.POST.get('password'):
-            if uid:
-                try:
-                    auth.update_user(uid, password=password)
-                except Exception as e:
-                    print("Error actualizando contraseña:", e)
-
-        if privileges := request.POST.get('privileges'):
-            updates['privileges'] = privileges == 'true'
-
-        if updates:
-            db.collection('Usuarios').document(id).update(updates)
-     return redirect('manageUser')
-               
+     return render(request, 'manageUser.html', {"usuarios": usuarios})
 
 def deleteUser(request, id):
      if request.method == 'POST':
@@ -1397,25 +1022,6 @@ def deleteUser(request, id):
                          pass
           
      return redirect('manageUser')
-
-def display_users(request):
-     usuarios = getUsers()
-     priv = getPrivileges(request)
-     sessionCookie = request.COOKIES.get('session')
-     
-     try:
-          decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
-          uid = decoded_claims["uid"]
-     except:
-          return redirect("login")
-     
-     priv = getPrivileges(request)
-     if not priv:
-               return redirect("main")
-     
-     if not sessionCookie:
-          return redirect ("login")
-     return (request,{"usuarios": usuarios, "priv":priv})
 
 def loadFiles(request):
     sessionCookie = request.COOKIES.get('session')
@@ -2036,8 +1642,4 @@ def deleteEvent(request, id):
                print(e)
      
      return library(request)
-
-
-
-
 # Create your views here.

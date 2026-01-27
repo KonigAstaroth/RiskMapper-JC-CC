@@ -17,7 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from app import views
-from app.src import login
+from app.src import login, forgotPassword
+from app.src.stripe_service import stripe
+from app.src.admin_service import admins
+from app.src.generate_docx_service import exportDocx
+
 
 
  
@@ -28,18 +32,21 @@ urlpatterns = [
     path('login-process', login.login_process, name='login-process'),
     path('signup/', views.signup, name='signup'),
     path('subscriptions/', views.subscriptions, name='subs'),
+    path('process-subscription/', stripe.processSubscription, name='process-subscription'),
     path('policy/', views.policy, name='policy'),
     path('forgotPassword/', views.forgotpass, name='pass'),
+    path('forgotPassword-sendMail', forgotPassword.sendRecoverLink, name='send-recover-mail'),
     path('main/', views.main, name='main'),
     path('add/', views.add, name='add'),
+    path('admin-adduser/', admins.adduser, name='admin-adduser'),
     path('logout/', views.logout, name='logout'),
     path('manageUser/', views.manage_user, name='manageUser'),
-    path('edit_user<str:id>/', views.editUser, name='editUser'),
+    path('edit_user<str:id>/', admins.editUser, name='editUser'),
     path('delete_user<str:id>/', views.deleteUser, name='deleteUser'),
     path('loadFiles/', views.loadFiles, name='loadFiles'),
     path('library/', views.library, name='library'),
     path('recoverPass/<token>/', views.recoverPass, name='recoverPass'),
-    path('exportDocx/', views.exportarDocx, name='export'),
+    path('exportDocx/', exportDocx.ProcessDocx, name='export'),
     path('edit_event<str:id>/', views.edit_event, name='edit_event'),
     path('delete_event<str:id>/', views.deleteEvent, name='delete_event'),
     path('success/', views.success, name='success')
