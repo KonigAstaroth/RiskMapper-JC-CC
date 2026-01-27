@@ -55,7 +55,7 @@
             <h3 class="fs-6 fw-normal text-secondary m-0">Ingrese una nueva contraseña.</h3>
             <br>
 
-            <form style="margin-top: 6%;" method="POST" autocomplete="off">
+            <form style="margin-top: 6%;" method="POST" autocomplete="off" action="{% url '' %}">
                 {% csrf_token %}
                 <input type="hidden" name="token" value="{{ token }}">
                 <div class="form-group">
