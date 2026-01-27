@@ -1,0 +1,361 @@
+{% extends "allTemplate.html" %}
+{% load static %}
+
+
+{% block titulo %}
+Inicio
+{% endblock %}
+
+
+
+{% block contenido %}
+
+{% if error %}
+    <div class="alert alert-danger" style="width: 50%; text-align: center ; z-index: 999; position: fixed; top: 0; left: 25%;" id="error-alert" role="alert">
+        {{ error }}
+        <script>
+            setTimeout(function() {
+                var alertBox = document.getElementById("error-alert");
+                if (alertBox) {
+                    alertBox.style.transition = "opacity 0.75s";
+                    alertBox.style.opacity = "0";
+                    setTimeout(() => alertBox.remove(), 500); 
+                }
+            }, 3000); 
+        </script>
+    </div>
+{% endif %}
+
+
+
+
+
+    <h4 class="welcome">Bienvenido de nuevo, {{ name }}</h4>
+
+    
+<div style="display: flex;flex-direction: row; margin-top: 2%; height: 75vh;">
+    <div class="Search">
+        
+        <form method="POST">
+            {% csrf_token %}
+            <br>
+            <div class="topSearch">
+                <h3 class="Searchtitle">Visualización geográfica</h3>
+                <button class="searchBttn" type="submit" name="buscar">Buscar <span><i class="bi bi-search ms-3"
+                            style="color: #2686B0;"></i></span></button>
+            </div>
+            
+            <h5 class="filters">Filtros</h5>
+            <div class="inputFilters">
+                <div class="row" style="margin-top: 1%;">
+                    <div class="col">
+                        <label class="label_filters">Fecha de inicio</label>
+                        <input type="date" class="form-control" name="startDate">
+                    </div>
+                    <div class="col">
+                        <label class="label_filters">Fecha final</label>
+                        <input type="date" class="form-control" name="endDate">
+                    </div>
+                </div>
+                <br>
+                <div class="row" >
+                    <label class="label_filters">Descripción del cliente</label>
+                    <div style="padding-right: 2%; padding-left: 2%;" class="col">
+                        <textarea class="textarea-main" placeholder="Agregue una descripción apropiada de acuerdo al tipo de cliente" name="descripcion_cliente" id="descripcion_cliente" oninput="contarCaracteres()" maxlength="1000"></textarea>
+                        
+                    </div>
+                    
+
+                    <script>
+                        function contarCaracteres(){
+                            var textarea = document.getElementById('descripcion_cliente')
+                            var contador = document.getElementById('contador')
+
+                            contador.textContent = textarea.value.length + '/1000'
+                        }
+
+                        document.addEventListener("DOMContentLoaded", function(){
+                            contarCaracteres()
+                        });
+                    </script>
+                    
+                </div>
+                <div class="row">
+                    <small id="contador"  style="color: #e6e6e6; font-family: Insert, sans-serif;"></small>
+                </div>
+
+                <br>
+                <label  class="label_filters">Categoría</label>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle = "dropdown" aria-expanded="false" style="background-color: #FFFFFF;color: #838383;font-weight: 400;">
+                        Tipos de delito
+                    </button>
+                    <ul class="dropdown-menu" style="max-height: 300px; overflow-y: auto;">
+                        <li>
+                            <p>Seleccionar máximo 10 categorías de delito</p>
+                        </li>
+                        {% for delito in lista_delitos %}
+                        <li>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="delitos" value="{{ delito.valor }}" id="id_delito_{{ forloop.counter }}">
+                                <label for="id_delito_{{ forloop.counter }}" class="form-check-label"> {{ delito.nombre }}</label>
+                            </div>
+                        </li>
+
+                        {% endfor %}
+
+                    </ul>
+
+                </div>
+                <br>
+                <label  class="label_filters">Ubicación</label>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <input class="form-control" type="text" placeholder="Estado" id="estado" name="estado">
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <input class="form-control" type="text" placeholder="Municipio" id="municipio" name="municipio">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mt-2">
+                        <input class="form-control" type="text" placeholder="Colonia" id="colonia" name="colonia">
+                    </div>
+                    <div class="col-md-6 mt-2" >
+                        <input class="form-control" type="text" placeholder="Calle" id="calle" name="calle">
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <div id="mapa" class="mapa"></div>
+    
+</div>
+
+    {% if graphic or calendarios or AiText %}
+        <div class="carta">
+            <h2 class="analisis">ANALISIS DE PATRONES  </h2>
+            <div class="data_analisis">
+                <div style="margin-right: 3%; margin-left: 3%;">
+                    <br>
+                    <div class="cartaBanner"><h5 style="color: #FFFFFF; font-weight: 500;">Zona analizada: {{ lugar }}</h5></div>
+                    <div class="calendar-and-graphic-container" style="display: flex; justify-content: space-around; align-items: flex-start; flex-wrap: wrap;">
+                        {% if calendarios %}
+                            <div class="calendars-wrapper" style="flex: 1; min-width: 300px; margin-right: 20px;"> 
+                                {% for cal in calendarios %}
+                                    <div>
+                                        <img src="data:image/png;base64,{{ cal.img }}" alt="" class="mb-3" style="max-width: 100%; height: auto;"> 
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+
+                        {% endif %}
+                        
+                        {% if graphic %} 
+                            <div class="graphics-wrapper" style="flex: 1; min-width: 300px;"> 
+                                {% for item in graphic %}
+                                    <img src="data:image/png;base64,{{ item.img }}" alt="" style="max-width: 100%; height: auto; margin-bottom: 15px;">
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                    
+                    </div>
+                    <br>
+                    {% if graphic and calendarios %}
+                        <h3>DATA:</h3>
+                            
+                            <img src="data:image/png;base64,{{ tabla_base64 }}" alt="">
+                            
+                        <hr>
+                    {% endif %}
+                    
+                    <h3>Rango horario crítico: </h3><span><p>{{ hour_txt }}</p></span>
+                    <h3>Resumen de hechos violentos en el periodo</h3>
+                    <div>
+                        {{ AiText|safe }}
+                    </div>
+                    
+                    <br>
+                    <div class="word_dwnld">
+                        <form method="POST" action="{% url 'export' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="send">Descargar analisis</button>
+                        </form>
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+    {% else %}
+    
+    {% endif %}
+    
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let idioma = navigator.language || navigator.userLanguage;
+            const match = document.cookie.match(/googtrans=\/([^/]+)\/([^/]+)/);
+            if (match) idioma = match[2];
+
+            // Redirige agregando el idioma como parámetro GET si no está presente
+            if (!window.location.search.includes("idioma=")) {
+                const url = new URL(window.location.href);
+                url.searchParams.set("idioma", idioma.substring(0, 2)); // 'es', 'en', etc.
+                window.location.replace(url.toString());
+            }
+        });
+    </script>
+    
+
+    <script id="marcadores-json" type="application/json">
+        {{ markers|safe }}
+    </script>
+
+    <script id="map_config_json" type="application/json">
+        {{ map_config_json|safe }}
+    </script>
+
+
+    <script  src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=marker" async defer></script>
+
+    <script>
+        
+
+        const iconos = {
+                amenazas:"{% static 'mapIcons/enfado.png' %}",
+                chapitos:"{% static 'mapIcons/chapitos.png' %}",
+                mayos:"{% static 'mapIcons/mayos.png' %}",
+                robonegocio: "{% static 'mapIcons/delito.png' %}",
+                homicidiodoloso: "{% static 'mapIcons/escena-del-crimen.png' %}",
+                feminicidio: "{% static 'mapIcons/stop-violence.png' %}",
+                secuestro: "{% static 'mapIcons/tied.png' %}",
+                tratapersonas: "{% static 'mapIcons/human-trafficking.png' %}",
+                robotranseunte: "{% static 'mapIcons/rob.png' %}",
+                extorsion: "{% static 'mapIcons/blackmail.png' %}",
+                robocasa: "{% static 'mapIcons/thief.png' %}",
+                violacion: "{% static 'mapIcons/security.png' %}",
+                narcomenudeo: "{% static 'mapIcons/narcotics.png' %}",
+                bajoimpacto: "{% static 'mapIcons/esposas.png' %}",
+                robovehiculo: "{% static 'mapIcons/robovehiculo.png' %}",
+                armafuego: "{% static 'mapIcons/pistol.png' %}",
+                robotransportista: "{% static 'mapIcons/robotransportista.png' %}",
+                robotaxi: "{% static 'mapIcons/robotaxi.png' %}",
+                roborepartidor: "{% static 'mapIcons/roborepartidor.png' %}",
+                robomicrobus: "{% static 'mapIcons/robomicrobus.png' %}",
+                robometro: "{% static 'mapIcons/robometro.png' %}",
+                nodelito: "{% static 'mapIcons/nodelito.png' %}",
+                default: "{% static 'mapIcons/default.png' %}"
+            }
+
+            
+        async function initMap() {
+                const { Map } = await google.maps.importLibrary('maps');
+                const { AdvancedMarkerElement, CollisionBehavior } = await google.maps.importLibrary('marker');
+
+                const marcadores = JSON.parse(document.getElementById('marcadores-json').textContent);
+                const config = JSON.parse(document.getElementById('map_config_json').textContent);
+
+                const map = new google.maps.Map(document.getElementById("mapa"), {
+                    zoom: config.zoom,
+                    center: config.center,
+                    mapId: "mapa"
+                });
+
+                console.log("Config", config)
+
+                const infoWindow = new google.maps.InfoWindow();
+                const geocoder = new google.maps.Geocoder();
+
+                marcadores.forEach((marcador) => {
+                    let iconoUrl = iconos[marcador.icono];
+                    if (!iconoUrl || iconoUrl.trim() == ""){
+                        iconoUrl = iconos['default']
+                    }
+                    const iconImg = document.createElement('img');
+                    iconImg.src = iconoUrl;
+                    iconImg.width = 40;
+                    iconImg.height = 40;
+
+                    if (marcador.lat == null || marcador.lng == null) {
+                        let direccion = `${marcador.calle || ''}, ${marcador.colonia || ''}, ${marcador.municipio || ''}, ${marcador.estado || ''}`;
+                        direccion = direccion.replace(/&/g, 'y').trim();
+
+                        if (!direccion.replace(/[, ]/g, '').length) {
+                            return;
+                        }
+
+
+                        geocoder.geocode({ address: direccion }, (results, status) => {
+                            if (status === 'OK') {
+                                const latlng = results[0].geometry.location;
+
+                                const marker = new AdvancedMarkerElement({
+                                    position: latlng,
+                                    map: map,
+                                    title: marcador.Categoria || 'Sin categoría',
+                                    content: iconImg,
+                                    collisionBehavior: CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
+                                });
+
+                                marker.addListener('gmp-click', () => {
+                                    infoWindow.setContent(`
+                            <h4> Categoría: ${marcador.Categoria || 'Sin categoría'}</h4>
+                            <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'}, <b>Colonia:</b> ${marcador.colonia || 'Desconocido'} </p>
+                            <p> <b>Estado:</b> ${marcador.estado || 'Desconocido'}, <b>Municipio:</b> ${marcador.municipio || 'Desconocido'}</p>
+                            <p> <b>Delito:</b> ${marcador.delito || 'Desconocido'}</p>
+                            <p> <b>Fecha:</b> ${marcador.fecha || 'No disponible'}</p>
+                            <h6>Descripción</h6>
+                            <p>${marcador.descripcion || 'Sin descripción'}</p>
+                        `);
+                                    infoWindow.setPosition(latlng);
+                                    infoWindow.open(map);
+                                });
+                            } else {
+                                console.error("Geocoding falló:", status, direccion);
+                            }
+                        });
+                    } else {
+                        const position = {
+                            lat: Number(marcador.lat),
+                            lng: Number(marcador.lng)
+                        };
+
+                        const marker = new AdvancedMarkerElement({
+                            position: position,
+                            map: map,
+                            title: marcador.Categoria || 'Sin categoría',
+                            content: iconImg,
+                            collisionBehavior: CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
+                        });
+
+                        marker.addListener('gmp-click', () => {
+                            infoWindow.setContent(`
+                            <h4> Categoría: ${marcador.Categoria || 'Sin categoría'}</h4>
+                            <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'}, <b>Colonia:</b> ${marcador.colonia || 'Desconocido'} </p>
+                            <p> <b>Estado:</b> ${marcador.estado || 'Desconocido'}, <b>Municipio:</b> ${marcador.municipio || 'Desconocido'}</p>
+                            <p> <b>Delito:</b> ${marcador.delito || 'Desconocido'}</p>
+                            <p> <b>Fecha:</b> ${marcador.fecha || 'No disponible'}</p>
+                            <h6>Descripción</h6>
+                            <p>${marcador.descripcion || 'Sin descripción'}</p>
+                `);
+                            infoWindow.setPosition(position);
+                            infoWindow.open(map);
+                        });
+                    }
+                });
+            }
+
+            window.initMap = initMap;
+
+    
+    </script>
+   
+    
+
+{% endblock %}
