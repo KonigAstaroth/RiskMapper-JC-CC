@@ -1,0 +1,6 @@
+.map {
+    height: calc(100vh - (90px));
+    width:100vw;
+    box-sizing: content-box;
+    background-color: lightblue;
+}
