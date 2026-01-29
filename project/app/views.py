@@ -42,6 +42,7 @@ from app.core.auth.firebase_config import db, FIREBASE_AUTH_URL, auth
 # Imports needed for context & display important info
 from app.src.admin_service.admins import getPrivileges
 from app.src.utils.users import getUsers
+from app.src.library_service import searchEvent
 
 CACHE_KEY_MARKERS = 'firebase_markers'
 CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
@@ -616,8 +617,6 @@ def main (request):
                cat_color_cuenta.append({'nombre': nombre, 'color': color, 'cuenta': cuenta})
           
           tabla = genDataImg(cat_color_cuenta)
-          print(tabla)
-          print("Idioma:",request.session.get('lang'))
           
      
 
@@ -1098,8 +1097,6 @@ def loadFiles(request):
                                              municipio_geo, estado_geo = getEstadoMunicipio(ubicacion)
                                              if municipio_geo: evento['Municipio_hechos'] = municipio_geo if municipio_geo else ''
                                              if estado_geo: evento['Estado_hechos'] = estado_geo if estado_geo else ''
-                                             print(ubicacion)
-                                             print(ubicacion.raw.get('address_components', []))
                                         except Exception as e:
                                              error_message = "Error geocoding inverso: ", str(e)
                                              return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
@@ -1198,189 +1195,7 @@ def loadFiles(request):
             except Exception as e:
                 error_message = str(e)
                 return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
-
-        # Carga manual
-        else:
-            calle = request.POST.get("calle")
-            colonia = request.POST.get("colonia")
-            estado = request.POST.get("estado")
-            municipio = request.POST.get("municipio")
-            delito = request.POST.get("crime")
-            fechaValue = request.POST.get("FechaHoraHecho")
-            icon = request.POST.get("icons")
-            categoria = request.POST.get("categ")
-            lat = request.POST.get('lat')
-            lng = request.POST.get('lng')
-            descripcion = request.POST.get('descripcion')
-
-            if not descripcion:
-                 descripcion = ""
-                 
             
-            crime_str = str(categoria).upper()
-          # Este segmento es sobre los iconos
-            try:
-                icono = None
-                if 'amenazas' in icon:
-                         icono = 'amenazas'
-                elif 'robo a negocio' in icon:
-                         icono = 'robonegocio'
-                elif 'homicidio doloso' in icon:
-                         icono = 'homicidiodoloso'
-                elif 'feminicidio' in icon:
-                         icono = 'feminicidio'
-                elif 'secuestro' in icon:
-                         icono = 'secuestro'
-                elif 'trata de personas' in icon:
-                         icono = 'tratapersonas'
-                elif 'robo a transeúnte' in icon:
-                         icono = 'robotranseunte'
-                elif 'extorsión' in icon:
-                         icono = 'extorsion'
-                elif 'robo a casa habitación' in icon:
-                         icono = 'robocasa'
-                elif 'violación' in icon:
-                         icono = 'violacion'
-                elif 'narcomenudeo' in icon:
-                         icono = 'narcomenudeo'
-                elif 'categoria de bajo impacto' in icon or 'delito de bajo impacto' in icon:
-                         icono = "bajoimpacto"
-                elif 'arma de fuego' in icon:
-                         icono = 'armafuego'
-                elif 'robo de accesorios de auto' in icon:
-                         icono= 'robovehiculo'
-                elif 'robo a cuentahabiente saliendo del cajero con violencia' in icon:
-                         icono = 'robocuentahabiente'
-                elif 'robo de vehículo' in icon:
-                         icono = 'robovehiculo'
-                elif 'robo a pasajero a bordo de microbus' in icon:
-                         icono = 'robomicrobus'
-                elif 'robo a repartidor' in icon:
-                         icono = 'roborepartidor'
-                elif 'robo a pasajero a bordo del metro' in icon:
-                         icono = 'robometro'
-                elif 'lesiones dolosas por disparo de arma de fuego' in icon:
-                         icono = 'armafuego'
-                elif 'hecho no delictivo' in icon:
-                         icono = 'nodelito'
-                elif 'robo a pasajero a bordo de taxi con violencia' in icon:
-                         icono = 'robotaxi'
-                elif 'robo a transportista' in icon:
-                         icono = 'robotransportista'
-                else:
-                     icono = 'default'
-                
-                      
-            except Exception as e:
-                 print(e)
-
-            timestamp = None
-
-            if fechaValue:
-                 try:
-                    if 'T' in fechaValue:
-                        dt= datetime.datetime.fromisoformat(fechaValue) 
-                    else:
-                        dt=datetime.datetime.strptime(fechaValue, "%Y-%m-%d %H:%M:%S")
-
-                    timestamp = dj_timezone.make_aware(dt)
-                        
-                 except Exception as e:
-                      return render(request, 'loadFiles.HTML', {
-                           'error': f'Error al convertir la fecha: {e}'
-                      })
-                 
-                      
-                           
-          
-            if ((calle and colonia and estado and municipio) or (lat and lng)) and fechaValue and delito and icono:
-                now = datetime.datetime.now(datetime.timezone.utc)
-                try:
-                    if ((not calle and not colonia and not estado and not municipio) and lat and lng):
-                         
-                         location = geolocator.reverse((lat,lng))
-                         if location and location.raw:
-                              componentes = location.raw.get('address_components', [])
-                              calle_geo = colonia_geo = municipio_geo = estado_geo = None
-                              for comp in componentes:
-                                   tipos = comp['types']
-                                   if 'route' in tipos :
-                                        calle_geo = comp['long_name']
-                                   elif 'street_number' in tipos:
-                                        numero_geo = comp['long_name']
-                                   elif 'sublocality' in tipos or 'sublocality_level_1' in tipos:
-                                        colonia_geo = comp['long_name']
-                                   elif 'locality' in tipos:
-                                        municipio_geo = comp['long_name']
-                                   elif 'administrative_area_level_1' in tipos:
-                                        estado_geo = comp['long_name']
-
-                                   if calle_geo and numero_geo:
-                                        calleNumero = f"{calle_geo} {numero_geo}"
-                                   else:
-                                        calleNumero = calle_geo
-
-                              db.collection('Eventos').add({
-                              "Calle_hechos": calleNumero,
-                              "ColoniaHechos": colonia_geo,
-                              "Estado_hechos": estado_geo,
-                              "Delito": delito,
-                              "FechaHoraHecho": timestamp,
-                              "icono": icono,
-                              "Municipio_hechos": municipio_geo,
-                              "Categoria": crime_str,
-                              "latitud": lat,
-                              "longitud": lng,
-                              'updatedAt': now,
-                              'Descripcion': descripcion
-                              })
-                    if (( calle and colonia and  estado and  municipio) and (not lat and not lng)):
-                         direccion=f"{calle}, {colonia}, {estado}, {municipio}"
-                         location = geolocator.geocode(direccion)
-                         lat_geo = location.latitude
-                         lng_geo = location.longitude
-
-                         db.collection('Eventos').add({
-                               "Calle_hechos": calle,
-                               "ColoniaHechos": colonia,
-                               "Estado_hechos": estado,
-                               "Delito": delito,
-                               "FechaHoraHecho": timestamp,
-                               "icono": icono,
-                               "Municipio_hechos": municipio,
-                               "Categoria": crime_str,
-                               "latitud": lat_geo,
-                               "longitud": lng_geo,
-                               'updatedAt': now,
-                               'Descripcion': descripcion
-                               })
-                         
-
-                    elif calle and colonia and estado and municipio and lat and lng:
-                     
-                         db.collection('Eventos').add({
-                              "Calle_hechos": calle,
-                              "ColoniaHechos": colonia,
-                              "Estado_hechos": estado,
-                              "Delito": delito,
-                              "FechaHoraHecho": timestamp,
-                              "icono": icono,
-                              "Municipio_hechos": municipio,
-                              "Categoria": crime_str,
-                              "latitud": lat,
-                              "longitud": lng,
-                              'updatedAt': now,
-                              'Descripcion': descripcion
-                              })
-                    success_message = "Datos agregados exitosamente"
-                    return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
-                except:
-                     error_message = "Error al subir datos"
-                     return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
-            else:
-                 error_message = "Faltan datos por agregar"
-                 return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
-     
     success = request.GET.get("success")
     error = request.GET.get("error")
     return render(request, "loadFiles.html", {"error": error, 'success': success, 'usuarios': usuarios, 'priv': priv,})
@@ -1421,90 +1236,9 @@ def library(request):
         return redirect("login")
 
     usuarios = getUsers()
-    ref = db.collection('Eventos')
-    eventos = []
-    filters = {}
     
     if request.method == 'POST':
-        
-
-        startDate_str = request.POST.get('startDate')
-        endDate_str = request.POST.get('endDate')
-        direccion = request.POST.get('direccion', '')
-        search = request.POST.get('searchBy')
-        categoria = request.POST.get('categoria')
-
-        partes_direccion = [parte.strip() for parte in direccion.split(',') if parte.strip()]
-
-        if search == "full":
-            calle = partes_direccion[0] if len(partes_direccion) > 0 else None
-            colonia = partes_direccion[1] if len(partes_direccion) > 1 else None
-            municipio = partes_direccion[2] if len(partes_direccion) > 2 else None
-            estado = partes_direccion[3] if len(partes_direccion) > 3 else None
-
-            if calle:
-                filters['Calle_hechos'] = calle
-            if colonia:
-                filters['ColoniaHechos'] = colonia
-            if municipio:
-                filters['Municipio_hechos'] = municipio
-            if estado:
-                filters['Estado_hechos'] = estado
-        elif search == "estado":
-            estado = partes_direccion[0] if len(partes_direccion) > 0 else None
-            if estado:
-                filters['Estado_hechos'] = estado
-        elif search == "municipio":
-            municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
-            if municipio:
-                filters['Municipio_hechos'] = municipio
-        elif search == "estadoMunicipio":
-            municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
-            estado = partes_direccion[1] if len(partes_direccion) > 1 else None
-            if municipio:
-                filters['Municipio_hechos'] = municipio.strip()
-            if estado:
-                filters['Estado_hechos'] = estado.strip()
-
-        
-        if startDate_str and endDate_str:
-            filters['startDate'] = startDate_str
-            filters['endDate'] = endDate_str
-
-        if categoria:
-            filters['Categoria'] = categoria
-
-        
-    if filters:
-          query_ref = ref
-
-          startDate_str = filters.get('startDate')
-          endDate_str = filters.get('endDate')
-
-          
-          if startDate_str and endDate_str:
-               startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-               endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
-               query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '>=', startDate))
-               query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '<=', endDate))
-
-          
-          filters_sin_fechas = {k: v for k, v in filters.items() if k not in ['startDate', 'endDate']}
-
-          
-          for campo, valor in filters_sin_fechas.items():
-               print(f"Campo: {campo}, Valor: {valor}")
-               if isinstance(valor, str):
-                    valor = valor.strip()
-               query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-
-          resultados = query_ref.stream()
-          for doc in resultados:
-               data = doc.to_dict()
-               data['id'] = doc.id
-               eventos.append(data)
-
-    
+            eventos = searchEvent(request)
 
     return render(request, 'library.html', {
         'usuarios': usuarios,
