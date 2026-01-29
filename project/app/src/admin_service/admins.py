@@ -94,3 +94,19 @@ def editUser(request, id):
         if updates:
             db.collection('Usuarios').document(id).update(updates)
      return redirect('manageUser')
+
+
+def deleteUser(request, id):
+     if request.method == 'POST':
+          doc_ref = db.collection('Usuarios').document(id)
+          doc = doc_ref.get()
+          if doc.exists:
+               uid = id
+               doc_ref.delete()
+               if uid:
+                    try:
+                         auth.delete_user(uid)
+                    except auth.UserNotFoundError:
+                         pass
+          
+     return redirect('manageUser')

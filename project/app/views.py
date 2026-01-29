@@ -979,13 +979,6 @@ def generateCalendar( year: int, month: int, eventos: list[tuple]) -> str:
      return imagen_base64 
 
 
-def logout (request):
-     response = redirect("login")
-     response.delete_cookie('session')
-     request.session.flush()
-     
-     return response
-
 def add (request):            
      success = request.GET.get("success")
      error = request.GET.get("error")
@@ -1008,20 +1001,6 @@ def manage_user(request):
           return redirect ("login")
      return render(request, 'manageUser.html', {"usuarios": usuarios})
 
-def deleteUser(request, id):
-     if request.method == 'POST':
-          doc_ref = db.collection('Usuarios').document(id)
-          doc = doc_ref.get()
-          if doc.exists:
-               uid = id
-               doc_ref.delete()
-               if uid:
-                    try:
-                         auth.delete_user(uid)
-                    except auth.UserNotFoundError:
-                         pass
-          
-     return redirect('manageUser')
 
 def loadFiles(request):
     sessionCookie = request.COOKIES.get('session')
@@ -1533,113 +1512,4 @@ def library(request):
         'priv': priv
     })
 
-def edit_event(request, id):
-
-     updates = {}
-     
-
-     if request.method == 'POST':
-          
-          if calle := request.POST.get('calle'):
-               updates['Calle_hechos'] = calle
-          if colonia := request.POST.get('colonia'):
-               updates['ColoniaHechos'] = colonia
-          if municipio:= request.POST.get('municipio'):
-               updates['Municipio_hechos'] = municipio
-          if estado := request.POST.get('estado'):
-               updates['Estado_hechos'] = estado
-          if icono := request.POST.get('icons'):
-               if 'amenazas' in icono:
-                         icon = 'amenazas'
-               elif 'robo a negocio' in icono:
-                         icon = 'robonegocio'
-               elif 'homicidio doloso' in icono:
-                         icon = 'homicidiodoloso'
-               elif 'feminicidio' in icono:
-                         icon = 'feminicidio'
-               elif 'secuestro' in icono:
-                         icon = 'secuestro'
-               elif 'trata de personas' in icono:
-                         icon = 'tratapersonas'
-               elif 'robo a transeúnte' in icono:
-                         icon = 'robotranseunte'
-               elif 'extorsión' in icono:
-                         icon = 'extorsion'
-               elif 'robo a casa habitación' in icono:
-                         icon = 'robocasa'
-               elif 'violación' in icono:
-                         icon = 'violacion'
-               elif 'narcomenudeo' in icono:
-                         icon = 'narcomenudeo'
-               elif 'categoria de bajo impacto' in icono or 'delito de bajo impacto' in icono:
-                         icon = "bajoimpacto"
-               elif 'arma de fuego' in icono:
-                         icon = 'armafuego'
-               elif 'robo de accesorios de auto' in icono:
-                         icon= 'robovehiculo'
-               elif 'robo a cuentahabiente saliendo del cajero con violencia' in icono:
-                         icon = 'robocuentahabiente'
-               elif 'robo de vehículo' in icono:
-                         icon = 'robovehiculo'
-               elif 'robo a pasajero a bordo de microbus' in icono:
-                         icon = 'robomicrobus'
-               elif 'robo a repartidor' in icono:
-                         icon = 'roborepartidor'
-               elif 'robo a pasajero a bordo del metro' in icono:
-                         icon = 'robometro'
-               elif 'lesiones dolosas por disparo de arma de fuego' in icono:
-                         icon = 'armafuego'
-               elif 'hecho no delictivo' in icono:
-                         icon = 'nodelito'
-               elif 'robo a pasajero a bordo de taxi con violencia' in icono:
-                         icon = 'robotaxi'
-               elif 'robo a transportista' in icono:
-                         icon = 'robotransportista'
-               elif 'default' in icono:
-                         icon = 'default'
-               updates['icono'] = icon
-          if FechaHoraHecho := request.POST.get('FechaHoraHecho'):
-               if 'T' in FechaHoraHecho:
-                    FechaHora= datetime.datetime.fromisoformat(FechaHoraHecho) 
-               else:
-                    FechaHora = datetime.datetime.strptime(FechaHoraHecho, "%Y-%m-%d %H:%M:%S")
-
-               if dj_timezone.is_naive(FechaHora):
-                    timestamp = dj_timezone.make_aware(FechaHora)
-               else:
-                    timestamp = FechaHora
-               updates['FechaHoraHecho'] = timestamp
-          if categoria := request.POST.get('categoria'):
-                updates['Categoria'] = categoria
-          if delito := request.POST.get('delito'):
-                updates['Delito'] = delito
-          if descripcion := request.POST.get('descripcion'):
-                updates['Descripcion'] = descripcion
-          
-
-     if updates:
-          try:
-               updateNow = datetime.datetime.now(timezone.utc)
-               updates['updatedAt'] = updateNow
-               db.collection('Eventos').document(id).update(updates)
-          except Exception as e:
-               print(e)
-
-
-     return library(request)
-
-def deleteEvent(request, id):
-      
-     if request.method == 'POST':
-          doc_ref = db.collection('Eventos').document(id)
-          doc = doc_ref.get()
-          try:
-               if doc.exists:
-                    doc_ref.delete()
-                    cache.delete(CACHE_KEY_LAST_UPDATE)
-                    cache.delete(CACHE_KEY_MARKERS)
-          except Exception as e:
-               print(e)
-     
-     return library(request)
 # Create your views here.
