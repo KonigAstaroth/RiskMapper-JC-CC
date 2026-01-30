@@ -66,6 +66,7 @@ body {
   border: 1px solid var(--inputButton);
   height: 45px;
   width: 100%;
+  padding: 0 15px;
 }
 
 /* Inputs largas (descripciones) */
@@ -74,4 +75,5 @@ body {
   border: 1px solid var(--inputButton);
   height: 100%;
   width: 100%;
+  padding: 15px;
 }
