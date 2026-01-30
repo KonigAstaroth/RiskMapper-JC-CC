@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 
+/* Gama de colores */
 :root {
   --border: #e0e0e0;
   --bg: #f5f5f5;
@@ -10,6 +11,7 @@
   --category: #dadada;
   --accent: #0b58CC;
   --sidebar: rgba(245,245,245,0.9);
+  --inputButton: #a1a1a1;
 }
 
 body.dark-mode {
@@ -21,9 +23,55 @@ body.dark-mode {
   --category: #dadada;
   --accent: #0b58CC;
   --sidebar: rgba(23,26,31,0.9);
+  --inputButton: #a1a1a1;
 }
 
 body {
   background-color: var(--bg);
   color: var(--text);
+}
+
+/* Botones */
+.cbr-button {
+  border-radius: 8px;
+  width: 200px;
+  height: 45px;
+  color: var(--text);
+  background-color: var(--surface);
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.cbr-submit-button {
+  border-radius: 8px;
+  width: 260px;
+  color: #ededed;
+  height: 50px;
+  background-color: var(--accent);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+/* Inputs cortas y sencillas */
+.cbr-text-input {
+  border-radius: 8px;
+  border: 1px solid var(--inputButton);
+  height: 45px;
+  width: 100%;
+}
+
+/* Inputs largas (descripciones) */
+.cbr-textarea-input {
+  border-radius: 8px;
+  border: 1px solid var(--inputButton);
+  height: 100%;
+  width: 100%;
 }
