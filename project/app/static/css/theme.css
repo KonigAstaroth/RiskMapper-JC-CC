@@ -42,8 +42,9 @@ body {
   justify-content: space-evenly;
   align-items: center;
   text-decoration: none;
+  font-family: 'Lato';
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: bold;
 }
 
 .cbr-submit-button {
@@ -57,7 +58,8 @@ body {
   align-items: center;
   text-decoration: none;
   font-size: 1.3rem;
-  font-weight: 500;
+  font-family: 'Lato';
+  font-weight: bold;
 }
 
 /* Inputs cortas y sencillas */
@@ -76,4 +78,25 @@ body {
   height: 100%;
   width: 100%;
   padding: 15px;
+}
+
+
+/* Sección de textos */
+
+h1 {
+  font-size: 2em;
+  font-family: 'Lato';
+  font-weight: bold;
+}
+
+h2 {
+  font-family: 'Lato';
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.muted-text {
+  font-family: 'Lato';
+  font-size: 1em;
+  color: var(--muted);
 }
