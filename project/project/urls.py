@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from json import load
 from django.contrib import admin
 from django.urls import path
 from app import views
@@ -21,7 +22,7 @@ from app.src import login, forgotPassword, logout
 from app.src.stripe_service import stripe
 from app.src.admin_service import admins
 from app.src.generate_docx_service import exportDocx
-from app.src import library_service
+from app.src import library_service, load_files_service
 
 
 
@@ -45,6 +46,7 @@ urlpatterns = [
     path('edit_user<str:id>/', admins.editUser, name='editUser'),
     path('delete_user<str:id>/', admins.deleteUser, name='deleteUser'),
     path('loadFiles/', views.loadFiles, name='loadFiles'),
+    path('loadFilesService/', load_files_service.loadFilesService, name='loadFilesService'),
     path('library/', views.library, name='library'),
     path('recoverPass/<token>/', views.recoverPass, name='recoverPass'),
     path('exportDocx/', exportDocx.ProcessDocx, name='export'),

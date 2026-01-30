@@ -45,7 +45,7 @@ Carga de datos
 <hr class="separationthree">
 <div class="loadData">
     <div class="loadFormu">
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" enctype="multipart/form-data" action="{% url 'loadFilesService' %}">
         {% csrf_token %}
             <br>
             <div style="display: flex; flex-direction: row; justify-content: space-between;">

@@ -2,9 +2,12 @@ import datetime
 from django.shortcuts import redirect
 import urllib.parse
 from app.src.utils.resolve_icons import resolveIcons
-from app.src.utils.events_geo import resolveManualGeo
+from app.src.utils.events_geo import resolveManualGeo, resolveBulkGeo
 from app.core.auth.firebase_config import db
 from app.src.utils.parse_timestamp import parseTimestamp
+import pandas as pd
+from app.src.utils.parse_excel_datetime import resolveDate, resolveTime, combineDateTime
+from app.src.utils.bulk_load_helpers import location_check, check_valid_value
 
 
 def loadFilesService(request):
@@ -76,6 +79,41 @@ def handleManualLoad(request):
         return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
 
 
-def bulkLoad(request, file):
-    return
+def bulkLoad(request, excel_file):
+    try:
+        df = pd.read_excel(excel_file, engine='openpyxl', keep_default_na=False)
+    except:
+        error_message = "Error al leer el archivo Excel"
+        return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
+
+    if "FechaHecho" in df.columns:
+        df['FechaHecho'] = df['FechaHecho'].apply(resolveDate)
+    if "HoraHecho" in df.columns:
+        df["HoraHecho"] = df["HoraHecho"].apply(resolveTime)
+
+    df["FechaHoraHecho"] = df.apply(
+        lambda row: combineDateTime(row.get("FechaHecho"), row.get("HoraHecho")),
+        axis=1
+    )
+
+    df.drop(columns=["FechaHecho", "HoraHecho"], inplace=True, errors='ignore')
+    data = df.where(pd.notnull(df), None).to_dict(orient='records')
+    location_data=['latitud', 'longitud', 'Estado_hechos', 'Municipio_hechos', 'ColoniaHechos', 'Calle_hechos' ]
+
+    has_street2 = 'Calle_hechos2' in df.columns
+
+    for event in data:
+        try:
+            if not location_check(event, location_data):
+                resolveBulkGeo(event, has_street2)
+
+            event['icon'] = resolveIcons(event.get('Categoria'))
+            event['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
+            event['Categoria'] = event.get('Categoria', '').upper()
+            db.collection('Eventos').add(event)
+        except:
+            error_message = "Error al subir evento"
+            return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
+    success_message = "La carga de datos ha sido exitosa"
+    return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
 
