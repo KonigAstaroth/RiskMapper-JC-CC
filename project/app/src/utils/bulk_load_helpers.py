@@ -1,6 +1,5 @@
 import pandas as pd
 import math
-from app.src.utils.bulk_load_helpers import check_valid_value
 
 def check_valid_value(valor):
      if valor is None:

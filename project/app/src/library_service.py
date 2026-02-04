@@ -1,6 +1,7 @@
 import datetime
+
+from django.shortcuts import redirect
 from app.core.auth.firebase_config import db
-from app.views import library
 from django.utils import timezone as dj_timezone
 from django.core.cache import cache
 from datetime import timedelta,timezone
@@ -86,7 +87,7 @@ def edit_event(request, id):
                 print(e)
 
 
-    return library(request)
+    return redirect('library')
 
 def deleteEvent(request, id):
       
@@ -101,7 +102,7 @@ def deleteEvent(request, id):
           except Exception as e:
                print(e)
      
-     return library(request)
+     return redirect('library')
 
 def searchEvent(request):
     eventos = []

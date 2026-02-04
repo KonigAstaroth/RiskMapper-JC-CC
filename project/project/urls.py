@@ -51,6 +51,6 @@ urlpatterns = [
     path('recoverPass/<token>/', views.recoverPass, name='recoverPass'),
     path('exportDocx/', exportDocx.ProcessDocx, name='export'),
     path('edit_event<str:id>/', library_service.edit_event, name='edit_event'),
-    path('delete_event<str:id>/', views.deleteEvent, name='delete_event'),
+    path('delete_event<str:id>/', library_service.deleteEvent, name='delete_event'),
     path('success/', views.success, name='success')
 ]
