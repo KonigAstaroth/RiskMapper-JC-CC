@@ -22,7 +22,7 @@ from app.src import login, forgotPassword, logout
 from app.src.stripe_service import stripe
 from app.src.admin_service import admins
 from app.src.generate_docx_service import exportDocx
-from app.src import library_service, load_files_service
+from app.src import library_service, load_files_service, signup
 
 
 
@@ -33,6 +33,7 @@ urlpatterns = [
     path('', views.login, name='login'),
     path('login-process', login.login_process, name='login-process'),
     path('signup/', views.signup, name='signup'),
+    path('signup-process/', signup.signupProcess, name='signup-process'),
     path('subscriptions/', views.subscriptions, name='subs'),
     path('process-subscription/', stripe.processSubscription, name='process-subscription'),
     path('policy/', views.policy, name='policy'),

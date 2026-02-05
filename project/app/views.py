@@ -1,89 +1,45 @@
-
-import requests
 from django.shortcuts import render,redirect
 from django.conf import settings
-from django.contrib import messages
 from datetime import timedelta
 import urllib.parse
 import datetime
 from datetime import timezone
-import pandas as pd
 import json
 from django.utils.safestring import mark_safe
 from django.utils import timezone as dj_timezone
 from google.cloud.firestore import FieldFilter
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 import matplotlib
-import calendar
 matplotlib.use('agg')
 import numpy as np
-import io
-import base64
 from time import time
-from geopy.geocoders import GoogleV3
 from collections import defaultdict
 from django.core.cache import cache
-
-from collections import Counter
-from openai import OpenAI
-import os,psutil
-import re
-
-
-import gc
 import tracemalloc
 
 import math
 
-# Quitar despues, solo es para evitar errores
-from app.core.auth.firebase_config import db, FIREBASE_AUTH_URL, auth
+# Quitar despues, solo es para evitar errores en main y otros
+from app.core.auth.firebase_config import db, auth
+from app.src.AI_generation_service import genAI
+from app.src.utils.report_generation_utils.hourly_range import getRange
+from app.src.utils.report_generation_utils.parse_timestamp_num import time_to_num
 
 # Imports needed for context & display important info
 from app.src.admin_service.admins import getPrivileges
 from app.src.utils.users import getUsers
+from app.src.utils.getCoords import getLatLng
 from app.src.library_service import searchEvent
+from app.src.graph_generation_service import genDataImg, genGraph, generateCalendar
 
 CACHE_KEY_MARKERS = 'firebase_markers'
 CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
 
-def signup(request):
-     if request.method == 'POST':
-          name = request.POST.get('name')
-          lastName = request.POST.get('lastName')
-          email = request.POST.get('correo_personal')
-          password = request.POST.get('clave_segura')
-          repassword = request.POST.get('clave_repetida')
-          client = request.POST.get('client')
-          try:
-               if name and lastName and email and password == repassword:
-                    user = auth.create_user(email=email, password=password)
-                    db.collection("Usuarios").document(user.uid).set({
-                    "email": email,
-                    "name": name,
-                    "lastname": lastName,
-                    "privileges":False,
-                    "lastAccess": None,
-                    "client_type": client
-                    })
-                    request.session['email_usr'] = email
-                    return redirect('subs')
-               elif repassword != password:
-                    error_message = "La contraseña no coicide"
-                    return redirect(f"/signup?error={urllib.parse.quote(error_message)}") 
-               else:
-                    error_message = "Faltan campos por ser llenados"
-                    return redirect(f"/signup?error={urllib.parse.quote(error_message)}") 
-          except Exception as e:
-               return redirect(f"/signup?error={urllib.parse.quote(e)}")
-                  
+def signup(request):            
      error = request.GET.get("error")
      return render(request, 'signup.html', {"error": error})
 
 def subscriptions(request):
      return render(request, 'selectSub.html')
-
-
 
 def success(request):
      # plan = request.session.get('plan')
@@ -152,59 +108,6 @@ def recoverPass (request, token):
      success = request.GET.get('success')
      return render(request, 'recoverPass.html', {'error': error, 'success':success})
 
-     
-
-def time_to_num(time_str):
-     try:
-          hh, mm, ss = map(int, time_str.strip().split(':'))
-          return ss +60*(mm + 60*hh)
-     except Exception as e:
-          print(f"Error al convertir '{time_str}': {e}")
-          return None
-     
-def getRange(eventos):
-     horas = []
-
-     for evento in eventos:
-        fecha = evento.get('FechaHoraHecho')
-        if not fecha:
-            print("Evento sin fecha:", evento)
-            continue
-
-        
-        fecha_dt = None
-        if isinstance(fecha, str):
-            try:
-                fecha_dt = datetime.fromisoformat(fecha)
-            except Exception as e:
-                print("Error al convertir string a datetime:", e)
-                continue
-        elif hasattr(fecha, 'to_datetime'):
-            try:
-                fecha_dt = fecha.to_datetime()
-            except Exception as e:
-                print("Error al usar to_datetime():", e)
-                continue
-        elif isinstance(fecha, datetime.datetime):
-            fecha_dt = fecha
-        else:
-            continue
-
-        if fecha_dt.tzinfo is not None:
-            fecha_local = dj_timezone.localtime(fecha_dt)
-        else:
-            fecha_local = fecha_dt  
-
-        horas.append(fecha_local.hour)
-     
-
-     if not horas:
-        return None, None
-
-     ctr = Counter(horas)
-     hora_critica, cantidad = ctr.most_common(1)[0]
-     return hora_critica, cantidad
-
 def main (request):
      sessionCookie = request.COOKIES.get('session')
      priv = getPrivileges(request)
@@ -219,13 +122,6 @@ def main (request):
      except:
           return redirect("login")
      
-     doc_ref = db.collection("Usuarios").document(uid)
-     doc = doc_ref.get()
-
-     if doc.exists:
-          name = doc.to_dict().get("name")
-
-
      usuarios = getUsers()
 
 
@@ -643,7 +539,6 @@ def main (request):
                
 
      context = {
-          'name': name,
           'priv': priv,
           'usuarios': usuarios,
           'google_maps_api_key': settings.GOOGLE_MAPS_KEY,
@@ -663,320 +558,6 @@ def main (request):
 
     
      return render (request, 'main.html', context)
-
-def genDataImg(cat_color_cuenta):
-     n = len(cat_color_cuenta)
-     radio = 0.4                  
-     espacio = radio * 5          
-
-     alto_total = n * espacio  
-
-     alto_fig = max(alto_total * 0.4, 1)
-     fig, ax = plt.subplots(figsize=(6, alto_fig * 0.4))  
-     ax.set_aspect('equal')
-     ax.axis('off')
-
-     for i, item in enumerate(cat_color_cuenta):
-        nombre = item['nombre']
-        color = item['color']
-        y = (n - i - 1) * espacio
-
-        
-        icon = mpatches.Circle((0.5, y), radio, color=color)
-        ax.add_patch(icon)
-
-        
-        cuenta = item.get('cuenta', 0)
-        texto = f"{nombre.upper()}: {cuenta}"
-        ax.text(1.2, y, texto, va='center', fontsize=12)
-
-    
-     ax.set_xlim(-0.2, 5)
-     ax.set_ylim(-radio - 0.5, alto_total - espacio + radio + 0.2)
-
-     plt.tight_layout(pad=0.5)
-
-     buffer = io.BytesIO()
-     plt.savefig(buffer, format='png', bbox_inches = 'tight')
-     plt.close(fig)
-     ax.clear()
-     buffer.seek(0)
-     img_png = buffer.getvalue()
-     tabla = base64.b64encode(img_png).decode('utf-8')
-     buffer.close()
-     del fig, ax, buffer, img_png
-     gc.collect()
-
-     return tabla
-
-def genGraph(puntos):
-          if not puntos:
-               return None
-          
-          colores_cat ={
-          'DELITO DE BAJO IMPACTO': '#A0A0A0',  # gris
-          'ROBO A CUENTAHABIENTE SALIENDO DEL CAJERO CON VIOLENCIA': '#FF0000',  # rojo
-          'ROBO DE VEHÍCULO CON Y SIN VIOLENCIA': '#FFA500',  # naranja
-          'VIOLACIÓN': '#8B0000',  # rojo oscuro
-          'ROBO A PASAJERO A BORDO DE MICROBUS CON Y SIN VIOLENCIA': '#FFD700',  # dorado
-          'ROBO A REPARTIDOR CON Y SIN VIOLENCIA': '#ADFF2F',  # verde lima
-          'ROBO A PASAJERO A BORDO DEL METRO CON Y SIN VIOLENCIA': '#00FFFF',  # cian
-          'LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO': '#00008B',  # azul oscuro
-          'ROBO A NEGOCIO CON VIOLENCIA': '#FF69B4',  # rosa fuerte
-          'HECHO NO DELICTIVO': '#D3D3D3',  # gris claro
-          'ROBO A TRANSEUNTE EN VÍA PÚBLICA CON Y SIN VIOLENCIA': '#00FF00',  # verde
-          'ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA': '#40E0D0',  # turquesa
-          'HOMICIDIO DOLOSO': '#4B0082',  # índigo
-          'ROBO A CASA HABITACIÓN CON VIOLENCIA': '#800080',  # morado
-          'SECUESTRO': '#FF1493',  # rosa mexicano
-          'ROBO A TRANSPORTISTA CON Y SIN VIOLENCIA': '#0000FF',
-          'AMENAZAS': '#8A2BE2',  # azul violeta
-          'ROBO A NEGOCIO': '#FF69B4',  # misma que "ROBO A NEGOCIO CON VIOLENCIA"
-          'FEMINICIDIO': '#DC143C',  # carmesí
-          'SECUUESTRO': '#FF1493',  # igual que "SECUESTRO"
-          'TRATA DE PERSONAS': '#B22222',  # rojo fuego
-          'ROBO A TRANSEÚNTE': '#00FF00',  # igual que transeúnte con violencia
-          'EXTORSIÓN': '#DAA520',  # dorado oscuro
-          'ROBO A CASA HABITACIÓN': '#800080',  # igual que "CON VIOLENCIA"
-          'NARCOMENUDEO': '#006400',  # verde oscuro
-          'ARMA DE FUEGO': '#00008B',  # igual que lesiones por arma
-          'ROBO DE ACCESORIOS DE AUTO': '#A0522D',  # marrón
-          'ROBO A PASAJERO A BORDO DE MICROBUS': '#FFD700',  # igual que con violencia
-          'ROBO A REPARTIDOR': '#ADFF2F',  # igual que con violencia
-          'ROBO A PASAJERO A BORDO DEL METRO': '#00FFFF',  # igual que con violencia
-          'ROBO A TRANSPORTISTA': '#0000FF',
-          }
-
-          angulos =[]
-          radios =[]
-          colores = []
-
-          for angulo, radio, categoria in puntos:
-               angulos.append(angulo)
-               radios.append(radio)
-               colores.append(colores_cat.get(categoria, 'gray'))
-
-          fig =  plt.figure(figsize=(6,6))
-          ax = plt.subplot(111, polar=True)
-          sc = ax.scatter(angulos, radios, color=colores, s=80, alpha=0.75)
-          ax.set_theta_direction(-1)
-          ax.set_theta_offset(np.pi/2)
-
-          horas =[f"{h:02d}:00" for h in range(24)]
-          ticks = [(h/24) * 2 * np.pi for h in range(24)]
-          ax.set_xticks(ticks)
-          ax.set_xticklabels(horas, fontsize=8)
-          ax.set_rlabel_position(135) 
-          ax.set_ylim(0,31)
-          
-          
-          buffer = io.BytesIO()
-          plt.savefig(buffer, format='png')
-          buffer.seek(0)
-          img_png = buffer.getvalue()
-          graphic = base64.b64encode(img_png).decode('utf-8')
-          plt.close(fig)
-          ax.clear()
-          buffer.close()
-          del fig, ax, buffer, img_png
-          gc.collect()
-          return graphic
-
-def getLatLng(direccion):
-     try:
-          geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
-          location = geolocator.geocode(direccion)
-          if location:
-               lat = location.latitude
-               lng = location.longitude
-          else:
-               lat = None
-               lng = None
-          map_config = {
-               'center': {'lat': float(lat) if lat is not None else 19.42847, 
-                         'lng': float(lng) if lng is not None else -99.12766
-               },
-               'zoom': 14 if lat and lng else 6
-          }
-          return map_config
-     except Exception as e:
-          print(str(e))
-          return {
-            'center': {'lat': 19.42847, 'lng': -99.12766},
-            'zoom': 6
-        }
-     
-def loadOsintDate(name = "osintDate.txt" ):
-     ruta = os.path.join(settings.BASE_DIR, 'app','prompts', name)
-     with open (ruta, 'r', encoding='utf-8')as f:
-          return f.read()
-     
- 
-
-def genAI(filters,start,end, descripcion_cliente,now, request):
-     client = OpenAI(api_key=settings.OPENAI_API_KEY)
-     lugar = ', '.join(f"{k}:{v}" for k,v in filters.items()) if filters else "No especificado"
-     template = loadOsintDate()
-     content= template.format(start=start, end = end, lugar = lugar, descripcion_cliente = descripcion_cliente, now = now, lang = request.session.get('lang'))
-     completion =client.chat.completions.create(
-          model='gpt-4.1-mini',
-          store = True,
-          messages=[{'role': 'user', 'content': content}]
-     )
-
-     
-     text = completion.choices[0].message.content.strip()
-     
-     return cleanAnswer(text)
-
-
-def cleanAnswer(texto):
-    texto = texto.strip()
-    texto = re.sub(r'\n?[^.\n]*\?$', '', texto).strip()
-
-    patrones_finales = [
-        r'Si desea.*?$',
-        r'¿Desea.*?$',
-        r'¿Le gustaría.*?$',
-        r'¿Quiere que.*?$',
-    ]
-    for patron in patrones_finales:
-        texto = re.sub(patron, '', texto, flags=re.IGNORECASE).strip()
-
-    
-    texto = re.sub(r'^#{1,6}\s*(.*)', r'<h3>\1</h3>', texto, flags=re.MULTILINE)
-
-    
-    texto = re.sub(r'^[\-\*]\s+(.*)', r'<li>\1</li>', texto, flags=re.MULTILINE)
-    if '<li>' in texto:
-        texto = '<ul>' + texto + '</ul>'
-
-    texto = re.sub(r'^\d+\.\s+(.*)', r'<li>\1</li>', texto, flags=re.MULTILINE)
-    if re.search(r'<li>.*</li>', texto) and not texto.startswith('<ul>'):
-        texto = '<ol>' + texto + '</ol>'
-
-    # Negritas y cursivas
-    texto = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', texto)
-    texto = re.sub(r'\*(.*?)\*', r'<em>\1</em>', texto)
-
-    
-    def procesar_tabla(match):
-        tabla = match.group(0)
-        filas = tabla.strip().split('\n')
-        if len(filas) < 2:
-            return tabla
-
-        cabecera = filas[0]
-        cuerpo = filas[2:] if re.match(r'^\|[-\s|]+\|$', filas[1]) else filas[1:]
-
-        def fila_a_html(fila, tag='td'):
-            celdas = [f'<{tag} style="border: 1px solid #000; padding: 5px;">{c.strip()}</{tag}>' for c in fila.strip('|').split('|')]
-            return '<tr>' + ''.join(celdas) + '</tr>'
-
-        tabla_html = '<table style="border-collapse: collapse; width: 100%;">'
-        tabla_html += fila_a_html(cabecera, tag='th')
-        for fila in cuerpo:
-            if fila.strip():
-                tabla_html += fila_a_html(fila)
-        tabla_html += '</table>'
-
-        return tabla_html
-
-    
-    texto = re.sub(
-        r'((?:\|.*\|\n)+\|[-\s|]+\|\n(?:\|.*\|\n?)*)',
-        procesar_tabla,
-        texto,
-        flags=re.MULTILINE
-    )
-
-    
-    bloques = texto.split('\n\n')
-    html_parts = []
-    for b in bloques:
-        b = b.strip()
-        if not b:
-            continue
-        if '<table' in b:
-            html_parts.append(b)
-        else:
-            html_parts.append(f'<p>{b}</p>')
-
-    return ''.join(html_parts)
-
-
-def generateCalendar( year: int, month: int, eventos: list[tuple]) -> str:
-     cal = calendar.monthcalendar(year, month)
-     fig, ax = plt.subplots(figsize=(5,5))
-     ax.set_axis_off()
-     ax.set_title(calendar.month_name[month] + f" {year}", fontsize=20)
-
-     dias_semana = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
-
-     colores_cat ={
-          'DELITO DE BAJO IMPACTO': '#A0A0A0',  # gris
-          'ROBO A CUENTAHABIENTE SALIENDO DEL CAJERO CON VIOLENCIA': '#FF0000',  # rojo
-          'ROBO DE VEHÍCULO CON Y SIN VIOLENCIA': '#FFA500',  # naranja
-          'VIOLACIÓN': '#8B0000',  # rojo oscuro
-          'ROBO A PASAJERO A BORDO DE MICROBUS CON Y SIN VIOLENCIA': '#FFD700',  # dorado
-          'ROBO A REPARTIDOR CON Y SIN VIOLENCIA': '#ADFF2F',  # verde lima
-          'ROBO A PASAJERO A BORDO DEL METRO CON Y SIN VIOLENCIA': '#00FFFF',  # cian
-          'LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO': '#00008B',  # azul oscuro
-          'ROBO A NEGOCIO CON VIOLENCIA': '#FF69B4',  # rosa fuerte
-          'HECHO NO DELICTIVO': '#D3D3D3',  # gris claro
-          'ROBO A TRANSEUNTE EN VÍA PÚBLICA CON Y SIN VIOLENCIA': '#00FF00',  # verde
-          'ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA': '#40E0D0',  # turquesa
-          'HOMICIDIO DOLOSO': '#4B0082',  # índigo
-          'ROBO A CASA HABITACIÓN CON VIOLENCIA': '#800080',  # morado
-          'SECUESTRO': '#FF1493',  # rosa mexicano
-          'ROBO A TRANSPORTISTA CON Y SIN VIOLENCIA': '#0000FF',
-          'AMENAZAS': '#8A2BE2',  # azul violeta
-          'ROBO A NEGOCIO': '#FF69B4',  # misma que "ROBO A NEGOCIO CON VIOLENCIA"
-          'FEMINICIDIO': '#DC143C',  # carmesí
-          'SECUUESTRO': '#FF1493',  # igual que "SECUESTRO"
-          'TRATA DE PERSONAS': '#B22222',  # rojo fuego
-          'ROBO A TRANSEÚNTE': '#00FF00',  # igual que transeúnte con violencia
-          'EXTORSIÓN': '#DAA520',  # dorado oscuro
-          'ROBO A CASA HABITACIÓN': '#800080',  # igual que "CON VIOLENCIA"
-          'NARCOMENUDEO': '#006400',  # verde oscuro
-          'ARMA DE FUEGO': '#00008B',  # igual que lesiones por arma
-          'ROBO DE ACCESORIOS DE AUTO': '#A0522D',  # marrón
-          'ROBO A PASAJERO A BORDO DE MICROBUS': '#FFD700',  # igual que con violencia
-          'ROBO A REPARTIDOR': '#ADFF2F',  # igual que con violencia
-          'ROBO A PASAJERO A BORDO DEL METRO': '#00FFFF',  # igual que con violencia
-          'ROBO A TRANSPORTISTA': '#0000FF',
-    }
-
-     for i, dias in enumerate(dias_semana):
-          ax.text(i+0.5, len(cal), dias, ha='center', va= 'center', fontsize=12, weight='bold')
-     
-
-     for fila, semana in enumerate(cal):
-          for columna, dia in enumerate(semana):
-               if dia != 0:
-                    y = len(cal) - fila - 0.5
-                    x = columna + 0.5
-                    ax.text(x, y + 0.3, str(dia), ha='center', va='top', fontsize=10)
-                    for (dia_evento, categoria) in eventos:
-                         if dia_evento == dia:
-                              color = colores_cat.get(categoria, 'gray')
-                              circle = plt.Circle((x, y -0.2), 0.15, color= color)
-                              ax.add_patch(circle) 
-
-     plt.xlim(0, 7)
-     plt.ylim(0, len(cal) + 1)
-     plt.tight_layout()
-
-     buffer = io.BytesIO()
-     plt.savefig(buffer, format='png')
-     buffer.seek(0)
-     imagen_png = buffer.getvalue()
-     imagen_base64 = base64.b64encode(imagen_png).decode('utf-8')
-     buffer.close()
-     
-     plt.close()
-     return imagen_base64 
-
 
 def add (request):            
      success = request.GET.get("success")
@@ -1042,5 +623,3 @@ def library(request):
         'eventos': eventos,
         'priv': priv
     })
-
-# Create your views here.

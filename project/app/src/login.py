@@ -6,7 +6,7 @@ import requests
 from django.shortcuts import redirect
 import urllib.parse
 from datetime import timedelta, timezone
-from app.core.auth.firebase_config import firebase_auth, db, auth
+from app.core.auth.firebase_config import db, auth
 from django.contrib import messages
 
 def loginToken(email, password):
