@@ -1,0 +1,214 @@
+{% extends "allTemplate.html" %}
+{% load static %}
+
+{% block titulo %}
+Carga de datos
+{% endblock %}
+
+{% block contenido %}
+
+{% if success %}
+    <div class="alert alert-success" style="width: 50%; text-align: center; z-index: 999; position: fixed; top: 0; left: 25%;" id="success-alert" role="alert">
+        {{ success }}
+        <script>
+            setTimeout(function() {
+                var successbox = document.getElementById("success-alert");
+                if (successbox) {
+                    successbox.style.transition = "opacity 0.75s";
+                    successbox.style.opacity = "0";
+                    setTimeout(() => successbox.remove(), 500); 
+                }
+            }, 3000); 
+        </script>
+    </div>
+{% endif %}
+
+{% if error %}
+    <div class="alert alert-danger" style="width: 50%; text-align: center ; z-index: 999; position: fixed; top: 0; left: 25%;" id="error-alert" role="alert">
+        {{ error }}
+        <script>
+            setTimeout(function() {
+                var alertBox = document.getElementById("error-alert");
+                if (alertBox) {
+                    alertBox.style.transition = "opacity 0.75s";
+                    alertBox.style.opacity = "0";
+                    setTimeout(() => alertBox.remove(), 500); 
+                }
+            }, 3000); 
+        </script>
+    </div>
+{% endif %}
+
+
+
+<h2 class="loadFilesTitle">Carga de datos</h2>
+<hr class="separationthree">
+<div class="loadData">
+    <div class="loadFormu">
+        <form method="POST" enctype="multipart/form-data" action="{% url 'loadFilesService' %}">
+        {% csrf_token %}
+            <br>
+            <div style="display: flex; flex-direction: row; justify-content: space-between;">
+                <h3>Detalles</h3>
+                <button type="submit" class="send">Subir</button>
+            </div>
+            
+            
+            <hr class="separation">
+
+            <div class="row" style="margin-top: 1%;">
+                <div class="col">
+                    <label class="labels">Delito</label>
+                        <input type="text" class="form-control" id="crime" placeholder="Escriba un tipo de delito" name="crime" maxlength="30">
+                </div>
+                <div class="col">
+                    <label class="labels">Categoría del delito</label>
+                        <select class="form-select" name="categ" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
+                            <option selected class="options">Selecciona una categoria de delito</option>
+                            <option value="amenazas" class="options">Amenazas</option>
+                            <option value="organizaciones crimen organizado" class="options">Organizaciones Crimen Organizado</option>
+                            <option value="robo a negocio" class="options">Robo a negocio</option>
+                            <option value="homicidio doloso" class="options">Homicidio doloso</option>
+                            <option value="feminicidio" class="options">Feminicidio</option>
+                            <option value="secuestro" class="options">Secuestro</option>
+                            <option value="trata de personas" class="options">Trata de personas</option>
+                            <option value="robo a transeúnte" class="options">Robo a transeúnte</option>
+                            <option value="extorsión" class="options">Extorsión</option>
+                            <option value="robo a casa habitación" class="options">Robo a casa habitación</option>
+                            <option value="violación" class="options">Violación</option>
+                            <option value="narcomenudeo" class="options">Narcomenudeo</option>
+                            <option value="categoria de bajo impacto" class="options">Delito de bajo impacto</option>
+                            <option value="arma de fuego" class="options">Lesión con arma de fuego</option>
+                            <option value="robo de accesorios de auto" class="options">Robo de accesorios de auto</option>
+                            <option value="robo a cuentahabiente saliendo del cajero con violencia" class="options">Robo a cuentahabiente</option>
+                            <option value="robo de vehículo" class="options">Robo de vehículo</option>
+                            <option value="robo a pasajero a bordo de microbus" class="options">Robo en microbús</option>
+                            <option value="robo a repartidor" class="options">Robo a repartidor</option>
+                            <option value="robo a pasajero a bordo del metro" class="options">Robo en metro</option>
+                            <option value="lesiones dolosas por disparo de arma de fuego" class="options">Lesiones por arma de fuego</option>
+                            <option value="hecho no delictivo" class="options">Hecho no delictivo</option>
+                            <option value="robo a pasajero a bordo de taxi con violencia" class="options">Robo en taxi</option>
+                            <option value="robo a transportista" class="options">Robo a transportista</option>
+                            
+                        </select>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col">
+                     <label class="labels">Seleccione un icono</label>
+                        <select class="form-select" name="icons" style="font-family: Inter, sans-serif;font-weight: 400; color: black;">
+                            <!----->
+                            <option selected class="options">Selecciona un icono</option>
+                            <option value="amenazas" class="options">Amenazas</option>
+                            <option value="mayos" class="options">Organizaciones Crimen Organizado (Mayos)</option>
+                            <option value="chapitos" class="options">Organizaciones Crimen Organizado (Chapitos)</option>
+                            <option value="robo a negocio" class="options">Robo a negocio</option>
+                            <option value="homicidio doloso" class="options">Homicidio doloso</option>
+                            <option value="feminicidio" class="options">Feminicidio</option>
+                            <option value="secuestro" class="options">Secuestro</option>
+                            <option value="trata de personas" class="options">Trata de personas</option>
+                            <option value="robo a transeúnte" class="options">Robo a transeúnte</option>
+                            <option value="extorsión" class="options">Extorsión</option>
+                            <option value="robo a casa habitación" class="options">Robo a casa habitación</option>
+                            <option value="violación" class="options">Violación</option>
+                            <option value="narcomenudeo" class="options">Narcomenudeo</option>
+                            <option value="categoria de bajo impacto" class="options">Delito de bajo impacto</option>
+                            <option value="arma de fuego" class="options">Lesión con arma de fuego</option>
+                            <option value="robo de accesorios de auto" class="options">Robo de accesorios de auto</option>
+                            <option value="robo a cuentahabiente saliendo del cajero con violencia" class="options">Robo a cuentahabiente</option>
+                            <option value="robo de vehículo" class="options">Robo de vehículo</option>
+                            <option value="robo a pasajero a bordo de microbus" class="options">Robo en microbús</option>
+                            <option value="robo a repartidor" class="options">Robo a repartidor</option>
+                            <option value="robo a pasajero a bordo del metro" class="options">Robo en metro</option>
+                            <option value="lesiones dolosas por disparo de arma de fuego" class="options">Lesiones por arma de fuego</option>
+                            <option value="hecho no delictivo" class="options">Hecho no delictivo</option>
+                            <option value="robo a pasajero a bordo de taxi con violencia" class="options">Robo en taxi</option>
+                            <option value="robo a transportista" class="options">Robo a transportista</option>
+                            <option value="default" class="options">Icono por default</option>
+                        </select>
+                        
+                </div>
+               <div class="col">
+                    <label class="labels">Fecha y hora</label>
+                    <input type="datetime-local" class="form-control" name="FechaHoraHecho">
+                </div>
+            </div>
+            
+            <br>
+            <div class="row">
+                <div class="col">
+                    <label class="labels">Descripción del evento (opcional)</label>
+                    <textarea class="form-control" style="resize: none; height: 6em;" placeholder="Agregue una descripción detallada" maxlength="700" id= "descripcion" name="descripcion" oninput="contarCaracteres()"></textarea>
+                    <small class="form-text text-muted" id="contador"></small>
+                </div>
+            </div>
+            <script>
+                function contarCaracteres(){
+                    var textarea = document.getElementById('descripcion')
+                    var contador = document.getElementById('contador')
+                    contador.textContent = textarea.value.length + '/ 700 caracteres';
+                }
+
+                document.addEventListener("DOMContentLoaded", function(){
+                    contarCaracteres();
+                });
+            </script>
+            <br>
+            <div class="row">
+                <label class="labels">Dirección</label>
+                <p class="form-text text-muted">La correcta ubicación de los eventos depende de que las direcciones estén bien escritas, con nombres completos, acentos y sin errores. Una dirección incorrecta puede impedir su localización en el mapa.</p>
+                <div class="col">
+                    
+                    <input type="text" class="form-control" id="calle" placeholder="Calle" name="calle">
+                </div>
+                
+                <div class="col">
+                    <input type="text" class="form-control" id="colonia" placeholder="Colonia" name="colonia">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" id="municipio" placeholder="Municipio" name="municipio">
+                </div>
+        
+                <div class="col">
+                    <input type="text" class="form-control" id="estado" placeholder="Estado" name="estado">
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <label class="labels">Coordenadas</label>
+                <div class="col">
+                    <input type="text" class="form-control" id="lat" placeholder="Latitud" name="lat">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" id="lng" placeholder="Longitud" name="lng">
+                </div>
+
+            </div>
+            <hr style="border-top: 2px dashed #C5C5C5;">
+            <h5>Subir archivos por excel</h5>
+            <br>
+            <label for="archivo" class="uploadFile">
+                <i class="bi bi-upload me-3"></i>Buscar archivo
+            </label>
+            <input type="file" id="archivo" name="archivo" requiered style="display: none;">
+            <p id="nombreArchivo" style="margin-top: 10px; font-family: Inter, sans-serif;"></p>
+            
+        
+            <script>
+                const inputArchivo = document.getElementById('archivo');
+                const nombreArchivo = document.getElementById('nombreArchivo');
+
+                inputArchivo.addEventListener('change', function () {
+                    if (this.files.length > 0) {
+                        nombreArchivo.textContent = 'Archivo seleccionado: ' + this.files[0].name;
+                    } else {
+                        nombreArchivo.textContent = '';
+                    }
+                });
+            </script>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
