@@ -10,10 +10,167 @@ Inicio
 {% endblock %}
 
 {% block contenido %}
-  <div id="map" class="map"></div>
 
+    <div class="map-container">
+    <div class="report-sidebar hidden">
+        <button class="sidebar-tab" >
+            <i class="bi bi-caret-left"></i>
+        </button>
+        <form method="POST">
+            <div class="sidebar-content">
+                <h1>Generar nuevo reporte</h1>
+                <hr>
+                {% csrf_token %}
+                <div class="date-inputs">
+                    <div>
+                        <label for="startDate">Fecha de inicio</label>
+                        <input id="startDate" class="cbr-text-input" type="date">
+                    </div>
+                    <div>
+                        <label for="endDate">Fecha de fin</label>
+                        <input id="endDate" class="cbr-text-input" type="date">
+                    </div>
+                </div>
+                <div>
+                    <label for="category">Categoría</label>
+                    <div class="dropdown">
+                        <button id="category-input" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle = "dropdown" aria-expanded="false" style="background-color: #FFFFFF;color: #838383;font-weight: 400;">
+                            Tipos de delito
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <p>Seleccionar máximo 10 categorías de delito</p>
+                            </li>
+                            {% for delito in lista_delitos %}
+                            <li>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="delitos" value="{{ delito.valor }}" id="id_delito_{{ forloop.counter }}">
+                                    <label for="id_delito_{{ forloop.counter }}" class="form-check-label"> {{ delito.nombre }}</label>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>   
+                </div>
+                <hr>
+                <div class="place-inputs">
+                    <label for="state">Estado</label>
+                    <input class="cbr-text-input" type="text" name="estado" id="estado">
 
+                    <label for="state">Municipio</label>
+                    <input class="cbr-text-input" type="text" name="municipio" id="municipio">
+                </div>
+                <div class="submit-section">
+                    <button class="cbr-submit-button" type="submit" name="buscar" id="buscar">Generar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="map" class="map"></div>
+    </div>
 
+    <!-- Modales -->
+    <div class="modal fade" data-bs-backdrop="static" id="cbr-loading-modal" aria-hidden="true" aria-labelledby="cbr-loading-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Generando reporte</h1>
+                </div>
+                <div class="modal-body" style="display: flex; justify-content: center;">
+                    <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if graphic or calendarios or AiText %}
+    <div class="modal fade" data-bs-backdrop="static" id="cbr-confirmation-modal" aria-hidden="true" aria-labelledby="cbr-confirmation-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Reporte generado</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <b>Zona analizada:</b> {{ lugar }}
+                </div>
+                Puedes ver el reporte generado o descargarlo desde este mismo recuadro.
+            </div>
+            <div class="modal-footer">
+                <form method="POST" action="{% url 'export' %}">
+                    {% csrf_token %}
+                    <button class="cbr-button" type="submit" class="send">
+                        <i class="bi bi-download"></i>
+                        Descargar analisis
+                    </button>
+                </form>
+                <button class="cbr-accent-button" data-bs-target="#cbr-report-modal" data-bs-toggle="modal">
+                    Ver analisis
+                </button>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" data-bs-backdrop="static" id="cbr-report-modal" tabindex="-1" aria-labelledby="cbr-report-modal" aria-hidden="false">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="analisis">ANALISIS DE PATRONES  </h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="carta">
+                    <div class="data_analisis">
+                        <div style="margin-right: 3%; margin-left: 3%;">
+                            <br>
+                            <div class="cartaBanner"><h5 style="font-weight: 500;">Zona analizada: {{ lugar }}</h5></div>
+                                <div class="calendar-and-graphic-container" style="display: flex; justify-content: space-around; align-items: flex-start; flex-wrap: wrap;">
+                                    {% if calendarios %}
+                                        <div class="calendars-wrapper" style="flex: 1; min-width: 300px; margin-right: 20px;"> 
+                                            {% for cal in calendarios %}
+                                                <div>
+                                                    <img src="data:image/png;base64,{{ cal.img }}" alt="" class="mb-3" style="max-width: 100%; height: auto;"> 
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                    {% endif %}
+                                    
+                                    {% if graphic %} 
+                                        <div class="graphics-wrapper" style="flex: 1; min-width: 300px;"> 
+                                            {% for item in graphic %}
+                                                <img src="data:image/png;base64,{{ item.img }}" alt="" style="max-width: 100%; height: auto; margin-bottom: 15px;">
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            <br>
+                            {% if graphic and calendarios %}
+                                <h3>DATA:</h3>
+                                <img src="data:image/png;base64,{{ tabla_base64 }}" alt="">
+                                <hr>
+                            {% endif %}
+                            <h3>Rango horario crítico: </h3><span><p>{{ hour_txt }}</p></span>
+                            <h3>Resumen de hechos violentos en el periodo</h3>
+                            <div>
+                                {{ AiText|safe }}
+                            </div>
+                            <br>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cbr-button" data-bs-target="#cbr-confirmation-modal" data-bs-toggle="modal">Volver</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    {% endif %}
+    
 
   <script id="marcadores-json" type="application/json">
       {{ markers|safe }}
@@ -28,6 +185,22 @@ Inicio
     async 
     defer
   >
+  </script>
+
+  <script>
+    const sidebar = document.querySelector(".report-sidebar")
+    const sidebarTab = document.querySelector(".sidebar-tab")
+    const generateButton = document.getElementById("buscar")
+
+    const loadingModal = new bootstrap.Modal('#cbr-loading-modal')
+    const confirmationModal = document.querySelector("#cbr-confirmation-modal") !== null 
+    ? new bootstrap.Modal('#cbr-confirmation-modal')
+    : null
+    
+    console.log(sidebarTab)
+    sidebarTab.addEventListener("click", () => sidebar.classList.toggle("hidden"))
+    generateButton.addEventListener("click", () => loadingModal.show()) 
+    if(confirmationModal) { confirmationModal.show() }
   </script>
 
   <script>
