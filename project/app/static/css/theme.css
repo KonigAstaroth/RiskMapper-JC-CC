@@ -29,6 +29,7 @@ body.dark-mode {
 body {
   background-color: var(--bg);
   color: var(--text);
+  overflow-x: hidden;
 }
 
 /* Botones */
@@ -111,7 +112,7 @@ h1 {
 
 h2 {
   font-family: 'Lato';
-  font-size: 1.5em;
+  font-size: 1.25em;
   font-weight: 700;
 }
 

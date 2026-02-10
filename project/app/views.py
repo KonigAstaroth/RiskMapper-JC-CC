@@ -229,7 +229,7 @@ def main (request):
           {'valor': 'ROBO A NEGOCIO', 'nombre': 'Robo a negocio'},
           {'valor': 'HOMICIDIO DOLOSO', 'nombre': 'Homicidio doloso'},
           {'valor': 'FEMINICIDIO', 'nombre': 'Feminicidio'},
-          {'valor': 'SECUUESTRO', 'nombre': 'Secuestro'},
+          {'valor': 'SECUESTRO', 'nombre': 'Secuestro'},
           {'valor': 'TRATA DE PERSONAS', 'nombre': 'Trata de personas'},
           {'valor': 'ROBO A TRANSEÚNTE', 'nombre': 'Robo a transeúnte'},
           {'valor': 'EXTORSIÓN', 'nombre': 'Extorsión'},
@@ -295,12 +295,9 @@ def main (request):
           tabla = None
           
           str_startDate = None
-          str_endDate = None
+          str_endDate_API = None
           descripcion_cliente = ""
           
-          
-          calle = request.POST.get('calle')
-          colonia = request.POST.get('colonia')
           municipio = request.POST.get('municipio')
           estado = request.POST.get('estado')
           startDate_str = request.POST.get('startDate')
@@ -309,16 +306,6 @@ def main (request):
           descripcion_cliente = request.POST.get('descripcion_cliente')
 
 
-          if calle:
-               filters['Calle_hechos'] = calle
-               filtersAi['Calle'] = calle
-               direccion += calle + ', '
-               banner.append(calle)
-          if colonia:
-               filters['ColoniaHechos'] = colonia
-               filtersAi['Colonia']= colonia
-               direccion += colonia + ', '
-               banner.append(colonia)
           if municipio:
                filters['Municipio_hechos'] = municipio
                filtersAi['Municipio'] = municipio
@@ -330,27 +317,24 @@ def main (request):
                direccion += estado + ', '
                banner.append(estado)
 
-          
-
-          
           map_config = getLatLng(direccion)
           lugar = ', '.join(f"{k}" for k in banner)
           
-          
- 
           if startDate_str and endDate_str:
                startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-               endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
+               endDate_inclusive = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) 
+               endDate_DB = endDate_inclusive + timedelta(days=1)
+               
                str_startDate = startDate.strftime("%Y-%m-%d")
-               str_endDate = endDate.strftime("%Y-%m-%d")
+               str_endDate_API = endDate_inclusive.strftime("%Y-%m-%d")
                filters['startDate']=startDate
-               filters['endDate']=endDate
+               filters['endDate']=endDate_DB
           else:
                pass
 
           now = datetime.datetime.now(timezone.utc)
           lang = request.session.get('lang')
-          AiText = genAI(filtersAi, str_startDate,str_endDate, descripcion_cliente, now, request)
+          AiText = genAI(filtersAi, str_startDate,str_endDate_API, descripcion_cliente, now, request)
           
 
           if not (('startDate' in filters and 'endDate' in filters) or any(k in filters for k in ['Municipio_hechos', 'Estado_hechos', 'Calle_hechos', 'ColoniaHechos'])):
@@ -534,9 +518,6 @@ def main (request):
           return redirect('main') 
           
      error = request.GET.get("error")
-
-     
-               
 
      context = {
           'priv': priv,

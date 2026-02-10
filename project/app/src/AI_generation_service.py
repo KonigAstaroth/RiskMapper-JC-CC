@@ -2,17 +2,29 @@ import os
 from openai import OpenAI
 from django.conf import settings
 from app.src.utils.clean_answer_helper import cleanAnswer
+from app.src.you_search_service import YouWebSearch
+
+# TODO: Pass YouWebSearch results to genAI context
+# TODO: Change prompt to accept YouWebSearch results
      
-def loadOsintDate(name = "osintDate.txt" ):
-     ruta = os.path.join(settings.BASE_DIR, 'app','prompts', name)
+def loadOsintDate():
+     ruta = os.path.join(settings.BASE_DIR, 'app','prompts', "osintDate.txt")
      with open (ruta, 'r', encoding='utf-8')as f:
           return f.read()
 
-def genAI(filters,start,end, descripcion_cliente,now, request):
+def genAI(filters,start,end, descripcion_cliente, now, crimes_select, request):
      client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+     webSearchResults = YouWebSearch(start, end, filters, crimes_select)
+
      lugar = ', '.join(f"{k}:{v}" for k,v in filters.items()) if filters else "No especificado"
      template = loadOsintDate()
-     content= template.format(start=start, end = end, lugar = lugar, descripcion_cliente = descripcion_cliente, now = now, lang = request.session.get('lang'))
+
+     content= template.format(
+          start=start, end = end, lugar = lugar, descripcion_cliente = descripcion_cliente, 
+          now = now, lang = request.session.get('lang')
+     )
+
      completion =client.chat.completions.create(
           model='gpt-4.1-mini',
           store = True,

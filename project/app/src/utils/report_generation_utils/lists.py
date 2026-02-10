@@ -1,0 +1,26 @@
+# This list is used for web search in you api 
+crimes_list_api = [
+    'Amenazas',
+    'Robo a negocio',
+    'Homicidio doloso',
+    'Feminicidio',
+    'Secuestro',
+    'Trata de personas',
+    'Robo a transeúnte',
+    'Extorsión',
+    'Robo a casa habitación',
+    'Violación',
+    'Narcomenudeo',
+    'Categoria de bajo impacto',
+    'Arma de fuego',
+    'Robo de accesorios de auto',
+    'Robo a cuentahabiente saliendo del cajero con violencia',
+    'Robo de vehículo',
+    'Robo a pasajero a bordo de microbus',
+    'Robo a repartidor',
+    'Robo a pasajero a bordo del metro',
+    'Lesiones dolosas por disparo de arma de fuego',
+    'Hecho no delictivo',
+    'Robo a pasajero a bordo de taxi con violencia',
+    'Robo a transportista'
+]
