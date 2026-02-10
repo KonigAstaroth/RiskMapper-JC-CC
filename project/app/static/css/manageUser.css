@@ -1,0 +1,357 @@
+:root {
+    --bs-table-striped-color: #3c3c3c;
+    --bs-table-striped-bg: #F3F3F3;
+    --bs-table-hover-bg: #E8E8E8;
+    --bs-table-bg: #FFFFFF;
+    --primary-blue: #1877F2;
+}
+
+body {
+    background-color: #F8F8F8;
+    font-family: 'Lato', sans-serif;
+}
+
+/* contenedor principal */
+.addUsers {
+    margin: 3vh 3vw;
+    padding: 4vh 2vw;
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 0.2vh 0.5vw rgba(0, 0, 0, 0.05);
+}
+
+/* header */
+.addUsers .header-section {
+    margin-bottom: 4vh;
+}
+
+.addUsers .page-title {
+    font-size: 3.5vh;
+    font-weight: 700;
+    color: #1A1A1A;
+    margin: 0;
+}
+
+/* busqueda y filtros */
+.addUsers .controls-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3vh;
+    gap: 1.5vw;
+}
+
+.addUsers .search-filter-group {
+    display: flex;
+    gap: 1vw;
+    flex: 1;
+}
+
+.addUsers .search-box {
+    position: relative;
+    flex: 1;
+    max-width: 25vw;
+}
+
+.addUsers .search-box i {
+    position: absolute;
+    left: 0.8vw;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #65676B;
+    font-size: 1.6vh;
+}
+
+.addUsers .search-box .form-control {
+    padding-left: 2.5vw;
+    height: 5vh;
+    border-radius: 8px;
+    border: 1px solid #DADDE1;
+    font-size: 1.6vh;
+}
+
+.addUsers .search-box .form-control:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2vh rgba(24, 119, 242, 0.1);
+}
+
+.addUsers .filter-dropdown .form-select {
+    height: 5vh;
+    padding: 0 1vw;
+    border-radius: 8px;
+    border: 1px solid #DADDE1;
+    font-size: 1.6vh;
+    min-width: 12vw;
+}
+
+/* botones supoeriores */
+.addUsers .action-buttons {
+    display: flex;
+    gap: 1vw;
+}
+
+.addUsers .action-buttons .btn {
+    padding: 1.2vh 1.5vw;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.6vh;
+    display: flex;
+    align-items: center;
+    gap: 0.5vw;
+    white-space: nowrap;
+}
+
+.addUsers .action-buttons .btn-outline-secondary {
+    border: 1px solid #DADDE1;
+    color: #65676B;
+    background-color: #FFFFFF;
+}
+
+.addUsers .action-buttons .btn-outline-secondary:hover {
+    background-color: #F8F9FA;
+    border-color: #D5D5D5;
+}
+
+.addUsers .action-buttons .btn-primary {
+    background-color: var(--primary-blue);
+    border: none;
+    color: #FFFFFF;
+}
+
+.addUsers .action-buttons .btn-primary:hover {
+    background-color: #0052CC;
+}
+
+/* contenedor tabla */
+.addUsers .row {
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--bs-table-border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--bs-table-bg);
+}
+
+/* tabla (Esta cosa me hizo llorar) */
+.addUsers .table-striped {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* encabezado */
+.addUsers .table-striped thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #FFFFFF;
+}
+
+.addUsers .table-striped thead tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* lo que se ocupa para scrollear la tabla */
+.addUsers .table-striped tbody {
+    display: block;
+    height: 50vh;
+    overflow-y: auto;
+}
+
+.addUsers .table-striped tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* scrollbar */
+.addUsers .table-striped tbody::-webkit-scrollbar {
+    width: 0.6vw;
+}
+
+.addUsers .table-striped tbody::-webkit-scrollbar-track {
+    background: #F5F5F5;
+    border-radius: 8px;
+}
+
+.addUsers .table-striped tbody::-webkit-scrollbar-thumb {
+    background: #D5D5D5;
+    border-radius: 8px;
+}
+
+.addUsers .table-striped tbody::-webkit-scrollbar-thumb:hover {
+    background: #AAAAAA;
+}
+
+/* filas de colores */
+.addUsers .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: #F3F3F3 !important;
+}
+
+.addUsers .table-striped > tbody > tr:nth-of-type(even) > * {
+    background-color: #FFFFFF !important;
+}
+
+/* hover en filas */
+.addUsers .table-striped tbody tr:hover > * {
+    background-color: #E8E8E8 !important;
+}
+
+/* encabezado de la tabla */
+.addUsers .table-striped thead th {
+    padding: 2vh 1vw;
+    background-color: #FFFFFF;
+    color: #65676B;
+    font-weight: 700;
+    font-size: 1.5vh;
+    border-bottom: 1px solid var(--bs-table-border-color);
+    text-align: left;
+    vertical-align: middle;
+    position: relative;
+}
+
+.addUsers .table-striped thead th:first-child {
+    border-top-left-radius: 8px;
+    padding-left: 0.5vw;
+}
+
+.addUsers .table-striped thead th:last-child {
+    border-top-right-radius: 8px;
+}
+
+.addUsers .table-striped thead th i {
+    font-size: 1.2vh;
+    margin-left: 0.3vw;
+    color: #999;
+}
+
+/* celdas */
+.addUsers .table-striped tbody td {
+    padding: 2.2vh 1vw;
+    vertical-align: middle;
+    color: #1C1E21;
+    font-size: 1.6vh;
+    border-bottom: 1px solid var(--bs-table-border-color);
+}
+
+.addUsers .table-striped tbody td:first-child {
+    padding-left: 0.5vw;
+}
+
+/* con esto se supone que quito el borde inferior de la tabal */
+.addUsers .table-striped tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.addUsers .table-striped tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 8px;
+}
+
+.addUsers .table-striped tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 8px;
+}
+
+/* check box (no supe muy bien que era esa cosita y puse esto) */
+.addUsers .col-checkbox {
+    width: 4vw;
+    text-align: center;
+    padding-left: 0.5vw !important;
+}
+
+.addUsers .form-check-input {
+    width: 1.2vw;
+    height: 1.2vw;
+    min-width: 18px;
+    min-height: 18px;
+    border-radius: 4px;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* anchos de colunmas */
+.addUsers .table-striped td:nth-child(1),
+.addUsers .table-striped th:nth-child(1) {
+    width: 4vw;
+}
+
+.addUsers .table-striped td:nth-child(2),
+.addUsers .table-striped th:nth-child(2) {
+    width: 15vw;
+}
+
+.addUsers .table-striped td:nth-child(3),
+.addUsers .table-striped th:nth-child(3) {
+    width: 20vw;
+}
+
+.addUsers .table-striped td:nth-child(4),
+.addUsers .table-striped th:nth-child(4) {
+    width: 12vw;
+}
+
+.addUsers .table-striped td:nth-child(5),
+.addUsers .table-striped th:nth-child(5) {
+    width: 15vw;
+}
+
+.addUsers .table-striped td:nth-child(6),
+.addUsers .table-striped th:nth-child(6) {
+    width: 15vw;
+}
+
+.addUsers .table-striped td:nth-child(7),
+.addUsers .table-striped th:nth-child(7) {
+    width: 10vw;
+}
+
+/* botones de la tabla */
+.addUsers .table-striped tbody td.text-center {
+    text-align: center !important;
+}
+
+.addUsers .btn-action {
+    display: inline-block;
+    padding: 0.8vh 1vw;
+    border-radius: 8px;
+    border: none;
+    margin: 0 0.3vw;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    vertical-align: middle;
+    min-width: 3vw;
+    height: 4vh;
+    line-height: 1;
+}
+
+.addUsers .btn-action i {
+    font-size: 1.6vh;
+    vertical-align: middle;
+}
+
+/* boton editar */
+.addUsers .btn-edit {
+    background-color: #F0F2F5;
+    color: #65676B;
+}
+
+.addUsers .btn-edit:hover {
+    background-color: #E4E6EB;
+    color: #1877F2;
+}
+
+/* boton ekiminar */
+.addUsers .btn-delete {
+    background-color: #FFE5E9;
+    color: #DC3545;
+}
+
+.addUsers .btn-delete:hover {
+    background-color: #FFD0D7;
+    color: #C82333;
+}
+
+/* Este codigo me hizo llorar pero aparentemente quedo como deberia, dios me agarre confesado n proximos trabajos */
