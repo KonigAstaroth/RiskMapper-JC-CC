@@ -7,103 +7,50 @@ Agregar usuarios
 
 {% block contenido %}
 
-<link rel="stylesheet" href="{% static 'css/manageUser.css' %}">
 
 <div class="addUsers">
 
-    <div class="header-section">
-        <h1 class="page-title">Gestión de usuarios</h1>
+    <br>
+    <div class="banner">
+        <h1 class="bann_title">Administrar usuarios</h1>
+        
+        
     </div>
+    <br>
 
-    <div class="controls-section">
-        <div class="search-filter-group">
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="text" class="form-control" placeholder="Ingresa un usuario">
-            </div>
-            <div class="filter-dropdown">
-                <select class="form-select">
-                    <option selected>Permisos</option>
-                    <option value="admin">Administrador</option>
-                    <option value="user">Usuario</option>
-                </select>
-            </div>
-        </div>
-        <div class="action-buttons">
-            <button class="btn btn-outline-secondary">
-                <i class="bi bi-download"></i> Exportar lista
-            </button>
-            <button class="btn btn-primary">
-                <i class="bi bi-plus-lg"></i> Agregar usuario
-            </button>
-        </div>
-    </div>
-
-    <div class="row">
-        <table class="table table-striped">
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+        <table class="table">
             <thead>
                 <tr>
-                    <th scope="col" class="col-checkbox">
-                        <input type="checkbox" class="form-check-input">
-                    </th>
-                    <th scope="col">
-                        Nombre Completo
-                        <i class="bi bi-chevron-expand"></i>
-                    </th>
-                    <th scope="col">
-                        Correo electrónico
-                        <i class="bi bi-chevron-expand"></i>
-                    </th>
-                    <th scope="col">
-                        Permisos
-                        <i class="bi bi-chevron-expand"></i>
-                    </th>
-                    <th scope="col">
-                        Fecha de registro
-                        <i class="bi bi-chevron-expand"></i>
-                    </th>
-                    <th scope="col">
-                        Última sesión
-                        <i class="bi bi-chevron-expand"></i>
-                    </th>
-                    <th scope="col" class="text-center">
-                        Opciones
-                        <i class="bi bi-chevron-expand"></i>
-                    </th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Apellido</th>
+                    <th scope="col">Correo electrónico</th>
+                    <th scope="col">Permisos</th>
+                    <th scope="col">Opciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for usuario in usuarios %}
                 <tr>
-                    <td class="col-checkbox">
-                        <input type="checkbox" class="form-check-input">
-                    </td>
-                    <td>{{ usuario.name }} {{ usuario.lastname }}</td>
+                    <td>{{ usuario.name }}</td>
+                    <td>{{ usuario.lastname }}</td>
                     <td>{{ usuario.email }}</td>
                     <td>{% if usuario.privileges %}Administrador{% else %}Usuario{% endif %}</td>
-                    <td>{{ usuario.date_joined|date:"F d, Y" }}</td>
-                    <td>{{ usuario.last_login|date:"m/d/Y H:i:s" }}</td>
-                    <td class="text-center">
-                        <button type="button" class="btn-action btn-edit" data-bs-toggle="modal"
-                            data-bs-target="#editUserModal_{{ usuario.id }}">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button type="button" class="btn-action btn-delete" data-bs-toggle="modal"
-                            data-bs-target="#deleteUserModal_{{ usuario.id }}">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                            data-bs-target="#editUserModal_{{ usuario.id }}"><i class="bi bi-pencil"></i></button>
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                            data-bs-target="#deleteUserModal_{{ usuario.id }}"><i class="bi bi-trash"></i></button>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="7" class="text-center">No hay usuarios registrados.</td>
+                    <td colspan="5" class="text-center">No hay usuarios registrados.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-
-</div>
 
 {% for usuario in usuarios %}
 <!-- Modal eliminar -->
@@ -166,5 +113,7 @@ Agregar usuarios
     </div>
 </div>
 {% endfor %}
+
+
 
 {% endblock %}
