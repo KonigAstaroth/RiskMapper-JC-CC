@@ -39,7 +39,7 @@
 
     <nav>
         <div class="logo-container">
-            <a class="top-logo" href="{% url 'main' %}"">
+            <a class="top-logo" href="{% url 'main' %}">
                 <!-- <img src="{% static 'icons/cerberus_logo.png' %}" class="icon"> -->
                 CERBERUS
             </a>
@@ -66,9 +66,21 @@
                 <div class="notify-button">
                     <i class="bi bi-bell"></i>
                 </div>
-        
-                <div class="dropdown-button">
-                    <i class="bi bi-list"></i>
+                
+                <div class="">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-list"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item custom-item" href="{% url 'manageUsers' %}">Gestionar usuarios</a>
+                            </li>
+                            <li><a class="dropdown-item custom-item" href="#">Another action</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                        </ul>
+                    </li>
                 </div>
             </div>
         </div>

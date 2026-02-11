@@ -66,3 +66,43 @@ nav i {
 .search-input:focus-visible {
   outline: none;
 }
+
+.nav-item{
+  list-style-type: none;
+}
+
+.dropdown-menu{
+  transform: translateX(-80%);
+  list-style-type: none;
+}
+
+ul.dropdown-menu.show{
+  width: 17em;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.custom-item, .logout-item {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between; 
+  font-family: "Lato", sans-serif !important;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 7%;
+  margin-top: 7%;
+  text-align: left;
+}
+
+.custom-item:hover, .logout-item:hover{
+  background-color: var(--bg);
+}
+
+.logout-item:hover{
+  color: red;
+}
+
+.custom-item .contenido {
+  display: flex;
+  align-items: center;
+}
