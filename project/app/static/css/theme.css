@@ -10,8 +10,13 @@
   --muted: #4c4c4c;
   --category: #dadada;
   --accent: #0b58CC;
+  --accent-hover: #0049b6;
   --sidebar: rgba(245,245,245,0.9);
   --inputButton: #a1a1a1;
+  --hover: #e2e1e1;
+  --table-striped-color: #F3F3F3;
+  --table-striped-bg: #FFFFFF;
+  --table-striped-border: #A1A1A1;
 }
 
 body.dark-mode {
@@ -22,8 +27,13 @@ body.dark-mode {
   --muted: #b0b0b0;
   --category: #dadada;
   --accent: #0b58CC;
+  --accent-hover: #0049b6;
   --sidebar: rgba(23,26,31,0.9);
   --inputButton: #a1a1a1;
+  --hover: #23262b;
+  --table-striped-color: #181A1D;
+  --table-striped-bg: #23262B;
+  --table-striped-border: #2E3238;
 }
 
 body {
@@ -61,6 +71,11 @@ body {
   font-family: 'Lato';
   font-size: 1rem;
   font-weight: bold;
+  border: none;
+}
+
+.cbr-accent-button:hover{
+  background-color: var(--accent-hover);
 }
 
 .cbr-submit-button {
@@ -120,4 +135,127 @@ h2 {
   font-family: 'Lato';
   font-size: 1em;
   color: var(--muted);
+}
+
+
+/* Seccion de tablas striped */
+
+.table-striped {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* encabezado */
+.table-striped thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: transparent;
+}
+
+.table-striped thead tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* lo que se ocupa para scrollear la tabla */
+.table-striped tbody {
+  display: block;
+  height: 500px;
+  overflow-y: auto;
+}
+
+.table-striped tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* scrollbar */
+.table-striped tbody::-webkit-scrollbar {
+  width: 0.6vw;
+}
+
+.table-striped tbody::-webkit-scrollbar-track {
+  background: #F5F5F5;
+  border-radius: 8px;
+}
+
+.table-striped tbody::-webkit-scrollbar-thumb {
+  background: #D5D5D5;
+  border-radius: 8px;
+}
+
+.table-striped tbody::-webkit-scrollbar-thumb:hover {
+  background: #AAAAAA;
+}
+
+/* filas de colores */
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: var(--table-striped-color) !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(even) > * {
+  background-color: var(--table-striped-bg) !important;
+  border-bottom: 1px solid var(--table-striped-border);
+  border-top: 1px solid var(--table-striped-border);
+}
+
+
+/* encabezado de la tabla */
+.table-striped thead th {
+  padding: 2vh 1vw;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 1.15em;
+  border-bottom: 1px solid var(--bs-table-border-color);
+  text-align: left;
+  vertical-align: middle;
+  position: relative;
+}
+
+.table-striped thead th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.table-striped thead th i {
+  font-size: 1.1em;
+  margin-left: 0.3vw;
+  color: #999;
+}
+
+/* celdas */
+.table-striped tbody td {
+  padding: 2vh 1vw;
+  vertical-align: middle;
+  color: #1C1E21;
+  font-size: 1.25em;
+  border-bottom: 1px solid var(--bs-table-border-color);
+}
+
+/* con esto se supone que quito el borde inferior de la tabal */
+.table-striped tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-striped tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+
+.table-striped tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
+}
+
+.table-striped td,
+.table-striped th{
+  min-width: 10vh;
+  max-width: 20vw;
+}
+
+.table-striped tbody td.text-center {
+  text-align: center !important;
 }

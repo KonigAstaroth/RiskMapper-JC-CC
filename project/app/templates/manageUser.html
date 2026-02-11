@@ -12,7 +12,7 @@ Agregar usuarios
 <div class="addUsers">
 
     <div class="header-section">
-        <h1 class="page-title">Gestión de usuarios</h1>
+        <h1>Gestión de usuarios</h1>
     </div>
 
     <div class="controls-section">
@@ -33,7 +33,7 @@ Agregar usuarios
             <button class="btn btn-outline-secondary">
                 <i class="bi bi-download"></i> Exportar lista
             </button>
-            <button class="btn btn-primary">
+            <button class="cbr-accent-button">
                 <i class="bi bi-plus-lg"></i> Agregar usuario
             </button>
         </div>
@@ -43,9 +43,6 @@ Agregar usuarios
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th scope="col" class="col-checkbox">
-                        <input type="checkbox" class="form-check-input">
-                    </th>
                     <th scope="col">
                         Nombre Completo
                         <i class="bi bi-chevron-expand"></i>
@@ -75,20 +72,17 @@ Agregar usuarios
             <tbody>
                 {% for usuario in usuarios %}
                 <tr>
-                    <td class="col-checkbox">
-                        <input type="checkbox" class="form-check-input">
-                    </td>
                     <td>{{ usuario.name }} {{ usuario.lastname }}</td>
                     <td>{{ usuario.email }}</td>
                     <td>{% if usuario.privileges %}Administrador{% else %}Usuario{% endif %}</td>
                     <td>{{ usuario.date_joined|date:"F d, Y" }}</td>
-                    <td>{{ usuario.last_login|date:"m/d/Y H:i:s" }}</td>
+                    <td>{{ usuario.lastAccess|date:"m/d/Y H:i:s" }}</td>
                     <td class="text-center">
-                        <button type="button" class="btn-action btn-edit" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
                             data-bs-target="#editUserModal_{{ usuario.id }}">
                             <i class="bi bi-pencil"></i>
                         </button>
-                        <button type="button" class="btn-action btn-delete" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
                             data-bs-target="#deleteUserModal_{{ usuario.id }}">
                             <i class="bi bi-trash"></i>
                         </button>
