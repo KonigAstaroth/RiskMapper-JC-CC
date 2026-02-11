@@ -40,7 +40,6 @@ urlpatterns = [
     path('forgotPassword/', views.forgotpass, name='pass'),
     path('forgotPassword-sendMail', forgotPassword.sendRecoverLink, name='send-recover-mail'),
     path('main/', views.main, name='main'),
-    path('add/', views.add, name='add'),
     path('admin-adduser/', admins.adduser, name='admin-adduser'),
     path('logout/', logout.logout, name='logout'),
     path('manageUser/', views.manageUsers, name='manageUsers'),

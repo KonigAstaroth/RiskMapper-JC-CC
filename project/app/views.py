@@ -550,17 +550,14 @@ def manageUsers(request):
      priv = getPrivileges(request)
      sessionCookie = request.COOKIES.get('session')
      
-     try:
-          decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
-          uid = decoded_claims["uid"]
-     except:
-          return redirect("login")
      if not priv:
           return redirect("main")
      
      if not sessionCookie:
           return redirect ("login")
-     return render(request, 'manageUser.html', {"usuarios": usuarios})
+     success = request.GET.get("success")
+     error = request.GET.get("error")
+     return render(request, 'manageUser.html', {"usuarios": usuarios, "success": success, "error": error})
 
 
 def loadFiles(request):

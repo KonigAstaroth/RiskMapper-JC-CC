@@ -1,6 +1,7 @@
 from django.shortcuts import redirect
 import urllib
 from app.core.auth.firebase_config import db, auth
+import datetime
 
 def getPrivileges(request):
      sessionCookie = request.COOKIES.get('session')
@@ -17,12 +18,6 @@ def adduser(request):
         priv = getPrivileges(request)
         sessionCookie = request.COOKIES.get('session')
 
-        try:
-            decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
-            uid = decoded_claims["uid"]
-        except:
-            return redirect("login")
-
         priv = getPrivileges(request)
         if not priv:
                 return redirect("main")
@@ -37,27 +32,28 @@ def adduser(request):
             name = request.POST.get("name")
             lastname = request.POST.get("lastname")
             privileges = request.POST.get('privileges')
+            now = datetime.datetime.now(datetime.timezone.utc)
 
-        if name and lastname and password and email and privileges:
-                
-            try:
-                user = auth.create_user(email=email, password=password)
-                db.collection("Usuarios").document(user.uid).set({
-                "email": email,
-                "name": name,
-                "lastname": lastname,
-                "privileges":privileges,
-                "lastAccess": None
-                
-                })
-                success_message = "Usuario agregado correctamente"
-                return redirect(f"/add?success={urllib.parse.quote(success_message)}")
-            except Exception as e:
-                error_message = str(e)
-                return redirect(f"/add?error={urllib.parse.quote(error_message)}")            
-        else:
-            error_message = "Faltan campos por ser llenados"
-            return redirect(f"/add?error={urllib.parse.quote(error_message)}")
+            if name and lastname and password and email and privileges:
+                    
+                try:
+                    user = auth.create_user(email=email, password=password)
+                    db.collection("Usuarios").document(user.uid).set({
+                    "email": email,
+                    "name": name,
+                    "lastname": lastname,
+                    "privileges":privileges,
+                    "lastAccess": None,
+                    "dateCreated": now
+                    })
+                    success_message = "Usuario agregado correctamente"
+                    return redirect(f"/manageUser?success={urllib.parse.quote(success_message)}")
+                except Exception as e:
+                    error_message = str(e)
+                    return redirect(f"/manageUser?error={urllib.parse.quote(error_message)}")            
+            else:
+                error_message = "Faltan campos por ser llenados"
+                return redirect(f"/manageUser?error={urllib.parse.quote(error_message)}")
         
 
 
@@ -93,7 +89,7 @@ def editUser(request, id):
 
         if updates:
             db.collection('Usuarios').document(id).update(updates)
-     return redirect('manageUser')
+     return redirect('manageUsers')
 
 
 def deleteUser(request, id):
@@ -109,4 +105,4 @@ def deleteUser(request, id):
                     except auth.UserNotFoundError:
                          pass
           
-     return redirect('manageUser')
+     return redirect('manageUsers')
