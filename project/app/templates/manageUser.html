@@ -5,10 +5,45 @@
 Agregar usuarios
 {% endblock %}
 
-{% block contenido %}
-
+{% block links %}
 <link rel="stylesheet" href="{% static 'css/manageUser.css' %}">
+{% endblock %}
 
+{% block contenido %}
+{% if success %}
+    <div class="alert alert-success" style="width: 50%; text-align: center; z-index: 999; position: fixed; top: 0; left: 25%;" id="success-alert" role="alert">
+        {{ success }}
+        <script>
+            setTimeout(function() {
+                var successbox = document.getElementById("success-alert");
+                if (successbox) {
+                    successbox.style.transition = "opacity 0.75s";
+                    successbox.style.opacity = "0";
+                    setTimeout(() => successbox.remove(), 500); 
+                }
+            }, 3000); 
+        </script>
+    </div>
+{% endif %}
+
+{% if error %}
+    <div class="alert alert-danger" style="width: 50%; text-align: center ; z-index: 999; position: fixed; top: 0; left: 25%;" id="error-alert" role="alert">
+        {{ error }}
+        <script>
+            setTimeout(function() {
+                var alertBox = document.getElementById("error-alert");
+                if (alertBox) {
+                    alertBox.style.transition = "opacity 0.75s";
+                    alertBox.style.opacity = "0";
+                    setTimeout(() => alertBox.remove(), 500); 
+                }
+            }, 3000); 
+        </script>
+    </div>
+{% endif %}
+
+
+<!-- Contenedor principal -->
 <div class="addUsers">
 
     <div class="header-section">
@@ -33,12 +68,13 @@ Agregar usuarios
             <button class="btn btn-outline-secondary">
                 <i class="bi bi-download"></i> Exportar lista
             </button>
-            <button class="cbr-accent-button">
+            <button class="cbr-accent-button" data-bs-toggle="modal" data-bs-target="#addUserModal">
                 <i class="bi bi-plus-lg"></i> Agregar usuario
             </button>
         </div>
     </div>
 
+    <!-- Tabla de usuarios -->
     <div class="row">
         <table class="table table-striped">
             <thead>
@@ -75,7 +111,7 @@ Agregar usuarios
                     <td>{{ usuario.name }} {{ usuario.lastname }}</td>
                     <td>{{ usuario.email }}</td>
                     <td>{% if usuario.privileges %}Administrador{% else %}Usuario{% endif %}</td>
-                    <td>{{ usuario.date_joined|date:"F d, Y" }}</td>
+                    <td>{{ usuario.dateCreated|date:"F d, Y" }}</td>
                     <td>{{ usuario.lastAccess|date:"m/d/Y H:i:s" }}</td>
                     <td class="text-center">
                         <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
@@ -98,6 +134,7 @@ Agregar usuarios
     </div>
 
 </div>
+<!-- Modales -->
 
 {% for usuario in usuarios %}
 <!-- Modal eliminar -->
@@ -159,6 +196,68 @@ Agregar usuarios
         </div>
     </div>
 </div>
+
 {% endfor %}
+
+<!-- Modal para agregar usuario -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addUserModalLabel">Agregar nuevo usuario</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'admin-adduser' %}" method="POST">
+            {% csrf_token %}
+            <div class="modal-body">
+                
+                <div class="row">
+                    <div class="col">
+                        <label class="labels">Nombre</label>
+                        <input class="form-control" type="text" placeholder="Nombre"  id="name" name="name">
+                    </div>
+                    <div class="col">
+                        <label class="labels">Apellido</label>
+                        <input class="form-control" type="text" placeholder="Apellido"  id="lastname" name="lastname">
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <label class="labels">Correo electrónico</label>
+                        <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <label class="labels">Contraseña</label>
+                        <input class="form-control" type="text" placeholder="Contraseña"  id="password" name="password">
+                        <br>
+                        <p class="muted-text">Cualquier contraseña dada a un usuario, deberá ser una genérica, para que luego sea cambiado por el usuario pertinente.</p>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <label class="labels">Permisos</label>
+                        <div class="filter-dropdown">
+                            <select class="form-select"  name="privileges">
+                                <option selected class="options">Seleccionar permisos de administrador</option>
+                                <option value="true" class="options">Administrador</option>
+                                <option value="false" class="options">Usuario</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="cbr-submit-button">Guardar</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
 
 {% endblock %}

@@ -60,9 +60,19 @@
     height: 5vh;
     padding: 0 1vw;
     border-radius: 8px;
-    border: 1px solid #DADDE1;
+    border: 1px solid var(--border);
     font-size: 1.6vh;
     min-width: 12vw;
+    font-family: 'Lato', sans-serif;
+    color: var(--text);
+    background-color: var(--surface);
+}
+
+.filter-dropdown .form-select .option{
+    background-color: var(--surface);
+    font-family: 'Lato', sans-serif;
+    color: var(--text);
+    border: 1px solid var(--border);
 }
 
 /* botones supoeriores */
@@ -89,15 +99,4 @@
     border: 1px solid var(--bs-table-border-color);
     border-radius: 8px;
     overflow: hidden;
-}
-
-/* tabla (Esta cosa me hizo llorar) */
-.form-check-input {
-    width: 1.2vw;
-    height: 1.2vw;
-    min-width: 18px;
-    min-height: 18px;
-    border-radius: 4px;
-    margin: 0;
-    cursor: pointer;
 }
