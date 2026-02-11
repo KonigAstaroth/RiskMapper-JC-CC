@@ -51,19 +51,22 @@ Agregar usuarios
     </div>
 
     <div class="controls-section">
-        <div class="search-filter-group">
-            <div class="search-box">
-                <i class="bi bi-search"></i>
-                <input type="text" class="form-control" placeholder="Ingresa un usuario">
+        <form method="Get">
+            <div class="search-filter-group">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control" placeholder="Ingresa un usuario" name="search">
+                </div>
+                <button type="submit" class="cbr-submit-button">Buscar</button>
+                <div class="filter-dropdown">
+                    <select class="form-select">
+                        <option selected>Permisos</option>
+                        <option value="admin">Administrador</option>
+                        <option value="user">Usuario</option>
+                    </select>
+                </div>
             </div>
-            <div class="filter-dropdown">
-                <select class="form-select">
-                    <option selected>Permisos</option>
-                    <option value="admin">Administrador</option>
-                    <option value="user">Usuario</option>
-                </select>
-            </div>
-        </div>
+        </form>
         <div class="action-buttons">
             <button class="btn btn-outline-secondary">
                 <i class="bi bi-download"></i> Exportar lista

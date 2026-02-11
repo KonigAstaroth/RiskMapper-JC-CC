@@ -546,7 +546,8 @@ def add (request):
      return render (request, "addUser.html", {"success": success, "error": error})
 
 def manageUsers(request):
-     usuarios = getUsers()
+     query = request.GET.get("search")
+     usuarios = getUsers(query)
      priv = getPrivileges(request)
      sessionCookie = request.COOKIES.get('session')
      
