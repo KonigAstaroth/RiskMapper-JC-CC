@@ -81,7 +81,7 @@ body {
 .cbr-submit-button {
   border-radius: 8px;
   width: 10vw;
-  color: #ededed;
+  color: #ffffff;
   height: 5vh;
   background-color: var(--accent);
   border: none;
@@ -95,6 +95,7 @@ body {
 }
 
 .cbr-submit-button:hover{
+  color: #ededed;
   background-color: var(--accent-hover);
 }
 
@@ -109,6 +110,7 @@ body {
   height: 45px;
   width: 100%;
   padding: 0 15px;
+  transition: border-color 0.2s ease;
 }
 
 /* Inputs largas (descripciones) */
@@ -118,6 +120,14 @@ body {
   height: 100%;
   width: 100%;
   padding: 15px;
+  transition: border-color 0.2s ease;
+}
+
+/* Focus de los inputs */
+.cbr-text-input:focus,
+.cbr-textarea-input:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 

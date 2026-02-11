@@ -47,13 +47,6 @@ label {
     margin-bottom: 0.5rem;
 }
 
-/* Textarea específico - usa cbr-textarea-input del theme */
-.cbr-textarea-input {
-    resize: none;
-    font-family: 'Lato', sans-serif;
-    color: var(--text);
-    background-color: var(--surface);
-}
 
 /* Select - usa cbr-text-input del theme pero con ajustes para el dropdown */
 select.cbr-text-input {
@@ -72,16 +65,10 @@ textarea.cbr-textarea-input {
     font-family: 'Lato', sans-serif;
     color: var(--text);
     background-color: var(--surface);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease;
 }
 
-input.cbr-text-input:focus,
-select.cbr-text-input:focus,
-textarea.cbr-textarea-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(11, 88, 204, 0.1);
-}
+
 
 input.cbr-text-input::placeholder,
 textarea.cbr-textarea-input::placeholder {
@@ -130,21 +117,6 @@ textarea.cbr-textarea-input::placeholder {
     display: flex;
     justify-content: flex-end;
     margin-top: 2rem;
-}
-
-.cbr-submit-button {
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.cbr-submit-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(11, 88, 204, 0.3);
-}
-
-.cbr-submit-button:active {
-    transform: translateY(0);
 }
 
 /* Botón default del header - usa cbr-button del theme */
