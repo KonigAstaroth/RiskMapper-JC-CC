@@ -1,0 +1,95 @@
+El idioma de salida debe ser en español. Redacta todo el informe en ese idioma, incluyendo el encabezado, con tono profesional, objetivo y estratégico.
+Tu objetivo es generar un informe exhaustivo para una zona geográfica especificada, basado en el periodo de tiempo y la delimitación geográfica proporcionados. Cada informe debe ser preciso, basado únicamente en fuentes abiertas verificables.
+
+Sigue estos pasos de manera secuencial:
+
+0. Interpretación del INPUT
+  - Periodo de tiempo a analizar: Del {start} al {end}
+-  Zona geográfica específica: {lugar} 
+-  Delitos encontrados: {results}
+- Si los campos {start} y {end} se reciben como None, se debe tomar automáticamente un periodo de 3 meses hacia atrás desde la fecha actual, siendo la fecha actual {now}.
+
+1. Contextualización
+Define claramente el contexto geográfico (estado, municipios, tramo carretero o grupo de carreteras, según sea el caso) y temporal, asegurando que todas las fuentes consultadas de la variable de Delitos encontrados correspondan al periodo y lugar indicados.
+
+ 
+2. Análisis de delitos de alto impacto
+Analiza exclusivamente la información contenida en delitos encontrados.
+No realices búsquedas adicionales ni supongas información externa.
+Para cada tipo de delito listado a continuación, identifica únicamente si existe información dentro de delitos encontrados y extrae:
+•	Número de incidentes identificables
+•	Lugares donde ocurrieron los hechos (calles, colonias, municipios, kilometraje, referencias específicas)
+•	Forma en que ocurrieron los hechos (modus operandi descrito)
+Delitos a revisar:
+•	Homicidio
+•	Secuestro
+•	Trata de personas
+•	Robo con violencia
+•	Extorsión
+•	Violación / abuso sexual
+•	Feminicidio
+•	Narcomenudeo
+•	Robo a casa habitación
+•	Robo a transporte
+•	Sucesos violentos / captura de grupos criminales
+Si un delito no aparece en delitos encontrados, simplemente omítelo sin indicar ausencia de información.
+Adicionalmente investiga si la zona, área, municipio cuenta con datos sobre percepción de inseguridad usando el periodo más actual. 
+
+ 
+3. Actores criminales
+Analiza exclusivamente en delitos encontrados para identificar posibles grupos criminales mencionados.
+Si se identifican, extrae:
+•	Nombre o alias
+•	Área de operación mencionada
+•	Actividades delictivas asociadas
+No agregues información que no esté explícitamente contenida en delitos encontrados.
+
+4. Validación de información
+La información es válida únicamente si dentro de delitos encontrados:
+•	Se menciona una fecha dentro del periodo analizado
+•	Se especifica ubicación concreta
+•	Se describen hechos con suficiente detalle
+Si existen duplicados dentro de delitos encontrados, intégralos en un solo incidente consolidado.
+No infieras datos faltantes.
+
+
+5. Estructura del informe
+No agregues un texto introductorio sobre qué es lo que se te fue pedido, igualmente no agregues ningún tipo de texto adicional sobre sugerencias o pidiendo al usuario si quiere agregar algo más.
+No agregues cosas como "Si requiere gráficos o datos específicos en formato visual, puedo proceder a elaborarlos con los recursos estadísticos disponibles." ni nada por el estilo.
+Considera cada seccion como un subtitulo pensado para markdown que sera usado despues para ser transformado en html
+
+Inicio del informe:
+Resumen ejecutivo
+
+Hallazgos por delito (Presenta los incidentes a manera de listado, sin incluir sinónimos; cada uno debe incluir ubicación (calle, colonia, kilometro de carretera, lugares cercanos, etc.) del incidente y forma en la que ocurrió. Si no se encuentran resultados sobre algún delito, omitir incluirlo en el listado y no incluir texto que indique falta de información o ausencia de resultados)
+
+Actores criminales (grupos, zonas de influencia, actividades)
+
+Percepción de inseguridad usando el periodo más actual (Solo si cuentas con esta información). 
+
+Analiza patrones delictivos:
+  - Temporalidad (frecuencia por hora o día)
+  - Zonas de mayor incidencia (hotspots)
+  - Modus operandi comunes
+
+Compara los resultados con el periodo anterior inmediato (misma duración) para detectar variaciones.
+
+Presenta los hallazgos con:
+  - Análisis cuantitativo: estadísticas, porcentajes, tablas o gráficos
+  - Análisis cualitativo: narrativas, contexto, factores explicativos
+  - Recomendaciones preventivas (proporcionar precauciones sobre calles, colonias o localidades donde sea necesario transitar con cuidado, indicar medidas preventivas — no hacer recomendaciones relativas a solicitar o contratar escoltas, ni coordinación con autoridades).    
+  -  Incluyendo conclusiones estratégicas: implicaciones de seguridad y recomendaciones de protección
+
+Fin del informe.
+
+6. Citas y veracidad
+  - NO incluir fuentes o enlaces en el cuerpo del informe.
+  - NO indicar en qué se basa el informe.
+
+7. Formato y extensión
+  -	Texto continuo, estilo profesional, sin viñetas extensas.
+
+8. Chequeo final de coherencia temporal y gramática
+  -	Verifica que la fecha del encabezado concuerde con el día actual.
+  - Entrega únicamente el contenido solicitado dentro de la estructura indicada. No agregues aclaraciones, notas ni texto adicional.
+  - Realiza una revisión exhaustiva de gramática y redacción para evitar errores gramaticales y mantener todo profesional.
