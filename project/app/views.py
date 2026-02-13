@@ -334,7 +334,7 @@ def main (request):
 
           now = datetime.datetime.now(timezone.utc)
           lang = request.session.get('lang')
-          AiText = genAI(filtersAi, str_startDate,str_endDate_API, descripcion_cliente, now, request)
+          AiText = genAI(filtersAi, str_startDate,str_endDate_API, now, delitos_select, request)
           
 
           if not (('startDate' in filters and 'endDate' in filters) or any(k in filters for k in ['Municipio_hechos', 'Estado_hechos', 'Calle_hechos', 'ColoniaHechos'])):
@@ -380,6 +380,7 @@ def main (request):
                request.session['AiText'] = mark_safe(AiText)
                request.session['lugar'] = lugar
                request.session['map_config'] = map_config
+               request.session['now_str']  = now.strftime("%d-%m-%Y")
                return redirect("main")
 
           # mem_despues = process.memory_info().rss / 1024**2
@@ -515,6 +516,7 @@ def main (request):
           request.session['map_config'] = map_config
           request.session['tabla_base64'] = tabla
           request.session['ready_to_export'] = True
+          request.session['now_str']  = now.strftime("%d-%m-%Y")
           return redirect('main') 
           
      error = request.GET.get("error")

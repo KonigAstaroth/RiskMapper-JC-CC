@@ -8,21 +8,22 @@ from app.src.you_search_service import YouWebSearch
 # TODO: Change prompt to accept YouWebSearch results
      
 def loadOsintDate():
-     ruta = os.path.join(settings.BASE_DIR, 'app','prompts', "osintDate.txt")
+     ruta = os.path.join(settings.BASE_DIR, 'app','prompts', "Osint.txt")
      with open (ruta, 'r', encoding='utf-8')as f:
           return f.read()
 
-def genAI(filters,start,end, descripcion_cliente, now, crimes_select, request):
+def genAI(filters,start,end, now, crimes_select, request):
      client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-     webSearchResults = YouWebSearch(start, end, filters, crimes_select)
+     results = YouWebSearch(start, end, filters, crimes_select)
 
-     lugar = ', '.join(f"{k}:{v}" for k,v in filters.items()) if filters else "No especificado"
+     lugar = ', '.join(f"{k}: {v}" for k,v in filters.items()) if filters else "No especificado"
+     request.session['place_str'] = lugar
      template = loadOsintDate()
 
      content= template.format(
-          start=start, end = end, lugar = lugar, descripcion_cliente = descripcion_cliente, 
-          now = now, lang = request.session.get('lang')
+          start=start, end = end, lugar = lugar, 
+          now = now, lang = request.session.get('lang'), results = results
      )
 
      completion =client.chat.completions.create(
