@@ -131,3 +131,19 @@ textarea.cbr-textarea-input::placeholder {
     border-color: var(--inputButton);
 }
 
+.cbr-button label {
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.file-input-section {
+    width: 60%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+}
+
+#file-name {
+    margin-bottom: 0;
+}
