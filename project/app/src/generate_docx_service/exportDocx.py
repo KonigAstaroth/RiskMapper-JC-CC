@@ -238,7 +238,9 @@ def ProcessDocx(request):
      except Exception:
           pass
 
-     response['Content-Disposition'] = f'attachment; filename =Analisis_de_eventos{fechaHora}.docx'
+     tmp_now = now_str
+
+     response['Content-Disposition'] = f'attachment; filename =Analisis_de_eventos_{tmp_now}.docx'
      doc.save(response)
      request.session.pop('graphic', None)
      request.session.pop('calendarios', None)

@@ -8,7 +8,7 @@ from app.src.you_search_service import YouWebSearch
 # TODO: Change prompt to accept YouWebSearch results
      
 def loadOsintDate():
-     ruta = os.path.join(settings.BASE_DIR, 'app','prompts', "Osint.txt")
+     ruta = os.path.join(settings.BASE_DIR, 'app','prompts', "test.txt")
      with open (ruta, 'r', encoding='utf-8')as f:
           return f.read()
 
