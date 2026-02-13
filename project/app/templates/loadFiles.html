@@ -46,13 +46,23 @@ Carga de datos
 <div class="carga-container">
     <div class="carga-card">
         <div class="carga-header">
-            <h1>Carga de archivos</h1>
-            <button type="button" class="cbr-button">
-                Boton pendiente
-            </button>
+            <h1>Carga de archivos</h1> 
+
+            <!-- Sección del header para la carga de archivos-->
+            <div class="file-input-section">
+                <p id="file-name"></p>
+                <button class="cbr-button">
+                    <label for="file">
+                        <i class="bi bi-upload me-3"></i>Buscar archivo
+                    </label>
+                    <input type="file" id="file" name="file" style="display: none;">
+                </button>
+            </div>
         </div>
 
         <div class="carga-body">
+            <form id="manual-form">
+            <fieldset id="manual-fieldset">
             <!-- Detalles Section -->
             <div class="section-wrapper">
                 <h2 class="section-title">Detalles</h2>
@@ -134,13 +144,33 @@ Carga de datos
                     </div>
                 </div>
             </div>
-
+            
+            </fieldset>
             <!-- Submit Button -->
             <div class="submit-wrapper">
                 <button type="button" class="cbr-submit-button">Subir</button>
             </div>
+            </form>
         </div>
     </div>
+
+    <script>
+        const inputArchivo = document.getElementById('file');
+        const nombreArchivo = document.getElementById('file-name');
+        const manualForm = document.getElementById('manual-form')
+        const formFieldset = document.getElementById('manual-fieldset')
+
+        //Si el input de archivo cambia, el formulario manual se reinicia y se desactiva
+        inputArchivo.addEventListener('change', function () {
+            if (this.files.length > 0) {
+                nombreArchivo.textContent = 'Archivo seleccionado: ' + this.files[0].name;
+                manualForm.reset()
+                formFieldset.disabled = true 
+            } else {
+                nombreArchivo.textContent = '';
+            }
+        });
+    </script>
 </div>
 
 {% endblock %}

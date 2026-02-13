@@ -8,8 +8,8 @@
 
 .form-card{
     margin: auto;
-    width: 550px;
-    height: 550px;
+    width: 28vw;
+    height: 60vh;
     background-color: var(--surface);
     border: 1px solid var(--border);
     box-sizing: border-box;
@@ -19,8 +19,8 @@
 
 .forgot-card{
     margin: auto;
-    width: 550px;
-    height: 400px;
+    width: 28vw;
+    height: 45vh;
     background-color: var(--surface);
     border: 1px solid var(--border);
     box-sizing: border-box;
@@ -81,7 +81,7 @@
 }
 
 .eclipse-footer {
-  width: 66%;
+  width: 66vw;
   height: 7vh;
   display: flex;
   position: absolute;

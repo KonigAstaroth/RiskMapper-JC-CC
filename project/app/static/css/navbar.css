@@ -4,13 +4,13 @@ nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 40px;
+  padding: 1.25rem 2.5rem;
   border-bottom: 1px solid var(--border);
   background-color: var(--bg);
 }
 
 nav i {
-  font-size: 30px;
+  font-size: 1.875em;
 }
 
 .navbar-content {
@@ -29,36 +29,36 @@ nav i {
 }
 
 .buttons-section {
-  width: 1150px;
+  width: 60vw;
   display: flex;
   justify-content: space-around;
 }
 
 .icons-section {
-  width: 200px;
+  width: 10vw;
   display: flex;
   justify-content: space-around;
 }
 
 .search-bar {
-  width: 575px;
-  height: 45px;
+  width: 30vw;
+  height: 5vh;
   border: 1px solid var(--border);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  column-gap: 10px;
+  column-gap: 1.5em;
   background-color: var(--surface);
   padding: 0 15px;
 }
 
 .search-bar i {
-  font-size: 22px;
+  font-size: 1.5em;
 }
 .search-input {
-  width: 500px;
-  height: 40px;
+  width: 25vw;
+  height: 4vh;
   border: none;
   color: var(--muted);
 }
