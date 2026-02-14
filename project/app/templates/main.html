@@ -34,7 +34,7 @@ Inicio
                 <div>
                     <label for="category">Categoría</label>
                     <div class="dropdown">
-                        <button id="category-input" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle = "dropdown" aria-expanded="false" style="background-color: #FFFFFF;color: #838383;font-weight: 400;">
+                        <button id="category-input" class="dropdown-toggle cbr-text-input" type="button" data-bs-toggle = "dropdown" aria-expanded="false">
                             Tipos de delito
                         </button>
                         <ul class="dropdown-menu">
@@ -192,14 +192,17 @@ Inicio
     const sidebarTab = document.querySelector(".sidebar-tab")
     const generateButton = document.getElementById("buscar")
 
+    //Modal de confirmación y de carga para la generación del reporte
     const loadingModal = new bootstrap.Modal('#cbr-loading-modal')
     const confirmationModal = document.querySelector("#cbr-confirmation-modal") !== null 
     ? new bootstrap.Modal('#cbr-confirmation-modal')
     : null
     
-    console.log(sidebarTab)
+    //Funcionalidad de pestaña en barra lateral
     sidebarTab.addEventListener("click", () => sidebar.classList.toggle("hidden"))
     generateButton.addEventListener("click", () => loadingModal.show()) 
+
+    //Si se generó un reporte, iniciar modal de confirmación
     if(confirmationModal) { confirmationModal.show() }
   </script>
 
