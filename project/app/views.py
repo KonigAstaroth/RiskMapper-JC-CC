@@ -585,7 +585,7 @@ def loadFiles(request):
 def library(request):
     sessionCookie = request.COOKIES.get('session')
     priv = getPrivileges(request)
-    
+    eventos =[]
 
     if not sessionCookie:
         return redirect("login")
