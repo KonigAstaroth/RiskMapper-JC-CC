@@ -39,7 +39,7 @@
     left: 0.8vw;
     top: 50%;
     transform: translateY(-50%);
-    color: #65676B;
+    color: var(--muted);
     font-size: 1.6vh;
 }
 
@@ -49,10 +49,14 @@
     border-radius: 8px;
     border: 1px solid #DADDE1;
     font-size: 1.6vh;
+    background-color: var(--surface);
+    color: var(--text);
 }
 
+.form-control::placeholder { color: var(--muted); }
+
 .search-box .form-control:focus {
-    border-color: var(--primary-blue);
+    border-color: var(--accent);
     box-shadow: 0 0 0 0.2vh rgba(24, 119, 242, 0.1);
 }
 
