@@ -32,10 +32,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.login, name='login'),
     path('login-process', login.login_process, name='login-process'),
-    path('signup/', views.signup, name='signup'),
-    path('signup-process/', signup.signupProcess, name='signup-process'),
-    path('subscriptions/', views.subscriptions, name='subs'),
-    path('process-subscription/', stripe.processSubscription, name='process-subscription'),
     path('policy/', views.policy, name='policy'),
     path('forgotPassword/', views.forgotpass, name='pass'),
     path('forgotPassword-sendMail', forgotPassword.sendRecoverLink, name='send-recover-mail'),
@@ -52,5 +48,12 @@ urlpatterns = [
     path('exportDocx/', exportDocx.ProcessDocx, name='export'),
     path('edit_event<str:id>/', library_service.edit_event, name='edit_event'),
     path('delete_event<str:id>/', library_service.deleteEvent, name='delete_event'),
-    path('success/', views.success, name='success')
+    
+
+    # Deprecated urls (for now)
+    # path('signup/', views.signup, name='signup'),
+    # path('signup-process/', signup.signupProcess, name='signup-process'),
+    # path('subscriptions/', views.subscriptions, name='subs'),
+    # path('process-subscription/', stripe.processSubscription, name='process-subscription'),
+    # path('success/', views.success, name='success'),
 ]
