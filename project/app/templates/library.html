@@ -20,15 +20,15 @@ Bibloteca de datos
         
         <div class="row">
             <div class="col">
-                <label class="label_filters">Fecha de inicio</label>
+                <label >Fecha de inicio</label>
                 <input type="date" class="form-control" name="startDate">
             </div>
             <div class="col">
-                <label class="label_filters">Fecha final</label>
+                <label >Fecha final</label>
                 <input type="date" class="form-control" name="endDate">
             </div>
             <div class="col">
-                <label class="label_filters">Categoría</label>
+                <label >Categoría</label>
                 <select class="form-select" name="categoria">
                     <option selected class="options" value="">Seleccione una categoría</option>
                     <option value="AMENAZAS" class="options">Amenazas</option>
@@ -81,50 +81,53 @@ Bibloteca de datos
     </form>
 
     <hr>
-    <table class="table-striped">
-        <thead>
-            <tr>
-                <th>Delito</th>
-                <th>Calle</th>
-                <th>Colonia</th>
-                <th>Municipio</th>
-                <th>Estado</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                {% if priv %}
-                    <th>Opciones</th>
+    <div>
+        <table class="table-striped">
+            <thead>
+                <tr>
+                    <th>Delito</th>
+                    <th>Calle</th>
+                    <th>Colonia</th>
+                    <th>Municipio</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    {% if priv %}
+                        <th>Opciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% if eventos %}
+                    {% for evento in eventos %}
+                        <tr>
+                            <td>{{ evento.Delito }}</td>
+                            <td>{{ evento.Calle_hechos}}</td>
+                            <td>{{ evento.ColoniaHechos}}</td>
+                            <td>{{ evento.Municipio_hechos}}</td>
+                            <td>{{ evento.Estado_hechos}}</td> 
+                            <td>{{ evento.FechaHoraHecho| date:"d F Y" }}</td>
+                            <td>{{ evento.FechaHoraHecho| date:"h:i A" }}</td>
+                            {% if priv %}
+                                <td>
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                        data-bs-target="#editEventModal_{{ evento.id }}"><i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                        data-bs-target="#deleteEventModal_{{ evento.id }}"><i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <p></p>
                 {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% if eventos %}
-                {% for evento in eventos %}
-                    <tr>
-                        <td>{{ evento.Delito }}</td>
-                        <td>{{ evento.Calle_hechos}}</td>
-                        <td>{{ evento.ColoniaHechos}}</td>
-                        <td>{{ evento.Municipio_hechos}}</td>
-                        <td>{{ evento.Estado_hechos}}</td> 
-                        <td>{{ evento.FechaHoraHecho| date:"d F Y" }}</td>
-                        <td>{{ evento.FechaHoraHecho| date:"h:i A" }}</td>
-                        {% if priv %}
-                            <td>
-                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
-                                    data-bs-target="#editEventModal_{{ evento.id }}"><i class="bi bi-pencil"></i>
-                                </button>
-                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteEventModal_{{ evento.id }}"><i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            {% else %}
-                <p></p>
-            {% endif %}
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
+   
     
 </div>
 

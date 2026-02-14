@@ -151,6 +151,13 @@ h2 {
   color: var(--muted);
 }
 
+label{
+  font-family: 'Lato', sans-serif;
+  color: var(--text);
+  font-weight: 400;
+  font-size: 1em;
+}
+
 
 /* Seccion de tablas striped */
 
@@ -179,7 +186,8 @@ h2 {
 /* lo que se ocupa para scrollear la tabla */
 .table-striped tbody {
   display: block;
-  height: 500px;
+  height: 450px;
+  max-height: 500px;
   overflow-y: auto;
 }
 
