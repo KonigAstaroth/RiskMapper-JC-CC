@@ -19,7 +19,7 @@
     width: 25vw;
     background-color: var(--sidebar);
     position: absolute;
-    border-right: 1px solid #E0E0E0;
+    border-right: 1px solid var(--border);
     left: 0;
     transition: left 0.5s ease;
 }
@@ -30,7 +30,7 @@
 .sidebar-tab {
     height: 15vh;
     width: 45px;
-    background-color: rgba(245, 245, 245, 0.9);
+    background-color: var(--sidebar);
     display: flex;
     align-items: center;
     position: absolute;
@@ -38,10 +38,11 @@
     border-radius: 0 1.875em 1.875em 0;
     border-width: 1px 1px 1px 0;
     border-style: solid;
-    border-color: #E0E0E0;
+    border-color: var(--border);
 }
 .sidebar-tab i {
     font-size: 2em;
+    color: var(--text);
 }
 
 .sidebar-content {
@@ -91,3 +92,11 @@
     display: flex;
     justify-content: center;
 }
+
+.gm-style .gm-style-iw-c {
+    background-color: var(--bg);
+}
+
+.gm-style-iw-d { overflow: auto !important;}
+
+.gm-ui-hover-effect>span { background-color: var(--text) !important;}
