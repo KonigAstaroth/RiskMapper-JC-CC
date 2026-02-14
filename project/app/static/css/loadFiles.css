@@ -48,33 +48,6 @@ label {
 }
 
 
-/* Select - usa cbr-text-input del theme pero con ajustes para el dropdown */
-select.cbr-text-input {
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    padding-right: 2.5rem;
-}
-
-/* Inputs de texto y datetime - usan cbr-text-input del theme */
-input.cbr-text-input,
-select.cbr-text-input,
-textarea.cbr-textarea-input {
-    font-family: 'Lato', sans-serif;
-    color: var(--text);
-    background-color: var(--surface);
-    transition: border-color 0.2s ease;
-}
-
-
-
-input.cbr-text-input::placeholder,
-textarea.cbr-textarea-input::placeholder {
-    color: var(--muted);
-}
-
 /* Contador de caracteres */
 .character-counter {
     display: block;
@@ -117,18 +90,6 @@ textarea.cbr-textarea-input::placeholder {
     display: flex;
     justify-content: flex-end;
     margin-top: 2rem;
-}
-
-/* Botón default del header - usa cbr-button del theme */
-.cbr-button {
-    border: 1px solid var(--border);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.cbr-button:hover {
-    background-color: var(--bg);
-    border-color: var(--inputButton);
 }
 
 .cbr-button label {
