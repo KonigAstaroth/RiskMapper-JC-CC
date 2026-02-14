@@ -6,126 +6,129 @@
 Bibloteca de datos
 {% endblock %}
 
-{%block links %}
-    <link rel="stylesheet" href="{% static 'css/library.css' %}">
-{% endblock %}
-
 {% block contenido %}
 
-<div class="library-container">
-    
-    <h2>Filtros</h2>
-    <form action="" method="POST">
-        {% csrf_token %}
-        
-        <div class="row">
-            <div class="col">
-                <label class="label_filters">Fecha de inicio</label>
-                <input type="date" class="form-control" name="startDate">
-            </div>
-            <div class="col">
-                <label class="label_filters">Fecha final</label>
-                <input type="date" class="form-control" name="endDate">
-            </div>
-            <div class="col">
-                <label class="label_filters">Categoría</label>
-                <select class="form-select" name="categoria">
-                    <option selected class="options" value="">Seleccione una categoría</option>
-                    <option value="AMENAZAS" class="options">Amenazas</option>
-                    <option value="ROBO A NEGOCIO" class="options">Robo a negocio</option>
-                    <option value="HOMICIDIO DOLOSO" class="options">Homicidio doloso</option>
-                    <option value="FEMINICIDIO" class="options">Feminicidio</option>
-                    <option value="SECUUESTRO" class="options">Secuestro</option>
-                    <option value="TRATA DE PERSONAS" class="options">Trata de personas</option>
-                    <option value="ROBO A TRANSEÚNTE" class="options">Robo a transeúnte</option>
-                    <option value="EXTORSIÓN" class="options">Extorsión</option>
-                    <option value="ROBO A CASA HABITACIÓN" class="options">Robo a casa habitación</option>
-                    <option value="VIOLACIÓN" class="options">Violación</option>
-                    <option value="NARCOMENUDEO" class="options">Narcomenudeo</option>
-                    <option value="CATEGORIA DE BAJO IMPACTO" class="options">Delito de bajo impacto</option>
-                    <option value="ARMA DE FUEGO" class="options">Lesión con arma de fuego</option>
-                    <option value="ROBO DE ACCESORIOS DE AUTO" class="options">Robo de accesorios de auto</option>
-                    <option value="ROBO A CUENTAHABIENTE SALIENDO DEL CAJERO CON VIOLENCIA" class="options">Robo a cuentahabiente</option>
-                    <option value="ROBO DE VEHÍCULO" class="options">Robo de vehículo</option>
-                    <option value="ROBO A PASAJERO A BORDO DE MICROBUS" class="options">Robo en microbús</option>
-                    <option value="ROBO A REPARTIDOR" class="options">Robo a repartidor</option>
-                    <option value="ROBO A PASAJERO A BORDO DEL METRO" class="options">Robo en metro</option>
-                    <option value="LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO" class="options">Lesiones por arma de fuego</option>
-                    <option value="HECHO NO DELICTIVO" class="options">Hecho no delictivo</option>
-                    <option value="ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA" class="options">Robo en taxi</option>
-                    <option value="ROBO A TRANSPORTISTA" class="options">Robo a transportista</option>
-                </select>
-            </div>
 
-        </div>
-        <br>
-        <div class="row row-search">
-            <div class="col">
-                <select class="form-select" name="searchBy" >
-                    <option value="full">Dirección completa</option>
-                    <option value="estado">Estado</option>
-                    <option value="municipio">Municipio</option>
-                    <option value="estadoMunicipio">Estado y municipio</option>
-                </select>
+
+
+<div style="margin-left: 10%; margin-right: 10%;">
+     <form method="POST">
+            {% csrf_token %}
+            <br>
+            <h5 >Filtros</h5>
+            <div class="row">
+                <div class="col">
+                    <label class="label_filters">Fecha de inicio</label>
+                    <input type="date" class="form-control" name="startDate">
+                    
+                </div>
+                <div class="col">
+                    <label class="label_filters">Fecha final</label>
+                    <input type="date" class="form-control" name="endDate">
+                </div>
+                <div class="col">
+                    <label class="label_filters">Categoría</label>
+                    
+                        <select class="form-select" name="categoria">
+                            <option selected class="options" value="">Seleccione una categoría</option>
+                            <option value="AMENAZAS" class="options">Amenazas</option>
+                            <option value="ROBO A NEGOCIO" class="options">Robo a negocio</option>
+                            <option value="HOMICIDIO DOLOSO" class="options">Homicidio doloso</option>
+                            <option value="FEMINICIDIO" class="options">Feminicidio</option>
+                            <option value="SECUUESTRO" class="options">Secuestro</option>
+                            <option value="TRATA DE PERSONAS" class="options">Trata de personas</option>
+                            <option value="ROBO A TRANSEÚNTE" class="options">Robo a transeúnte</option>
+                            <option value="EXTORSIÓN" class="options">Extorsión</option>
+                            <option value="ROBO A CASA HABITACIÓN" class="options">Robo a casa habitación</option>
+                            <option value="VIOLACIÓN" class="options">Violación</option>
+                            <option value="NARCOMENUDEO" class="options">Narcomenudeo</option>
+                            <option value="CATEGORIA DE BAJO IMPACTO" class="options">Delito de bajo impacto</option>
+                            <option value="ARMA DE FUEGO" class="options">Lesión con arma de fuego</option>
+                            <option value="ROBO DE ACCESORIOS DE AUTO" class="options">Robo de accesorios de auto</option>
+                            <option value="ROBO A CUENTAHABIENTE SALIENDO DEL CAJERO CON VIOLENCIA" class="options">Robo a cuentahabiente</option>
+                            <option value="ROBO DE VEHÍCULO" class="options">Robo de vehículo</option>
+                            <option value="ROBO A PASAJERO A BORDO DE MICROBUS" class="options">Robo en microbús</option>
+                            <option value="ROBO A REPARTIDOR" class="options">Robo a repartidor</option>
+                            <option value="ROBO A PASAJERO A BORDO DEL METRO" class="options">Robo en metro</option>
+                            <option value="LESIONES DOLOSAS POR DISPARO DE ARMA DE FUEGO" class="options">Lesiones por arma de fuego</option>
+                            <option value="HECHO NO DELICTIVO" class="options">Hecho no delictivo</option>
+                            <option value="ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA" class="options">Robo en taxi</option>
+                            <option value="ROBO A TRANSPORTISTA" class="options">Robo a transportista</option>
+                        </select>
+                
+                </div>
+                    
             </div>
-            <div class="col search-bar-col">
-                <div class="search-bar">
-                    <i class="bi bi-search"></i>
-                    <input class="search-input" type="text" placeholder="Ingrese un lugar" name="direccion">
+            <div class="row">
+                <label  class="label_filters" style="margin-top:1%">Ubicación</label>
+                <div class="col col-sm-2">
+                    <select class="form-select" name="searchBy" >
+                        <option value="full">Dirección completa</option>
+                        <option value="estado">Estado</option>
+                        <option value="municipio">Municipio</option>
+                        <option value="estadoMunicipio">Estado y municipio</option>
+                    </select>
+                    
+                </div>
+                <div class="col">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Dirección" aria-label="Search" name="direccion">
+                        <button class="btn btn-primary px-4" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="col">
-                <button class="cbr-submit-button" type="submit">Buscar</button>
-            </div>
-        </div>
-    </form>
+            
 
-    <hr>
-    <table class="table-striped">
-        <thead>
-            <tr>
-                <th>Delito</th>
-                <th>Calle</th>
-                <th>Colonia</th>
-                <th>Municipio</th>
-                <th>Estado</th>
-                <th>Fecha</th>
-                <th>Hora</th>
-                {% if priv %}
-                    <th>Opciones</th>
+        </form>
+</div>
+<div style="margin-left: 10%; margin-right: 10%; margin-top: 2%;">
+    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Delito</th>
+                    <th>Calle</th>
+                    <th>Colonia</th>
+                    <th>Municipio</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    {% if priv %}
+                        <th>Editar</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody >
+                {% if eventos %}
+                    {% for evento in eventos %}
+                        <tr>
+                            <td>{{ evento.Delito }}</td>
+                            <td>{{ evento.Calle_hechos}}</td>
+                            <td>{{ evento.ColoniaHechos}}</td>
+                            <td>{{ evento.Municipio_hechos}}</td>
+                            <td>{{ evento.Estado_hechos}}</td> 
+                            <td>{{ evento.FechaHoraHecho| date:"d F Y" }}</td>
+                            <td>{{ evento.FechaHoraHecho| date:"h:i A" }}</td>
+                            {% if priv %}
+                                <td>
+                                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                                        data-bs-target="#editEventModal_{{ evento.id }}"><i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                                        data-bs-target="#deleteEventModal_{{ evento.id }}"><i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <p></p>
                 {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% if eventos %}
-                {% for evento in eventos %}
-                    <tr>
-                        <td>{{ evento.Delito }}</td>
-                        <td>{{ evento.Calle_hechos}}</td>
-                        <td>{{ evento.ColoniaHechos}}</td>
-                        <td>{{ evento.Municipio_hechos}}</td>
-                        <td>{{ evento.Estado_hechos}}</td> 
-                        <td>{{ evento.FechaHoraHecho| date:"d F Y" }}</td>
-                        <td>{{ evento.FechaHoraHecho| date:"h:i A" }}</td>
-                        {% if priv %}
-                            <td>
-                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
-                                    data-bs-target="#editEventModal_{{ evento.id }}"><i class="bi bi-pencil"></i>
-                                </button>
-                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteEventModal_{{ evento.id }}"><i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
-            {% else %}
-                <p></p>
-            {% endif %}
-
-        </tbody>
-    </table>
-    
+            </tbody>
+        </table>
+    </div>
 </div>
 
 

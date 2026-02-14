@@ -585,6 +585,7 @@ def loadFiles(request):
 def library(request):
     sessionCookie = request.COOKIES.get('session')
     priv = getPrivileges(request)
+    
 
     if not sessionCookie:
         return redirect("login")
@@ -597,7 +598,7 @@ def library(request):
     usuarios = getUsers()
     
     if request.method == 'POST':
-            eventos = searchEvent(request)
+          eventos = searchEvent(request)
 
     return render(request, 'library.html', {
         'usuarios': usuarios,

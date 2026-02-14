@@ -1,0 +1,19 @@
+.library-container{
+    width: 80vw;
+    height: 80vh;
+    box-sizing: content-box;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    padding: 3vh 4vw 3vh 4vw;
+    justify-self: center;
+    margin-top: 2vh;
+    border-radius: 8px;
+}
+
+.search-bar-col{
+    flex: 0.5 0 0;
+}
+
+.row-search{
+    align-items: center;
+}
