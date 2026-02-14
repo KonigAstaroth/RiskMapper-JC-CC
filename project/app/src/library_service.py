@@ -177,7 +177,6 @@ def searchEvent(request):
 
           
           for campo, valor in filters_sin_fechas.items():
-               print(f"Campo: {campo}, Valor: {valor}")
                if isinstance(valor, str):
                     valor = valor.strip()
                query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
