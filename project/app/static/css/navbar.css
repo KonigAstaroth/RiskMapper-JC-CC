@@ -61,6 +61,7 @@ nav i {
   height: 4vh;
   border: none;
   color: var(--muted);
+  background-color: var(--surface);
 }
 
 .search-input:focus-visible {
@@ -94,15 +95,33 @@ ul.dropdown-menu.show{
   text-align: left;
 }
 
-.custom-item:hover, .logout-item:hover{
+.custom-item:hover {
+  color: var(--text);
   background-color: var(--bg);
 }
 
 .logout-item:hover{
   color: red;
+  background-color: var(--bg);
 }
 
 .custom-item .contenido {
   display: flex;
   align-items: center;
+}
+
+.form-switch {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.form-switch .form-check-input {
+  height: 2em;
+  width: 4em;
+}
+
+.form-check-label {
+  margin-bottom: 0;
+  color: var(--text);
 }

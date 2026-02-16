@@ -69,7 +69,7 @@
                 
                 <div class="">
                     <li class="nav-item">
-                        <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                             <i class="bi bi-list"></i>
                         </a>
                         <ul class="dropdown-menu">
@@ -77,6 +77,14 @@
                                 <a class="dropdown-item custom-item" href="{% url 'manageUsers' %}">Gestionar usuarios</a>
                             </li>
                             <li><a class="dropdown-item custom-item" href="#">Another action</a></li>
+                            <li>
+                                <div class="dropdown-item-text custom-item">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input cbr-toggle-switch" type="checkbox" role="switch" id="darkModeSwitch">
+                                        <label class="form-check-label" for="darkModeSwitch">Modo oscuro</label>
+                                    </div>
+                                </div>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item logout-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
                         </ul>
@@ -98,5 +106,23 @@
 
     </footer>
     
+    <script type="text/javascript">
+        // Dark mode toggle con localStorage
+        const darkSwitch = document.getElementById('darkModeSwitch');
+
+        // Aplicar dark mode al cargar (incluso si no hay switch en la página)
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            if (darkSwitch) darkSwitch.checked = true;
+        }
+
+        // Si existe el switch, escuchar cambios
+        if (darkSwitch) {
+            darkSwitch.addEventListener('change', () => {
+                document.body.classList.toggle('dark-mode')
+                localStorage.setItem('darkMode', darkSwitch.checked)
+            });
+        }
+    </script>
 </body>
 </html>
