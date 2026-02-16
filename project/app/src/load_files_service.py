@@ -7,7 +7,7 @@ from app.core.auth.firebase_config import db
 from app.src.utils.parse_timestamp import parseTimestamp
 import pandas as pd
 from app.src.utils.parse_excel_datetime import resolveDate, resolveTime, combineDateTime
-from app.src.utils.bulk_load_helpers import location_check, check_valid_value
+from app.src.utils.bulk_load_helpers import location_check, sanitize_text, is_valid_float
 
 
 def loadFilesService(request):
@@ -37,6 +37,8 @@ def handleManualLoad(request):
         "icono": resolveIcons(request.POST.get("icons")),
     }
 
+    has_coords = is_valid_float(data.get('lat')) and is_valid_float(data.get('lng'))
+
     has_address = all((
         data.get('calle'),
         data.get('colonia'),
@@ -44,10 +46,15 @@ def handleManualLoad(request):
         data.get('municipio'),
     ))
 
-    has_coords = all((
-        data.get('lat'),
-        data.get('lng'),
-    ))
+
+    if has_coords:
+        data['lat'] = float(data['lat'])
+        data['lng'] = float(data['lng'])
+
+    data["calle"] = sanitize_text(data["calle"])
+    data["colonia"] = sanitize_text(data["colonia"])
+    data["municipio"] = sanitize_text(data["municipio"])
+    data["estado"] = sanitize_text(data["estado"])
 
     if (has_address or has_coords) and all([data.get('fecha'), data.get('delito'), data.get('icono'), data.get('categoria')]):
 
@@ -55,15 +62,16 @@ def handleManualLoad(request):
 
         data['FechaHoraHecho'] = parseTimestamp(data.pop('fecha'))
 
+
         try:
             db.collection('Eventos').add({
                 "Calle_hechos": data["calle"],
                 "ColoniaHechos": data["colonia"],
                 "Estado_hechos": data["estado"],
-                "Delito": data["delito"],
-                "FechaHoraHecho": data["fecha"],
-                "icono": data["icono"],
                 "Municipio_hechos": data["municipio"],
+                "Delito": data["delito"],
+                "FechaHoraHecho": data['FechaHoraHecho'],
+                "icono": data["icono"],
                 "Categoria": data["categoria"],
                 "latitud": data["lat"],
                 "longitud": data["lng"],
@@ -105,6 +113,15 @@ def bulkLoad(request, excel_file):
 
     for event in data:
         try:
+            event['Estado_hechos'] = sanitize_text(event.get('Estado_hechos'))
+            event['Municipio_hechos'] = sanitize_text(event.get('Municipio_hechos'))
+            event['ColoniaHechos'] = sanitize_text(event.get('ColoniaHechos'))
+            event['Calle_hechos'] = sanitize_text(event.get('Calle_hechos'))
+
+
+            if has_street2:
+                event['Calle_hechos2'] = sanitize_text(event.get('Calle_hechos2'))
+
             if not location_check(event, location_data):
                 resolveBulkGeo(event, has_street2)
 

@@ -1,5 +1,6 @@
 import pandas as pd
 import math
+import re
 
 def check_valid_value(valor):
      if valor is None:
@@ -34,3 +35,19 @@ def build_address(evento, has_street2=False):
      ]
      
      return ', '.join(p for p in partes if check_valid_value(p))
+
+def sanitize_text(text):
+     if text == None:
+          return ""
+     
+     text = str(text).strip()
+     text = re.sub(r'\s+', ' ', text)
+
+     return text.title()
+
+def  is_valid_float(number):
+     try:
+          float(number)
+          return True
+     except:
+          return False

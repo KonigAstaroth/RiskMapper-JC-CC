@@ -297,32 +297,34 @@ Inicio
                     }
                 });
             } else {
-                const position = {
-                    lat: Number(marcador.lat),
-                    lng: Number(marcador.lng)
-                };
+                const lat=  Number(marcador.lat);
+                const lng = Number(marcador.lng);
 
-                const marker = new AdvancedMarkerElement({
-                    position: position,
-                    map: map,
-                    title: marcador.Categoria || 'Sin categoría',
-                    content: iconImg,
-                    collisionBehavior: CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
-                });
+                if (!isNaN(lat) || !isNaN(lng)) {
+                    position = { lat, lng };
 
-                marker.addListener('gmp-click', () => {
-                    infoWindow.setContent(`
-                    <h4> Categoría: ${marcador.Categoria || 'Sin categoría'}</h4>
-                    <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'}, <b>Colonia:</b> ${marcador.colonia || 'Desconocido'} </p>
-                    <p> <b>Estado:</b> ${marcador.estado || 'Desconocido'}, <b>Municipio:</b> ${marcador.municipio || 'Desconocido'}</p>
-                    <p> <b>Delito:</b> ${marcador.delito || 'Desconocido'}</p>
-                    <p> <b>Fecha:</b> ${marcador.fecha || 'No disponible'}</p>
-                    <h6>Descripción</h6>
-                    <p>${marcador.descripcion || 'Sin descripción'}</p>
-        `);
-                    infoWindow.setPosition(position);
-                    infoWindow.open(map);
-                });
+                    const marker = new AdvancedMarkerElement({
+                        position: position,
+                        map: map,
+                        title: marcador.Categoria || 'Sin categoría',
+                        content: iconImg,
+                        collisionBehavior: CollisionBehavior.OPTIONAL_AND_HIDES_LOWER_PRIORITY
+                    });
+    
+                    marker.addListener('gmp-click', () => {
+                        infoWindow.setContent(`
+                        <h4> Categoría: ${marcador.Categoria || 'Sin categoría'}</h4>
+                        <br><p> <b>Calle:</b> ${marcador.calle || 'Desconocido'}, <b>Colonia:</b> ${marcador.colonia || 'Desconocido'} </p>
+                        <p> <b>Estado:</b> ${marcador.estado || 'Desconocido'}, <b>Municipio:</b> ${marcador.municipio || 'Desconocido'}</p>
+                        <p> <b>Delito:</b> ${marcador.delito || 'Desconocido'}</p>
+                        <p> <b>Fecha:</b> ${marcador.fecha || 'No disponible'}</p>
+                        <h6>Descripción</h6>
+                        <p>${marcador.descripcion || 'Sin descripción'}</p>`);
+                        infoWindow.setPosition(position);
+                        infoWindow.open(map);
+                    });
+                }
+
             }
         });
     }
