@@ -153,7 +153,7 @@ def main (request):
           return v
 
      if query_has_update:
-          data = ref.limit(500).get() or []
+          data = ref.limit(2000).get() or []
           list_markers = []
           max_update = last_update
 
