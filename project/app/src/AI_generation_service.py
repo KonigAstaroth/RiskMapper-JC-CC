@@ -34,5 +34,6 @@ def genAI(filters,start,end, now, crimes_select, request):
 
      
      text = completion.choices[0].message.content.strip()
+     request.session['AI_text_markdown'] = text
      
      return cleanAnswer(text)

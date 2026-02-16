@@ -1,8 +1,5 @@
 import base64
 from docx.shared import Inches, Pt
-from docx.oxml import OxmlElement
-from docx.oxml.ns import qn
-from bs4 import BeautifulSoup
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -13,51 +10,19 @@ from docx import Document
 import datetime
 from datetime import timezone
 from io import BytesIO
+from app.src.generate_docx_service.parse_markdown_to_docx import markdown_to_docx
+from app.src.generate_docx_service.utils import add_horizontal_line
 
-def add_horizontal_line(doc, length_in_inches, align):
-    p = doc.add_paragraph()
-    p_format = p.paragraph_format
-    p_format.space_before = 0
-    p_format.space_after = 0
-
-    # Si se define longitud, centramos la línea ajustando márgenes
-    if length_in_inches is not None:
-        total_width = 6.0  # ancho estimado del cuerpo de texto en pulgadas
-        margin = max((total_width - length_in_inches) / 2, 0)
-        p_format.left_indent = Inches(margin)
-        p_format.right_indent = Inches(margin)
-        if align == "center":
-            margin = max((total_width - length_in_inches) / 2, 0)
-            p_format.left_indent = Inches(margin)
-            p_format.right_indent = Inches(margin)
-        elif align == "right":
-            p_format.left_indent = Inches(total_width - length_in_inches)
-            p_format.right_indent = Inches(0)
-        elif align == "left":
-            p_format.left_indent = Inches(0)
-            p_format.right_indent = Inches(total_width - length_in_inches)
-
-    p_element = p._p
-    pPr = p_element.get_or_add_pPr()
-    pBdr = OxmlElement('w:pBdr')
-    bottom = OxmlElement('w:bottom')
-    bottom.set(qn('w:val'), 'single')
-    bottom.set(qn('w:sz'), '12')  # grosor
-    bottom.set(qn('w:space'), '1')          # separación con texto
-    bottom.set(qn('w:color'), '000000')        # color
-    pBdr.append(bottom)
-    pPr.append(pBdr)
 
 
 def ProcessDocx(request):
      graphic = request.session.get('graphic')
      calendarios = request.session.get('calendarios', [])
      horas = request.session.get('hour_txt')
-     AiText = request.session.get('AiText')
      lang = request.session.get('lang')
      now_str = request.session.get('now_str')
      place_str = request.session.get('place_str')
-     text_html = AiText
+     text_markdown = request.session.get('AI_text_markdown')
      tabla_img = request.session.get('tabla_base64')
 
      doc = Document()
@@ -78,54 +43,8 @@ def ProcessDocx(request):
      
 
      doc.add_page_break()
-     if text_html:
-        soup = BeautifulSoup(text_html, 'html.parser')
-        for elemento in soup.contents:
-            if elemento.name == 'p':
-                doc.add_paragraph(elemento.get_text())
-            elif elemento.name == 'h2':
-               doc.add_heading(elemento.get_text(), level=1)
-            elif elemento.name == 'h3':
-                doc.add_heading(elemento.get_text(), level=2)
-            elif elemento.name == 'ul':
-                for li in elemento.find_all('li'):
-                    doc.add_paragraph('• ' + li.get_text(), style='List Bullet')
-            elif elemento.name == 'ol':
-                for li in elemento.find_all('li'):
-                    doc.add_paragraph(li.get_text(), style='List Number')
-            elif elemento.name == 'table':
-                filas = elemento.find_all('tr')
-                if filas:
-                    num_cols = len(filas[0].find_all(['td', 'th']))
-                    tabla = doc.add_table(rows=1, cols=num_cols)
-                    tabla.style = 'Table Grid'
-
-                    # Encabezado
-                    hdr_cells = tabla.rows[0].cells
-                    for idx, th in enumerate(filas[0].find_all(['td', 'th'])):
-                        hdr_cells[idx].text = th.get_text().strip()
-                        for paragraph in hdr_cells[idx].paragraphs:
-                            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                            for run in paragraph.runs:
-                                run.font.bold = True
-                                run.font.size = Pt(11)
-
-                    # Cuerpo de la tabla
-                    for fila in filas[1:]:
-                        celdas = fila.find_all(['td', 'th'])
-                        row_cells = tabla.add_row().cells
-                        for idx, celda in enumerate(celdas):
-                            row_cells[idx].text = celda.get_text().strip()
-                            for paragraph in row_cells[idx].paragraphs:
-                                paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                                for run in paragraph.runs:
-                                    run.font.size = Pt(10)
-
-                    # Ajustar ancho de columnas (opcional)
-                    ancho_columna = Inches(1.5)
-                    for col_idx in range(num_cols):
-                        for row in tabla.rows:
-                            row.cells[col_idx].width = ancho_columna
+     if text_markdown:
+        markdown_to_docx(text_markdown, doc)
 
      for calendario in calendarios:
           img_base64 = calendario.get('img')
@@ -238,14 +157,15 @@ def ProcessDocx(request):
      except Exception:
           pass
 
-     tmp_now = now_str
+     
 
-     response['Content-Disposition'] = f'attachment; filename =Analisis_de_eventos_{tmp_now}.docx'
+     response['Content-Disposition'] = f'attachment; filename =Analisis_de_eventos_{now_str}.docx'
      doc.save(response)
      request.session.pop('graphic', None)
      request.session.pop('calendarios', None)
      request.session.pop('hour_txt', None)
      request.session.pop('AiText', None)
+     request.session.pop('AI_text_markdown', None)
      request.session.pop('ready_to_export', None)
      request.session.pop('tabla_base64', None)
      request.session.pop('now_str', None)

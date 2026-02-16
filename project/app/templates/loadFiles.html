@@ -45,113 +45,114 @@ Carga de datos
 
 <div class="carga-container">
     <div class="carga-card">
-        <div class="carga-header">
-            <h1>Carga de archivos</h1> 
+        <form method="POST" action="{% url 'loadFilesService' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="carga-header">
+                <h1>Carga de archivos</h1> 
 
-            <!-- Sección del header para la carga de archivos-->
-            <div class="file-input-section">
-                <p id="file-name"></p>
-                <button class="cbr-button">
-                    <label for="file">
-                        <i class="bi bi-upload me-3"></i>Buscar archivo
-                    </label>
-                    <input type="file" id="file" name="file" style="display: none;">
-                </button>
+                <!-- Sección del header para la carga de archivos-->
+                <div class="file-input-section">
+                    <p id="file-name"></p>
+                    <button class="cbr-button" type="button">
+                        <label for="file">
+                            <i class="bi bi-upload me-3"></i>Buscar archivo
+                        </label>
+                        <input type="file" id="file" name="archivo" style="display: none;" accept=".xlsx">
+                    </button>
+                </div>
             </div>
-        </div>
 
-        <div class="carga-body">
-            <form id="manual-form">
-            <fieldset id="manual-fieldset">
-            <!-- Detalles Section -->
-            <div class="section-wrapper">
-                <h2 class="section-title">Detalles</h2>
+            <div class="carga-body">
+                <!-- <fieldset id="manual-fieldset"> -->
+                <!-- Detalles Section -->
+                <div class="section-wrapper">
+                    <h2 class="section-title">Detalles</h2>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Delito</label>
+                            <input type="text" class="cbr-text-input" placeholder="Escriba un tipo de delito">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label >Fecha y hora</label>
+                            <input type="datetime-local" class="cbr-text-input">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label >Categoría del delito</label>
+                            <select class="cbr-text-input">
+                                <option selected>Selecciona una categoria de delito</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label >Icono</label>
+                            <select class="cbr-text-input">
+                                <option selected>Selecciona un icono</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <label >Descripcion del delito (opcional)</label>
+                            <textarea class="cbr-textarea-input" rows="3" placeholder="Agregue una descripción detallada"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <!-- Direccion Section -->
+                <div class="section-wrapper">
+                    <h2 class="section-title">Direccion</h2>
+                    
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label >Calle</label>
+                            <input type="text" class="cbr-text-input" placeholder="Calle">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label >Colonia</label>
+                            <input type="text" class="cbr-text-input" placeholder="Colonia">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label >Estado</label>
+                            <input type="text" class="cbr-text-input" placeholder="Estado">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label >Municipio</label>
+                            <input type="text" class="cbr-text-input" placeholder="Municipio">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coordenadas Section -->
+                <div class="section-wrapper">
+                    <h2 class="section-title">Coordenadas (opcional)</h2>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label >Latitud</label>
+                            <input type="text" class="cbr-text-input" placeholder="Latitud">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label >Longitud</label>
+                            <input type="text" class="cbr-text-input" placeholder="Longitud">
+                        </div>
+                    </div>
+                </div>
                 
-                <div class="row">
-                    <div class="col-md-3">
-                        <label class="muted-text">Delito</label>
-                        <input type="text" class="cbr-text-input" placeholder="Escriba un tipo de delito">
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="muted-text">Fecha y hora</label>
-                        <input type="datetime-local" class="cbr-text-input">
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="muted-text">Categoría del delito</label>
-                        <select class="cbr-text-input">
-                            <option selected>Selecciona una categoria de delito</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="muted-text">Icono</label>
-                        <select class="cbr-text-input">
-                            <option selected>Selecciona un icono</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-12">
-                        <label class="muted-text">Descripcion del delito (opcional)</label>
-                        <textarea class="cbr-textarea-input" rows="3" placeholder="Agregue una descripción detallada"></textarea>
-                    </div>
+                <!-- </fieldset> -->
+                <!-- Submit Button -->
+                <div class="submit-wrapper">
+                    <button type="submit" class="cbr-submit-button">Subir</button>
                 </div>
             </div>
-            <br>
-            <!-- Direccion Section -->
-            <div class="section-wrapper">
-                <h2 class="section-title">Direccion</h2>
-                
-                <div class="row">
-                    <div class="col-md-3">
-                        <label class="muted-text">Calle</label>
-                        <input type="text" class="cbr-text-input" placeholder="Calle">
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="muted-text">Colonia</label>
-                        <input type="text" class="cbr-text-input" placeholder="Colonia">
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="muted-text">Estado</label>
-                        <input type="text" class="cbr-text-input" placeholder="Estado">
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="muted-text">Municipio</label>
-                        <input type="text" class="cbr-text-input" placeholder="Municipio">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Coordenadas Section -->
-            <div class="section-wrapper">
-                <h2 class="section-title">Coordenadas (opcional)</h2>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <label class="muted-text">Latitud</label>
-                        <input type="text" class="cbr-text-input" placeholder="Latitud">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="muted-text">Longitud</label>
-                        <input type="text" class="cbr-text-input" placeholder="Longitud">
-                    </div>
-                </div>
-            </div>
-            
-            </fieldset>
-            <!-- Submit Button -->
-            <div class="submit-wrapper">
-                <button type="button" class="cbr-submit-button">Subir</button>
-            </div>
-            </form>
-        </div>
+        </form>
     </div>
 
     <script>

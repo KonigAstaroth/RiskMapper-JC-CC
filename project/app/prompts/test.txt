@@ -118,7 +118,7 @@ Incluye:
 
 - Contexto estratégico derivado estrictamente de los hechos descritos
 
-- Si es posible estructurar datos en tabla, usa formato Markdown para que pueda convertirse en tabla HTML.
+- Si es posible estructurar datos en tabla, usa formato Markdown.
 
 7. Implicaciones Estratégicas de Seguridad
 

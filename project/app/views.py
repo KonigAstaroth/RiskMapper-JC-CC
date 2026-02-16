@@ -34,56 +34,56 @@ from app.src.graph_generation_service import genDataImg, genGraph, generateCalen
 CACHE_KEY_MARKERS = 'firebase_markers'
 CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
 
-def signup(request):            
-     error = request.GET.get("error")
-     return render(request, 'signup.html', {"error": error})
+# def signup(request):            
+#      error = request.GET.get("error")
+#      return render(request, 'signup.html', {"error": error})
 
-def subscriptions(request):
-     return render(request, 'selectSub.html')
+# def subscriptions(request):
+#      return render(request, 'selectSub.html')
 
-def success(request):
-     # plan = request.session.get('plan')
-     # email = request.session.get('email_usr')
-     # try:
+# def success(request):
+#      # plan = request.session.get('plan')
+#      # email = request.session.get('email_usr')
+#      # try:
           
-     #      user = auth.get_user_by_email(email)
-     # except:
-     #      return HttpResponse('Usuario no autenticado', status=401)
+#      #      user = auth.get_user_by_email(email)
+#      # except:
+#      #      return HttpResponse('Usuario no autenticado', status=401)
      
-     # if plan not in ['esencial', 'premium', 'profesional']:
-     #      return HttpResponse("Plan inválido", status=400)
+#      # if plan not in ['esencial', 'premium', 'profesional']:
+#      #      return HttpResponse("Plan inválido", status=400)
      
-     # PLAN_CONFIG ={
-     #      'esencial': {'requests': 10, 'events': 100},
-     #      'premium': {'requests': 50, 'events': 200},
-     #      'profesional': {'requests': 80, 'events': 2000}
-     # }
+#      # PLAN_CONFIG ={
+#      #      'esencial': {'requests': 10, 'events': 100},
+#      #      'premium': {'requests': 50, 'events': 200},
+#      #      'profesional': {'requests': 80, 'events': 2000}
+#      # }
 
-     # config=PLAN_CONFIG[plan]
-     # sub_type = plan
-     # requests = config['requests']
-     # events = config['events']
+#      # config=PLAN_CONFIG[plan]
+#      # sub_type = plan
+#      # requests = config['requests']
+#      # events = config['events']
 
-     # user_doc = db.collection('Usuarios').document(user.uid)
+#      # user_doc = db.collection('Usuarios').document(user.uid)
 
-     # now = datetime.datetime.now(timezone.utc)
-     # endSub = now + datetime.timedelta(days=30)
-     # end_sub = datetime.datetime.combine(endSub.date(), time(23,59), tzinfo=timezone.utc)
-     # try:
-     #      user_doc.update({
-     #           'sub_type': sub_type,
-     #           'requests': requests,
-     #           'events': events,
-     #           'start_sub': now,
-     #           'last_sub': now,
-     #           'end_sub': end_sub,
-     #           'status': "active"
+#      # now = datetime.datetime.now(timezone.utc)
+#      # endSub = now + datetime.timedelta(days=30)
+#      # end_sub = datetime.datetime.combine(endSub.date(), time(23,59), tzinfo=timezone.utc)
+#      # try:
+#      #      user_doc.update({
+#      #           'sub_type': sub_type,
+#      #           'requests': requests,
+#      #           'events': events,
+#      #           'start_sub': now,
+#      #           'last_sub': now,
+#      #           'end_sub': end_sub,
+#      #           'status': "active"
 
-     #      })
-     # except Exception as e:
-     #      return HttpResponse('Usuario no encontrado', status=401)
+#      #      })
+#      # except Exception as e:
+#      #      return HttpResponse('Usuario no encontrado', status=401)
 
-     return render(request, 'success.html')
+#      return render(request, 'success.html')
 
 def login(request):
     sessionCookie = request.COOKIES.get('session')
@@ -153,7 +153,7 @@ def main (request):
           return v
 
      if query_has_update:
-          data = ref.limit(500).get() or []
+          data = ref.limit(2000).get() or []
           list_markers = []
           max_update = last_update
 

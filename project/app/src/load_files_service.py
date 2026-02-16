@@ -15,10 +15,11 @@ def loadFilesService(request):
         if 'archivo' in request.FILES:
             excel_file = request.FILES['archivo']
             # Procesar el archivo según sea necesario
-            bulkLoad(request, excel_file)
+            return bulkLoad(request, excel_file)
         else:
             # Manejo de carga manual
-            handleManualLoad(request)
+            return handleManualLoad(request)
+    return redirect('loadFiles')
 
 
 def handleManualLoad(request):
