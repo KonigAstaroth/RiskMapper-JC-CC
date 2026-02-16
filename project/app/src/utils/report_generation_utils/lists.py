@@ -22,5 +22,6 @@ crimes_list_api = [
     'Lesiones dolosas por disparo de arma de fuego',
     'Hecho no delictivo',
     'Robo a pasajero a bordo de taxi con violencia',
-    'Robo a transportista'
+    'Robo a transportista',
+    'Robo de motocicleta'
 ]

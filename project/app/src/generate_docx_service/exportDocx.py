@@ -45,6 +45,7 @@ def ProcessDocx(request):
      doc.add_page_break()
      if text_markdown:
         markdown_to_docx(text_markdown, doc)
+     doc.add_page_break()
 
      for calendario in calendarios:
           img_base64 = calendario.get('img')

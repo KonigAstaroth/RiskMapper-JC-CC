@@ -10,13 +10,18 @@ def YouWebSearch(startDate_API, endDate_API, filtersAi, crimes_select):
     estado = filtersAi.get('Estado')
     municipio = filtersAi.get('Municipio')
     results_search =[]
+    str_query = f'{crime}'
 
     if not crimes_select:
         crimes_select = crimes_list_api 
 
     # For each item coming from a list in a checkbox input, it will search on the web
     for crime in crimes_select:
-        str_query = f'{crime} AND {municipio} AND {estado}' #string formating for the query
+        if estado:
+            str_query += f' AND {estado}'
+        if municipio:
+            str_query += f' AND {municipio}'
+
         # API call
         search_results = you_client.search.unified(
             query= str_query,
@@ -25,7 +30,7 @@ def YouWebSearch(startDate_API, endDate_API, filtersAi, crimes_select):
             count = 10
         )
 
-        # Check if there is results
+        # Check if there are results
         if search_results.results and search_results.results.web:
 
             # Store resul data in the results list
