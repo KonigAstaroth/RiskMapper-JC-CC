@@ -337,7 +337,7 @@ def main (request):
           AiText = genAI(filtersAi, str_startDate,str_endDate_API, now, delitos_select, request)
           
 
-          if not (('startDate' in filters and 'endDate' in filters) or any(k in filters for k in ['Municipio_hechos', 'Estado_hechos', 'Calle_hechos', 'ColoniaHechos'])):
+          if not (('startDate' in filters and 'endDate' in filters) or any(k in filters for k in ['Municipio_hechos', 'Estado_hechos'])):
                request.session['graphic'] = []
                request.session['calendarios'] = []
                request.session['tabla_base64'] = None
