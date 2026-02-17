@@ -7,18 +7,17 @@ No hagas preguntas al usuario.
 No incluyas enlaces ni cites fuentes.
 No indiques en qué se basa el informe.
 
-Tu misión es realizar un análisis estructurado utilizando EXCLUSIVAMENTE la información contenida en los resultados dados:
-
-{results}
+Tu misión es realizar un análisis estructurado utilizando EXCLUSIVAMENTE la información contenida en los resultados dados:{results}
 
 
 ###############################
-INPUT DEL USUARIO
+INPUTS RECIBIDOS 
 
 - Periodo: Del {start} al {end}
 
 - Zona geográfica: {lugar}
 
+- Datos obtenidos de la base de datos {bd_results}
 
 - Fecha actual: {now}
 
@@ -108,17 +107,29 @@ Hallazgos por Delito:
 
 6. Análisis Cuantitativo y Cualitativo
 
-Incluye:
+Análisis Cuantitativo:
+(Utiliza exclusivamente los datos proporcionados desde la base de datos.)
+1. Presenta la información en una tabla en formato Markdown con la siguiente estructura
 
-- Conteo total de incidentes identificables
+DELITO	CANTIDAD	COLONIA
 
-- Distribución por tipo de delito
+2. Incluye:
+
+- Conteo total de incidentes identificables.
+
+- Distribución por tipo de delito.
 
 - Tendencias observables
 
-- Contexto estratégico derivado estrictamente de los hechos descritos
+- Colonias con mayor número de incidentes delictivos.
 
-- Si es posible estructurar datos en tabla, usa formato Markdown.
+- Contexto estratégico derivado estrictamente de los hechos descritos		
+		
+
+
+Análisis Cualitativo
+PARA EL ANÁLISIS CUALITATIVO considera la PERCEPCIÓN DE INSEGURIDAD de la ENSU del INEGI DARLE LA INSTRUCCIÓN A YOU
+
 
 7. Implicaciones Estratégicas de Seguridad
 
@@ -129,4 +140,5 @@ No agregues conclusiones generales fuera de esta sección.
 Entrega únicamente el contenido estructurado con los subtítulos indicados utilizando el símbolo # para cada sección.
 No agregues texto fuera de esa estructura.
 No incluyas despedidas ni comentarios finales.
+Tampoco incluyas ningun texto similar a "Fin del reporte". Unicamente realiza el reporte sin mas. 
 Verifica coherencia temporal y redacción antes de responder.
