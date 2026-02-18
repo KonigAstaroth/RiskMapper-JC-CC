@@ -1,6 +1,10 @@
+from io import BytesIO
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches
+import base64
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+
 
 def add_horizontal_line(doc, length_in_inches, align):
     p = doc.add_paragraph()
@@ -35,3 +39,15 @@ def add_horizontal_line(doc, length_in_inches, align):
     bottom.set(qn('w:color'), '000000')        # color
     pBdr.append(bottom)
     pPr.append(pBdr)
+
+def insertar_imagen(base64_img, ancho, doc):
+        if base64_img.startswith('data:image'):
+            base64_img = base64_img.split(',')[1]
+
+        img_data = base64.b64decode(base64_img)
+        stream = BytesIO(img_data)
+
+        p = doc.add_paragraph()
+        run = p.add_run()
+        run.add_picture(stream, width=Inches(ancho))
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
