@@ -334,7 +334,6 @@ def main (request):
 
           now = datetime.datetime.now(timezone.utc)
           lang = request.session.get('lang')
-          AiText = genAI(filtersAi, str_startDate,str_endDate_API, now, delitos_select, request)
           
 
           if not (('startDate' in filters and 'endDate' in filters) or any(k in filters for k in ['Municipio_hechos', 'Estado_hechos'])):
@@ -400,6 +399,7 @@ def main (request):
           resultados = list(query_ref.stream())
 
           eventos_lista=[doc.to_dict() for doc in resultados]
+          AiText = genAI(filtersAi, str_startDate,str_endDate_API, now, delitos_select, request, eventos_lista)
           conteo_delitos = defaultdict(int)
           
 

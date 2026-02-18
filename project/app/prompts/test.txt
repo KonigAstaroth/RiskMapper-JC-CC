@@ -17,7 +17,7 @@ INPUTS RECIBIDOS
 
 - Zona geográfica: {lugar}
 
-- Datos obtenidos de la base de datos {bd_results}
+- Eventos obtenidos de la base de datos {events_db}
 
 - Fecha actual: {now}
 
@@ -108,7 +108,7 @@ Hallazgos por Delito:
 6. Análisis Cuantitativo y Cualitativo
 
 Análisis Cuantitativo:
-(Utiliza exclusivamente los datos proporcionados desde la base de datos.)
+(Utiliza exclusivamente los datos de los eventos proporcionados desde la base de datos.)
 1. Presenta la información en una tabla en formato Markdown con la siguiente estructura
 
 DELITO	CANTIDAD	COLONIA
@@ -128,7 +128,7 @@ DELITO	CANTIDAD	COLONIA
 
 
 Análisis Cualitativo
-PARA EL ANÁLISIS CUALITATIVO considera la PERCEPCIÓN DE INSEGURIDAD de la ENSU del INEGI DARLE LA INSTRUCCIÓN A YOU
+PARA EL ANÁLISIS CUALITATIVO considera la siguiente percepcion de seguridad de la ENSU del INEGI: {ensu_text}
 
 
 7. Implicaciones Estratégicas de Seguridad
