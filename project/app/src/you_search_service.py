@@ -10,13 +10,13 @@ def YouWebSearch(startDate_API, endDate_API, filtersAi, crimes_select):
     estado = filtersAi.get('Estado')
     municipio = filtersAi.get('Municipio')
     results_search =[]
-    str_query = f'{crime}'
 
     if not crimes_select:
         crimes_select = crimes_list_api 
 
     # For each item coming from a list in a checkbox input, it will search on the web
     for crime in crimes_select:
+        str_query = f'{crime}'
         if estado:
             str_query += f' AND {estado}'
         if municipio:
