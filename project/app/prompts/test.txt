@@ -17,7 +17,7 @@ INPUTS RECIBIDOS
 
 - Zona geográfica: {lugar}
 
-- Eventos obtenidos de la base de datos {events_db}
+- Eventos obtenidos de la base de datos {eventos_db}
 
 - Fecha actual: {now}
 
@@ -51,7 +51,7 @@ Hallazgos por Delito:
 
 - Modus operandi descrito
 
-2a. Delitos a revisar únicamente si aparecen en los resultados dados:
+Delitos a revisar únicamente si aparecen en los resultados dados:
 
 - Homicidio doloso
 
@@ -115,7 +115,7 @@ DELITO	CANTIDAD	COLONIA
 
 2. Incluye:
 
-- Conteo total de incidentes identificables.
+- Conteo total de incidentes identificables, el conteo debe de ser exacto. No usar simbolos de '+', debe de ser exacto el conteo
 
 - Distribución por tipo de delito.
 
