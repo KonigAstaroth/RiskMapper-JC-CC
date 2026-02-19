@@ -204,6 +204,13 @@ label{
   font-size: 1em;
 }
 
+/* Modales */
+.modal-content{
+  background-color: var(--surface);
+  color: var(--color);
+}
+
+
 
 /* Seccion de tablas striped */
 

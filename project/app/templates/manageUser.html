@@ -164,7 +164,7 @@ Agregar usuarios
 
 <!-- Modal editar -->
 <div class="modal fade" id="editUserModal_{{ usuario.id }}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form method="POST" action="{% url 'editUser' usuario.id %}">
                 {% csrf_token %}
@@ -174,26 +174,41 @@ Agregar usuarios
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    <label class="form-label">Correo electrónico</label>
-                    <input type="email" class="form-control" name="email" value="{{ usuario.email }}">
+                    <div class="row">
+                        <div class="col">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="cbr-text-input" name="name" value="{{ usuario.name }}">
+                        </div>
 
-                    <label class="form-label">Contraseña</label>
-                    <input type="text" class="form-control" name="password" placeholder="Nueva contraseña">
-
-                    <label class="form-label">Nombre</label>
-                    <input type="text" class="form-control" name="name" value="{{ usuario.name }}">
-
-                    <label class="form-label">Apellido</label>
-                    <input type="text" class="form-control" name="lastname" value="{{ usuario.lastname }}">
-
-                    <label class="form-label">Privilegios</label>
-                    <select class="form-select" name="privileges">
-                        <option value="true" {% if usuario.privileges %}selected{% endif %}>Administrador</option>
-                        <option value="false" {% if not usuario.privileges %}selected{% endif %}>Usuario</option>
-                    </select>
+                        <div class="col">
+                            <label class="form-label">Apellido</label>
+                            <input type="text" class="cbr-text-input" name="lastname" value="{{ usuario.lastname }}">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col">
+                            <label class="form-label">Correo electrónico</label>
+                            <input type="email" class="cbr-text-input" name="email" value="{{ usuario.email }}">
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Contraseña</label>
+                            <input type="text" class="cbr-text-input" name="password" placeholder="Nueva contraseña">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col">
+                            <label class="form-label">Privilegios</label>
+                            <select class="cbr-text-input" name="privileges">
+                                <option value="true" {% if usuario.privileges %}selected{% endif %}>Administrador</option>
+                                <option value="false" {% if not usuario.privileges %}selected{% endif %}>Usuario</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-outline-primary">Modificar</button>
+                    <button type="submit" class="btn btn-outline-primary">Guardar</button>
                 </div>
             </form>
         </div>
@@ -204,7 +219,7 @@ Agregar usuarios
 
 <!-- Modal para agregar usuario -->
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="addUserModalLabel">Agregar nuevo usuario</h1>
@@ -217,25 +232,25 @@ Agregar usuarios
                 <div class="row">
                     <div class="col">
                         <label class="labels">Nombre</label>
-                        <input class="form-control" type="text" placeholder="Nombre"  id="name" name="name">
+                        <input class="cbr-text-input" type="text" placeholder="Nombre"  id="name" name="name">
                     </div>
                     <div class="col">
                         <label class="labels">Apellido</label>
-                        <input class="form-control" type="text" placeholder="Apellido"  id="lastname" name="lastname">
+                        <input class="cbr-text-input" type="text" placeholder="Apellido"  id="lastname" name="lastname">
                     </div>
                 </div>
                 <br>
                 <div class="row">
                     <div class="col">
                         <label class="labels">Correo electrónico</label>
-                        <input type="email" class="form-control" id="email" placeholder="Correo" name="email">
+                        <input type="email" class="cbr-text-input" id="email" placeholder="Correo" name="email">
                     </div>
                 </div>
                 <br>
                 <div class="row">
                     <div class="col">
                         <label class="labels">Contraseña</label>
-                        <input class="form-control" type="text" placeholder="Contraseña"  id="password" name="password">
+                        <input class="cbr-text-input" type="text" placeholder="Contraseña"  id="password" name="password">
                         <br>
                         <p class="muted-text">Cualquier contraseña dada a un usuario, deberá ser una genérica, para que luego sea cambiado por el usuario pertinente.</p>
                     </div>
@@ -245,7 +260,7 @@ Agregar usuarios
                     <div class="col">
                         <label class="labels">Permisos</label>
                         <div class="filter-dropdown">
-                            <select class="form-select"  name="privileges">
+                            <select class="cbr-text-input"  name="privileges">
                                 <option selected class="options">Seleccionar permisos de administrador</option>
                                 <option value="true" class="options">Administrador</option>
                                 <option value="false" class="options">Usuario</option>
