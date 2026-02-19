@@ -32,7 +32,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.login, name='login'),
     path('login-process', login.login_process, name='login-process'),
-    path('policy/', views.policy, name='policy'),
     path('forgotPassword/', views.forgotpass, name='pass'),
     path('forgotPassword-sendMail', forgotPassword.sendRecoverLink, name='send-recover-mail'),
     path('main/', views.main, name='main'),
