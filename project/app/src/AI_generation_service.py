@@ -6,7 +6,7 @@ from app.src.you_search_service import YouWebSearch
 from app.src.utils.ensu_service import contextEnsu
      
 def loadOsintDate():
-     ruta = os.path.join(settings.BASE_DIR, 'app','prompts', "test.txt")
+     ruta = os.path.join(settings.BASE_DIR, 'app','prompts', "osint.txt")
      with open (ruta, 'r', encoding='utf-8')as f:
           return f.read()
 
