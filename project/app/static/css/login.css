@@ -96,3 +96,7 @@
   gap: 1ch;
   align-items: center;
 }
+
+.modal-content{
+  font-family: 'Lato', sans-serif;
+}

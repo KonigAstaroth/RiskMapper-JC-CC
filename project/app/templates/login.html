@@ -71,12 +71,166 @@
     <footer class="eclipse-footer">
       <div class="copyright">
           <img src="{% static 'images/eclipse-black.png' %}" style="height: 3em;">
-          <span class="bttm_links">© 2025</span>
+          <span class="bttm_links">© 2026</span>
       </div>
-      <a href="{% url 'policy' %}" class="bttm_links">Politica de privacidad</a>
-      <a href="#" class="bttm_links">Politica de copyright</a>
+      <a href="#" class="bttm_links" data-bs-toggle="modal" data-bs-target="#copyrightModal">Politica de privacidad</a>
+      <a href="#" class="bttm_links" data-bs-toggle="modal" data-bs-target="#EULAModal">Acuerdo de Licencia de Usuario Final (EULA)</a>
     </footer>
     
+  <!--Privacy policy mdoal -->
+  <div class="modal fade" id="copyrightModal" tabindex="-1" aria-labelledby="copyrightModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="copyrightModalLabel">Política de privacidad</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="updated"><strong>Última actualización: </strong>19 de febrero del 2026</p>
+
+          <section>
+          <p>
+            <strong>Eclipse Solutions offshore</strong>, con domicilio en Av. Lucio Blanco 102, Obrero Campesina, 91017 Xalapa-Enríquez, Veracruz, 
+            en cumplimiento con lo establecido en la Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP), 
+            hace de su conocimiento lo siguiente:
+          </p>
+        </section>
+      
+        <section>
+          <h2>1. Finalidad del tratamiento de datos personales</h2>
+          <p>Los datos personales que recabamos a través de nuestro sitio web tienen como finalidad:</p>
+          <ul>
+            <li>Brindar servicios de monitoreo, análisis y prevención de delitos en zonas específicas.</li>
+            <li>Contactar a clientes o usuarios que soliciten información o cotizaciones.</li>
+            <li>Enviar reportes, alertas o actualizaciones sobre seguridad según solicitud.</li>
+            <li>Cumplir con obligaciones legales y contractuales.</li>
+          </ul>
+        </section>
+      
+        <section>
+          <h2>2. Marco legal de operación</h2>
+          <p>Marco Jurídico administrativo para elaborar estadística de Delitos en México. Para materializar estadística de delitos del fuero común y federal, existe en México la siguiente normatividad:</p>
+          <ol type="A">
+            <li>Ley y reglamento del Sistema Nacional de Información Estadística y Geográfica.</li>
+            <li>ACUERDO 09 del Consejo Nacional de Seguridad Pública aprobado en su Trigésima Séptima Sesión Ordinaria, celebrada el 19 de diciembre de 2014.</li>
+            <li>Acuerdo 13/XXXVIII/15 del Consejo Nacional de Seguridad Pública (CNSP).</li>
+            <li>Acuerdo XXXIII/08/2015 de la Conferencia Nacional de Procuración de Justicia.</li>
+            <li>Instrumento para el Registro, Clasificación y Reporte de los Delitos y las Víctimas CNSP/38/15.</li>
+            <li>ACUERDO 22/10/2018, por el que se aprueba la Norma Técnica para la Clasificación Nacional de Delitos para Fines Estadísticos.</li>
+          </ol>
+        </section>
+      
+        <section>
+          <h2>3. Datos personales recabados</h2>
+          <p>Podemos recopilar los siguientes datos, entre otros:</p>
+          <ul>
+            <li>Domicilio y/o ubicación de interés.</li>
+            <li>Información sobre eventos o incidentes de seguridad.</li>
+          </ul>
+        </section>
+      
+        <section>
+          <h2>4. Transferencia de datos</h2>
+          <p>Sus datos personales no serán compartidos con terceros sin su consentimiento, salvo por requerimiento de autoridades competentes, en cumplimiento con la ley.</p>
+        </section>
+      
+        <section>
+          <h2>5. Medidas de seguridad</h2>
+          <p>Aplicamos medidas físicas, administrativas y técnicas razonables para proteger su información contra pérdida, acceso no autorizado o uso indebido, de acuerdo con estándares como ISO/IEC 27001.</p>
+        </section>
+      
+        <section>
+          <h2>6. Derechos ARCO (Acceso, Rectificación, Cancelación y Oposición)</h2>
+          <p>Usted tiene derecho a acceder, corregir, cancelar u oponerse al uso de sus datos. Para ejercer estos derechos, puede contactarnos en:</p>
+          <ul>
+            <li>+52 228 236 0212</li>
+            <li>O acudir a nuestro domicilio.</li>
+          </ul>
+        </section>
+      
+        <section>
+          <h2>7. Cambios al aviso de privacidad</h2>
+          <p>Este aviso puede ser modificado en cualquier momento. Las actualizaciones serán publicadas en esta misma página web, con fecha de última modificación.</p>
+        </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EULA modal -->
+   <div class="modal fade" id="EULAModal" tabindex="-1" aria-labelledby="EULAModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="EULAModalLabel">Acuerdo de Licencia de Usuario Final (EULA)</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <section>
+            <p><strong>Última actualización: </strong>19 de febrero del 2026</p>
+            
+            <p>Este Acuerdo de Licencia de Usuario Final ("EULA") es un contrato legal entre usted (el "Usuario") y Cerberus ("la Plataforma", "nosotros", "nuestro" o "nos") con respecto al uso del servicio web, software y cualquier contenido, funcionalidad y datos proporcionados por Cerberus.</p>
+          </section>
+          <section>
+              <h2>1. ACEPTACIÓN DEL ACUERDO</h2>
+              <p>Al registrarse, acceder o utilizar Cerberus, usted acepta este EULA y se compromete a cumplirlo en su totalidad. Si no está de acuerdo con los términos, no debe usar el servicio.</p>
+          </section>
+          <section>
+              <h2>2.LICENCIA DE USO</h2>
+              <p>Cerberus otorga al Usuario una licencia limitada, no exclusiva, no transferible y revocable para acceder y utilizar la Plataforma, exclusivamente como servicio bajo suscripción. Esta licencia no implica propiedad del software ni de los datos generados.</p>
+          </section>
+          <section>
+              <h2>3.RESTRICCIONES</h2>
+              <ul>
+                  <li>Copiar, modificar, descompilar, realizar ingeniería inversa o distribuir el software.</li>
+                  <li>Utilizar la Plataforma con fines comerciales, revender servicios o redistribuir los datos proporcionados.</li>
+                  <li>Suministrar información falsa, inexacta o incompleta.</li>
+                  <li>Utilizar la Plataforma para actividades ilegales, fraudulentas o que comprometan la seguridad.</li>
+              </ul>
+          </section>
+          <section>
+              <h2>4. RESPONSABILIDAD DEL USUARIO</h2>
+              <p>El Usuario se compromete a:</p>
+              <ul>
+                  <li>Verificar la información que visualiza en la plataforma antes de tomar decisiones basadas en ella.</li>
+                  <li>Usar el sistema de forma responsable, manteniendo la confidencialidad de su cuenta y asegurando la veracidad de los datos proporcionados.</li>
+                  <li>No compartir información sensible o confidencial de forma indebida.</li>
+              </ul>
+          </section>
+          <section>
+              <h2>5.PROPIEDAD</h2>
+              <p>Todo el software, interfaces, bases de datos, gráficos, marcas y contenido generado por Cerberus son propiedad exclusiva de los desarrolladores de Cerberus. El Usuario <strong>no adquiere derechos de propiedad</strong> por el uso del servicio.</p>
+          </section>
+          <section>
+              <h2>6.DATOS PERSONALES</h2>
+              <p>El uso de Cerberus implica la recolección de ciertos datos personales. El tratamiento de estos datos se rige por nuestra Política de Privacidad, que el Usuario acepta junto con este EULA.</p>
+          </section>
+          <section>
+              <h2>7. LIMITACIÓN DE RESPONSABILIDAD</h2>
+              <p>Cerberus no garantiza la exactitud o integridad de los datos proporcionados. El Usuario reconoce que es su <strong>responsabilidad confirmar y validar cualquier información</strong> mostrada antes de utilizarla. Cerberus no se hace responsable de daños directos o indirectos derivados del uso del servicio.</p>
+          </section>
+          <section>
+              <h2>8. CANCELACIÓN Y TERMINACIÓN</h2>
+              <p>Cerberus se reserva el derecho de suspender o cancelar el acceso del Usuario en caso de incumplimiento de este acuerdo, sin necesidad de previo aviso.</p>
+          </section>
+          <section>
+              <h2>9. CAMBIOS EN EL ACUERDO</h2>
+              <p>Cerberus podrá modificar este EULA en cualquier momento. El uso continuo del servicio después de cualquier cambio constituirá aceptación de los nuevos términos.</p>
+          </section>
+          <section>
+              <h2>10. JURISDICCIÓN Y LEY APLICABLE</h2>
+              <p>Este acuerdo se rige por las leyes de los Estados Unidos Mexicanos, y cualquier disputa relacionada será resuelta en los tribunales competentes de dicha jurisdicción.</p>
+          </section>
+          <section>
+              <h2>11. POLÍTICA DE REEMBOLSOS</h2>
+              <p> <strong>Todas las suscripciones y pagos realizados a Cerberus son finales y no reembolsables.</strong></p> 
+              <p>No se emitirán reembolsos, compensaciones ni créditos por cancelaciones anticipadas, períodos no utilizados o interrupciones del servicio. Al realizar un pago, el Usuario acepta esta política sin excepción.</p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
     
 </body>
 </html>
