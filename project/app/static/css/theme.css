@@ -208,6 +208,7 @@ label{
 .modal-content{
   background-color: var(--surface);
   color: var(--color);
+  font-family: 'Lato', sans-serif;
 }
 
 
