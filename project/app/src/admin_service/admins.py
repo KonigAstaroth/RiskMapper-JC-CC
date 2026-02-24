@@ -4,15 +4,19 @@ from app.core.auth.firebase_config import db, auth
 import datetime
 
 def getPrivileges(request):
-     sessionCookie = request.COOKIES.get('session')
-     decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
-     uid = decoded_claims["uid"]
-     doc_ref = db.collection("Usuarios").document(uid)
-     doc = doc_ref.get()
-     if doc.exists:
-          return doc.to_dict().get("privileges",False)
-     else:
-          return False
+    sessionCookie = request.COOKIES.get('session')
+    if not sessionCookie:
+        return None
+    else:
+        decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
+        uid = decoded_claims["uid"]
+        doc_ref = db.collection("Usuarios").document(uid)
+        doc = doc_ref.get()
+        if doc.exists:
+            return doc.to_dict().get("privileges",False)
+        else:
+            return False
+    
      
 def adduser(request):
         priv = getPrivileges(request)
