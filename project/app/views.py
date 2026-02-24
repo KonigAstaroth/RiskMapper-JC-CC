@@ -13,6 +13,9 @@ from app.src.utils.map_config_helper import map_config_center
 from app.src.utils.cache_events import markers
 from app.src.login import updateLastLogin
 
+def userSettings(request):
+    return render(request, 'userSettings.html')
+
 
 def login(request):
      updateLastLogin(request)
