@@ -43,7 +43,8 @@ urlpatterns = [
     path('exportDocx/', exportDocx.ProcessDocx, name='export'),
     path('edit_event<str:id>/', library_service.edit_event, name='edit_event'),
     path('delete_event<str:id>/', library_service.deleteEvent, name='delete_event'),
-    path('report-generation/', report_generation_service.generateReport, name='generate_report')
+    path('report-generation/', report_generation_service.generateReport, name='generate_report'),
+    path('settings/', views.userSettings, name='userSettings')
     
 
     # Deprecated urls (for now)
