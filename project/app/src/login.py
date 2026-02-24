@@ -70,8 +70,8 @@ def login_process(request):
 def updateLastLogin(request):
     sessionCookie = request.COOKIES.get('session')
     if sessionCookie:
-         decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
-         uid = decoded_claims["uid"]
-         db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
-    return redirect ("main")
+        decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
+        uid = decoded_claims["uid"]
+        db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
+        return redirect ("main")
 
