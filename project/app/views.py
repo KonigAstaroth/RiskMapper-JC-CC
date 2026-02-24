@@ -12,9 +12,11 @@ from app.src.utils.report_generation_utils.lists import lista_delitos
 from app.src.utils.map_config_helper import map_config_center
 from app.src.utils.cache_events import markers
 from app.src.login import updateLastLogin
+from app.src.business_units_service import getUnits
 
 def userSettings(request):
-    return render(request, 'userSettings.html')
+    units = getUnits(request)
+    return render(request, 'userSettings.html', {'unidades': units})
 
 
 def login(request):

@@ -46,7 +46,6 @@ Configuracion de usuario
 
     <!-- Sidebar -->
     <aside class="settings-sidebar">
-        <a href="#" class="settings-nav-item active">Unidades de negocio</a>
         <a href="#" class="settings-nav-item">Reestablecer contraseña</a>
     </aside>
 
@@ -69,24 +68,28 @@ Configuracion de usuario
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th scope="col">Nombre</th>
-                        <th scope="col">Ubicación</th>
-                        <th scope="col">Descripción</th>
+                        <th scope="col" class="text-center">Nombre</th>
+                        <th scope="col" class="text-center">Ubicación</th>
+                        <th scope="col" class="text-center">Descripción</th>
+                        <th scope="col" class="text-center">Estatus</th>
+                        <th scope="col" class="text-center">Modificado</th>
                         <th scope="col" class="text-center">Opciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for unidad in unidades %}
                     <tr>
-                        <td>{{ unidad.name }}</td>
-                        <td>{{ unidad.location }}</td>
-                        <td>{{ unidad.description }}</td>
+                        <td class="text-center">{{ unidad.name }}</td>
+                        <td class="text-center">{{ unidad.location }}</td>
+                        <td class="text-center">{{ unidad.description|truncatechars:25}}</td>
+                        <td class="text-center">{{ unidad.status }}</td>
+                        <td class="text-center">{{ unidad.lastAccess|date:"d/m/Y h:i A" }}</td>
                         <td class="text-center col-options">
-                            <button type="button" class="btn-icon btn-icon-edit" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
                                 data-bs-target="#editUnitModal_{{ unidad.id }}">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <button type="button" class="btn-icon btn-icon-delete" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
                                 data-bs-target="#deleteUnitModal_{{ unidad.id }}">
                                 <i class="bi bi-trash"></i>
                             </button>
@@ -111,7 +114,7 @@ Configuracion de usuario
 <div class="modal fade" id="deleteUnitModal_{{ unidad.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="POST" action="{% url 'delete_unit' unidad.id %}">
+            <form method="POST" action="{% url 'deleteUnit' unidad.id %}">
                 {% csrf_token %}
                 <div class="modal-header">
                     <h5 class="modal-title">¿Estás seguro de eliminar esta unidad?</h5>
@@ -132,28 +135,28 @@ Configuracion de usuario
 <div class="modal fade" id="editUnitModal_{{ unidad.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form method="POST" action="{% url 'edit_unit' unidad.id %}">
+            <form method="POST" action="{% url 'editUnit' unidad.id %}">
                 {% csrf_token %}
                 <div class="modal-header">
-                    <h5 class="modal-title">Editar {{ unidad.name }}</h5>
+                    <h5 class="modal-title">Editar {{ unidad.name}}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
                             <label class="form-label">Nombre</label>
-                            <input type="text" class="cbr-text-input" name="name" value="{{ unidad.name }}">
+                            <input type="text" class="cbr-text-input" name="unitName" value="{{ unidad.name }}">
                         </div>
                         <div class="col">
                             <label class="form-label">Ubicación</label>
-                            <input type="text" class="cbr-text-input" name="location" value="{{ unidad.location }}">
+                            <input type="text" class="cbr-text-input" name="unitArea" value="{{ unidad.location }}">
                         </div>
                     </div>
                     <br>
                     <div class="row">
                         <div class="col">
                             <label class="form-label">Descripción</label>
-                            <textarea class="cbr-textarea-input" name="description" rows="4">{{ unidad.description }}</textarea>
+                            <textarea class="cbr-textarea-input" name="unitDescription" rows="4">{{ unidad.description }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -174,24 +177,24 @@ Configuracion de usuario
                 <h1 class="modal-title fs-5" id="addUnitModalLabel">Agregar nueva unidad</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST">
+            <form method="POST" action="{% url 'addUnit' %}">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="row">
                         <div class="col">
                             <label class="labels">Nombre</label>
-                            <input class="cbr-text-input" type="text" placeholder="Nombre de la unidad" name="name">
+                            <input class="cbr-text-input" type="text" placeholder="Nombre de la unidad" name="unitName">
                         </div>
                         <div class="col">
                             <label class="labels">Ubicación</label>
-                            <input class="cbr-text-input" type="text" placeholder="Ubicación" name="location">
+                            <input class="cbr-text-input" type="text" placeholder="Ubicación" name="unitLocation">
                         </div>
                     </div>
                     <br>
                     <div class="row">
                         <div class="col">
                             <label class="labels">Descripción</label>
-                            <textarea class="cbr-textarea-input" placeholder="Descripción de la unidad" name="description" rows="4"></textarea>
+                            <textarea class="cbr-textarea-input" placeholder="Descripción de la unidad" name="unitDescription" rows="4"></textarea>
                         </div>
                     </div>
                 </div>

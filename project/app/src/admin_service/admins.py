@@ -6,7 +6,7 @@ import datetime
 def getPrivileges(request):
     sessionCookie = request.COOKIES.get('session')
     if not sessionCookie:
-        return None
+        return redirect('main')
     else:
         decoded_claims = auth.verify_session_cookie(sessionCookie, check_revoked=True)
         uid = decoded_claims["uid"]
@@ -24,7 +24,7 @@ def adduser(request):
 
         priv = getPrivileges(request)
         if not priv:
-                return redirect("main")
+            return redirect("main")
 
         if not sessionCookie:
             return redirect ("login")

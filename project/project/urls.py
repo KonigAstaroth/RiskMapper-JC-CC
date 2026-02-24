@@ -18,7 +18,7 @@ from json import load
 from django.contrib import admin
 from django.urls import path
 from app import views
-from app.src import login, forgotPassword, logout, report_generation_service, library_service, load_files_service
+from app.src import login, forgotPassword, logout, report_generation_service, library_service, load_files_service, business_units_service
 from app.src.admin_service import admins
 from app.src.generate_docx_service import exportDocx
 
@@ -44,7 +44,10 @@ urlpatterns = [
     path('edit_event<str:id>/', library_service.edit_event, name='edit_event'),
     path('delete_event<str:id>/', library_service.deleteEvent, name='delete_event'),
     path('report-generation/', report_generation_service.generateReport, name='generate_report'),
-    path('settings/', views.userSettings, name='userSettings')
+    path('settings/', views.userSettings, name='userSettings'),
+    path('addBusinessUnit/', business_units_service.addUnit, name='addUnit'),
+    path('editunit<str:id>/', business_units_service.editUnit, name='editUnit'),
+    path('deleteunit<str:id>/', business_units_service.deleteUnit, name='deleteUnit'),
     
 
     # Deprecated urls (for now)

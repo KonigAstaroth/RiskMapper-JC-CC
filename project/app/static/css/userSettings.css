@@ -135,23 +135,20 @@
     font-size: 1.6vh;
 }
 
-.btn-icon-edit {
-    border-color: var(--border);
-    color: var(--muted);
-}
 
 .btn-icon-edit:hover {
     border-color: var(--accent);
     color: var(--accent);
 }
 
-.btn-icon-delete {
-    border-color: #e74c3c;
-    background-color: #e74c3c;
-    color: #ffffff;
+
+.cbr-textarea-input{
+    resize: none;
+    height: 20vh;
 }
 
-.btn-icon-delete:hover {
-    background-color: #c0392b;
-    border-color: #c0392b;
+.table-striped td,
+.table-striped th{
+  width: 10vh;
+  max-width: 20vw;
 }
