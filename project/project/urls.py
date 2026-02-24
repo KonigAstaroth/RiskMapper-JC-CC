@@ -18,13 +18,9 @@ from json import load
 from django.contrib import admin
 from django.urls import path
 from app import views
-from app.src import login, forgotPassword, logout
-from app.src.stripe_service import stripe
+from app.src import login, forgotPassword, logout, report_generation_service, library_service, load_files_service
 from app.src.admin_service import admins
 from app.src.generate_docx_service import exportDocx
-from app.src import library_service, load_files_service, signup
-
-
 
  
 
@@ -47,6 +43,7 @@ urlpatterns = [
     path('exportDocx/', exportDocx.ProcessDocx, name='export'),
     path('edit_event<str:id>/', library_service.edit_event, name='edit_event'),
     path('delete_event<str:id>/', library_service.deleteEvent, name='delete_event'),
+    path('report-generation/', report_generation_service.generateReport, name='generate_report')
     
 
     # Deprecated urls (for now)
