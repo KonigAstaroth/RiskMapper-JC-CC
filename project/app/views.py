@@ -3,14 +3,13 @@ from django.conf import settings
 import json
 import matplotlib
 matplotlib.use('agg')
-from time import time
 
 # Imports needed for context & display important info
 from app.src.admin_service.admins import getPrivileges
 from app.src.utils.users import getUsers
 from app.src.library_service import searchEvent
 from app.src.utils.report_generation_utils.lists import lista_delitos
-from app.src.report_generation_service import generateReport
+from app.src.utils.map_config_helper import map_config_center
 from app.src.utils.cache_events import markers
 from app.src.login import updateLastLogin
 
@@ -34,25 +33,17 @@ def main (request):
      idioma = request.GET.get("idioma", "es")
      request.session['lang'] = idioma
      
-     map_config = {
-        'center': {'lat': 19.42847, 'lng': -99.12766},
-        'zoom': 6
-     }
+     map_config = map_config_center(request)
 
      markers_json = markers()
 
      #Filtrado de datos
      graphic = request.session.get('graphic')
      calendars = request.session.get('calendarios', [])
-     
      hour_txt = request.session.get('hour_txt', None)
      AiText = request.session.get('AiText', None)
      lugar = request.session.get('lugar')
      data_table = request.session.get('tabla_base64', None)
-     
-     if request.method == 'POST':
-          graphic, calendars, data_table, lugar = generateReport(request)
-          return redirect('main')
                  
      error = request.GET.get("error")
 
@@ -62,7 +53,6 @@ def main (request):
           'markers': markers_json,
           'graphic': graphic,
           'calendarios': calendars,
-          'timestamp': int(time()),
           'lugar': lugar,
           'hour_txt': hour_txt,
           'AiText': AiText,
