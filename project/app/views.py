@@ -42,6 +42,8 @@ def main (request):
 
      markers_json = markers()
 
+     unidades = getUnits(request)
+
      #Filtrado de datos
      graphic = request.session.get('graphic')
      calendars = request.session.get('calendarios', [])
@@ -64,7 +66,8 @@ def main (request):
           'map_config_json': json.dumps(map_config),
           'error': error,
           'lista_delitos': lista_delitos,
-          'tabla_base64': data_table,     
+          'tabla_base64': data_table,
+          'unidades':unidades     
      }
      return render (request, 'main.html', context)
 

@@ -94,13 +94,16 @@ def deleteUnit(request, id):
     return redirect('userSettings')
 
 def getUnitSelected(request, id):
-    uid = request.session.get('uid')
-    user_ref = db.collection('Users').document(uid).get()
-
     unit_full = None
-    if user_ref.exists:
-        units = user_ref.to_dict().get('unidades', {})
-        unit_data = units.get(id)
-        if unit_data:
-            unit_full = f"Unidad de negocio seleccionada, nombre: {unit_data.get("name")}, ubicación: {unit_data.get("lcoation")}, descripción: {unit_data.get("description")}."
+    if id == 'None':
+        unit_full = "Ninguna unidad seleccionada"
+    else:
+        uid = request.session.get('uid')
+        user_ref = db.collection('Usuarios').document(uid).get()
+
+        if user_ref.exists:
+            units = user_ref.to_dict().get('unidades', {})
+            unit_data = units.get(id)
+            if unit_data:
+                unit_full = f"Unidad de negocio seleccionada, nombre: {unit_data.get("name")}, ubicación: {unit_data.get("lcoation")}, descripción: {unit_data.get("description")}."
     return unit_full

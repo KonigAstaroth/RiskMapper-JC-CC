@@ -31,6 +31,7 @@ Inicio
                         <input id="endDate" class="cbr-text-input" type="date" name="endDate">
                     </div>
                 </div>
+                <br>
                 <div>
                     <label for="category">Categoría</label>
                     <div class="dropdown">
@@ -52,7 +53,20 @@ Inicio
                         </ul>
                     </div>   
                 </div>
-                <!-- TODO: Add selection for business units  -->
+                <br>
+               
+                <div>
+                    <label for="selectUnit">Seleccionar unidad de negocio</label>
+                    <select name="selectUnit" id="selectUnit" class="cbr-text-input">
+                        <option value="None" selected>Selecciona una unidad</option>
+                        {% for unidad in unidades %}
+                            <option value="{{ unidad.id }}">{{ unidad.name }}</option>
+                        {% empty %}
+                            
+                        {% endfor %}
+                    </select>
+                </div>
+                <br>
                 <hr>
                 <div class="place-inputs">
                     <label for="state">Municipio</label>
@@ -61,6 +75,7 @@ Inicio
                     <label for="state">Estado</label>
                     <input class="cbr-text-input" type="text" name="estado" id="estado" placeholder="Ingrese un Estado">
                 </div>
+                <br>
                 <div class="submit-section">
                     <button class="cbr-submit-button" type="submit" name="buscar" id="buscar">Generar</button>
                 </div>
@@ -248,7 +263,6 @@ Inicio
             mapId: "map"
         });
 
-        console.log("Config", config)
 
         const infoWindow = new google.maps.InfoWindow();
         const geocoder = new google.maps.Geocoder();
