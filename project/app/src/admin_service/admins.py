@@ -73,14 +73,6 @@ def editUser(request, id):
         if lastname := request.POST.get('lastname'):
             updates['lastname'] = lastname
 
-        if email := request.POST.get('email'):
-            updates['email'] = email
-            if uid:
-                try:
-                    auth.update_user(uid, email=email)
-                except Exception as e:
-                    print("Error actualizando email:", e)
-
         if password := request.POST.get('password'):
             if uid:
                 try:
