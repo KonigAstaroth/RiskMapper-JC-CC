@@ -19,7 +19,6 @@ def getLatLng(direccion):
           }
           return map_config
      except Exception as e:
-          print(str(e))
           return {
             'center': {'lat': 19.42847, 'lng': -99.12766},
             'zoom': 6
