@@ -21,7 +21,7 @@ from app import views
 from app.src import login, forgotPassword, logout, report_generation_service, library_service, load_files_service, business_units_service
 from app.src.admin_service import admins
 from app.src.generate_docx_service import exportDocx
-from app.src.utils import set_map_coords
+from app.src.utils import set_map_coords, download_template
 
  
 
@@ -50,6 +50,7 @@ urlpatterns = [
     path('addBusinessUnit/', business_units_service.addUnit, name='addUnit'),
     path('editunit<str:id>/', business_units_service.editUnit, name='editUnit'),
     path('deleteunit<str:id>/', business_units_service.deleteUnit, name='deleteUnit'),
+    path('download-template/', download_template.downloadTemplate, name='download-template')
     
 
     # Deprecated urls (for now)
