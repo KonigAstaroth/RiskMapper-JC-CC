@@ -104,60 +104,9 @@ def deleteEvent(request, id):
      
      return redirect('library')
 
-def searchEvent(request):
+def searchEvent(filters):
     eventos = []
     ref = db.collection('Eventos')
-    filters = {}
-    
-    if request.method == 'POST':
-        
-
-        startDate_str = request.POST.get('startDate')
-        endDate_str = request.POST.get('endDate')
-        direccion = request.POST.get('direccion', '')
-        search = request.POST.get('searchBy')
-        categoria = request.POST.get('categoria')
-
-        partes_direccion = [parte.strip() for parte in direccion.split(',') if parte.strip()]
-
-        if search == "full":
-            calle = partes_direccion[0] if len(partes_direccion) > 0 else None
-            colonia = partes_direccion[1] if len(partes_direccion) > 1 else None
-            municipio = partes_direccion[2] if len(partes_direccion) > 2 else None
-            estado = partes_direccion[3] if len(partes_direccion) > 3 else None
-
-            if calle:
-                filters['Calle_hechos'] = calle
-            if colonia:
-                filters['ColoniaHechos'] = colonia
-            if municipio:
-                filters['Municipio_hechos'] = municipio
-            if estado:
-                filters['Estado_hechos'] = estado
-        elif search == "estado":
-            estado = partes_direccion[0] if len(partes_direccion) > 0 else None
-            if estado:
-                filters['Estado_hechos'] = estado
-        elif search == "municipio":
-            municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
-            if municipio:
-                filters['Municipio_hechos'] = municipio
-        elif search == "estadoMunicipio":
-            municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
-            estado = partes_direccion[1] if len(partes_direccion) > 1 else None
-            if municipio:
-                filters['Municipio_hechos'] = municipio.strip()
-            if estado:
-                filters['Estado_hechos'] = estado.strip()
-
-        
-        if startDate_str and endDate_str:
-            filters['startDate'] = startDate_str
-            filters['endDate'] = endDate_str
-
-        if categoria:
-            filters['Categoria'] = categoria
-
         
     if filters:
           query_ref = ref
@@ -187,3 +136,55 @@ def searchEvent(request):
                data['id'] = doc.id
                eventos.append(data)
     return eventos
+
+
+def buildFilters(request):
+    filters = {}
+        
+    startDate_str = request.POST.get('startDate')
+    endDate_str = request.POST.get('endDate')
+    direccion = request.POST.get('direccion', '')
+    search = request.POST.get('searchBy')
+    categoria = request.POST.get('categoria')
+
+    partes_direccion = [parte.strip() for parte in direccion.split(',') if parte.strip()]
+
+    if search == "full":
+        calle = partes_direccion[0] if len(partes_direccion) > 0 else None
+        colonia = partes_direccion[1] if len(partes_direccion) > 1 else None
+        municipio = partes_direccion[2] if len(partes_direccion) > 2 else None
+        estado = partes_direccion[3] if len(partes_direccion) > 3 else None
+
+        if calle:
+            filters['Calle_hechos'] = calle
+        if colonia:
+            filters['ColoniaHechos'] = colonia
+        if municipio:
+            filters['Municipio_hechos'] = municipio
+        if estado:
+            filters['Estado_hechos'] = estado
+    elif search == "estado":
+        estado = partes_direccion[0] if len(partes_direccion) > 0 else None
+        if estado:
+            filters['Estado_hechos'] = estado
+    elif search == "municipio":
+        municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
+        if municipio:
+            filters['Municipio_hechos'] = municipio
+    elif search == "estadoMunicipio":
+        municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
+        estado = partes_direccion[1] if len(partes_direccion) > 1 else None
+        if municipio:
+            filters['Municipio_hechos'] = municipio.strip()
+        if estado:
+            filters['Estado_hechos'] = estado.strip()
+
+    
+    if startDate_str and endDate_str:
+        filters['startDate'] = startDate_str
+        filters['endDate'] = endDate_str
+
+    if categoria:
+        filters['Categoria'] = categoria
+
+    return filters
