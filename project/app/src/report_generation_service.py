@@ -11,9 +11,11 @@ from app.src.AI_generation_service import genAI
 import urllib.parse
 from app.src.utils.report_generation_utils.graphics_generation import reportGraphics
 from app.core.auth.firebase_config import db
+from app.src.business_units_service import getUnitSelected
+from asgiref.sync import sync_to_async
 
 
-def generateReport(request):
+async def generateReport(request):
     if request.method == 'POST':
         filters = {}
         filtersAi = {}
@@ -28,6 +30,7 @@ def generateReport(request):
         startDate_str = request.POST.get('startDate')
         endDate_str = request.POST.get('endDate')
         delitos_select = request.POST.getlist('delitos')
+        business_unit_id = request.POST.get('selectUnit')
 
 
         if municipio:
@@ -41,8 +44,12 @@ def generateReport(request):
             direccion += estado + ', '
             banner.append(estado)
 
-        map_config = getLatLng(direccion)
+        map_config = await sync_to_async (getLatLng)(direccion)
         lugar = ', '.join(f"{k}" for k in banner)
+        unit_info = await sync_to_async(getUnitSelected, thread_sensitive=True)(
+            request,
+            business_unit_id
+        )
         
         if startDate_str and endDate_str:
             startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -84,15 +91,17 @@ def generateReport(request):
                 error_message = "Demasiados delitos seleccionados para aplicar filtro 'in'"
                 return redirect(f"/main?error={urllib.parse.quote(error_message)}")
             
-        preview = list(query_ref.limit(1).stream())
+        preview = await sync_to_async(lambda: list(query_ref.limit(1).stream()))()
 
         eventos_por_mes = defaultdict(list)
         graficos_por_mes = defaultdict(list)
 
-        resultados = list(query_ref.stream())
+        resultados = await sync_to_async(lambda: list(query_ref.stream()))()
 
         eventos_lista=[doc.to_dict() for doc in resultados]
-        AiText = genAI(filtersAi, str_startDate,str_endDate_API, now, delitos_select, request, eventos_lista)
+        hour_txt = await sync_to_async(getRange)(eventos_lista, request)
+
+        AiText = await genAI(filtersAi, str_startDate,str_endDate_API, now, delitos_select, request, eventos_lista, unit_info)
 
         if not preview:
             request.session['graphic'] = []
@@ -107,9 +116,8 @@ def generateReport(request):
             return redirect("main")
         
 
-        hour_txt = getRange(eventos_lista)  
                         
-        data_table, graphic, calendars = reportGraphics(eventos_lista, eventos_por_mes, graficos_por_mes)
+        data_table, graphic, calendars = await sync_to_async(reportGraphics)(eventos_lista, eventos_por_mes, graficos_por_mes)
         
         request.session['graphic'] = graphic
         request.session['calendarios'] = calendars

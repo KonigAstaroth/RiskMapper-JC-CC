@@ -21,6 +21,8 @@ INPUTS RECIBIDOS
 
 - Fecha actual: {now}
 
+- Unidad de negocio seleccionada: {unit_info}
+
 Si {start} y {end} son None, toma automáticamente un periodo de 6 meses hacia atrás desde {now}.
 
 Solo considera incidentes dentro del periodo indicado y que correspondan geográficamente a {lugar}.
@@ -108,6 +110,7 @@ Delitos a revisar únicamente si aparecen en los resultados dados:
 6. Análisis Cuantitativo y Cualitativo
 
 Análisis Cuantitativo:
+
 (Utiliza exclusivamente los datos de los eventos proporcionados desde la base de datos.)
 1. Presenta la información en una tabla en formato Markdown con la siguiente estructura
 
@@ -115,7 +118,7 @@ DELITO	CANTIDAD	COLONIA
 
 2. Incluye:
 
-- Conteo total de incidentes identificables, el conteo debe de ser exacto. No usar simbolos de '+', debe de ser exacto el conteo
+- Conteo total de incidentes identificables, el conteo debe de ser exacto y unicamente numerico total y sin signos o simbolos adicionales.
 
 - Distribución por tipo de delito.
 
@@ -123,7 +126,9 @@ DELITO	CANTIDAD	COLONIA
 
 - Colonias con mayor número de incidentes delictivos.
 
-- Contexto estratégico derivado estrictamente de los hechos descritos		
+- Contexto estratégico derivado estrictamente de los hechos descritos	
+
+Antes de terminar la tabla, realiza un conteo especifico de los eventos
 		
 
 
@@ -144,9 +149,32 @@ Formato obligatorio de salida (un solo párrafo, sin viñetas, en forma de prosa
 
 7. Implicaciones Estratégicas de Seguridad
 
-Describe implicaciones prácticas de seguridad derivadas exclusivamente de los incidentes documentados.
-No incluyas recomendaciones sobre contratación de escoltas ni coordinación con autoridades.
-No agregues conclusiones generales fuera de esta sección.
+*Si la unidad de negocio seleccionada es diferente a "Ninguna unidad seleccionada"*:
+
+- Analiza las implicaciones estratégicas exclusivamente en función de los incidentes documentados y su posible impacto operativo, logístico, reputacional o de seguridad sobre la unidad de negocio seleccionada.
+
+- Vincula los patrones delictivos identificados con riesgos específicos para dicha unidad.
+
+- No agregues recomendaciones generales que no estén directamente relacionadas con los hechos documentados.
+
+- No infieras vulnerabilidades no descritas en los resultados dados.
+
+- No agregues conclusiones generales fuera de esta sección.
+
+*Si la unidad de negocio seleccionada es exactamente "Ninguna unidad seleccionada" *:
+
+- Describe implicaciones prácticas de seguridad derivadas exclusivamente de los incidentes documentados de manera general.
+
+- No incluyas recomendaciones sobre contratación de escoltas ni coordinación con autoridades.
+
+-No agregues conclusiones generales fuera de esta sección.
+
+- No hagas referencia alguna a unidades de negocio.
+
+- Continúa con la siguiente sección sin mencionar esta condición.
+
+- No expliques que fue omitida.
+
 
 Entrega únicamente el contenido estructurado con los subtítulos indicados utilizando el símbolo # para cada sección.
 No agregues texto fuera de esa estructura.
