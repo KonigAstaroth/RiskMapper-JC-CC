@@ -7,7 +7,7 @@ matplotlib.use('agg')
 # Imports needed for context & display important info
 from app.src.admin_service.admins import getPrivileges
 from app.src.utils.users import getUsers
-from app.src.library_service import searchEvent
+from app.src.library_service import searchEvent, buildFilters
 from app.src.utils.report_generation_utils.lists import lista_delitos
 from app.src.utils.map_config_helper import map_config_center
 from app.src.utils.cache_events import markers
@@ -17,7 +17,6 @@ from app.src.business_units_service import getUnits
 def userSettings(request):
     units = getUnits(request)
     return render(request, 'userSettings.html', {'unidades': units})
-
 
 def login(request):
      updateLastLogin(request)
@@ -78,7 +77,8 @@ def add (request):
 
 def manageUsers(request):
      query = request.GET.get("search")
-     usuarios = getUsers(query)
+     privileges = request.GET.get('privileges')
+     usuarios = getUsers(query, privileges)
      priv = getPrivileges(request)
      
      if not priv:
@@ -99,10 +99,12 @@ def loadFiles(request):
 def library(request):
     priv = getPrivileges(request)
     eventos =[]
-
     if request.method == 'POST':
-          eventos = searchEvent(request)
+          filters = buildFilters(request)
+          eventos = searchEvent(filters)
+          request.session['filters_library'] = filters
 
+    print(filters)
     return render(request, 'library.html', {
         'eventos': eventos,
         'priv': priv
