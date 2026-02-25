@@ -21,6 +21,7 @@ from app import views
 from app.src import login, forgotPassword, logout, report_generation_service, library_service, load_files_service, business_units_service
 from app.src.admin_service import admins
 from app.src.generate_docx_service import exportDocx
+from app.src.utils import set_map_coords
 
  
 
@@ -31,6 +32,7 @@ urlpatterns = [
     path('forgotPassword/', views.forgotpass, name='pass'),
     path('forgotPassword-sendMail', forgotPassword.sendRecoverLink, name='send-recover-mail'),
     path('main/', views.main, name='main'),
+    path('search-location', set_map_coords.setSearchCoords, name='getLocationCoordsMap'),
     path('admin-adduser/', admins.adduser, name='admin-adduser'),
     path('logout/', logout.logout, name='logout'),
     path('manageUser/', views.manageUsers, name='manageUsers'),
