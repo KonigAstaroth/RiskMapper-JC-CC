@@ -104,7 +104,6 @@ def library(request):
           eventos = searchEvent(filters)
           request.session['filters_library'] = filters
 
-    print(filters)
     return render(request, 'library.html', {
         'eventos': eventos,
         'priv': priv
