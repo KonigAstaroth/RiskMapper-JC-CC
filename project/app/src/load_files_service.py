@@ -125,7 +125,7 @@ def bulkLoad(request, excel_file):
             if not location_check(event, location_data):
                 resolveBulkGeo(event, has_street2)
 
-            event['icon'] = resolveIcons(event.get('Categoria'))
+            event['icono'] = resolveIcons(event.get('Categoria'))
             event['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
             event['Categoria'] = event.get('Categoria', '').upper()
             db.collection('Eventos').add(event)
