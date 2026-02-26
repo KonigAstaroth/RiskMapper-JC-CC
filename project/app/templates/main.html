@@ -319,7 +319,7 @@ Inicio
                 const lng = Number(marcador.lng);
 
                 if (!isNaN(lat) || !isNaN(lng)) {
-                    position = { lat, lng };
+                    const position = { lat, lng };
 
                     const marker = new AdvancedMarkerElement({
                         position: position,
