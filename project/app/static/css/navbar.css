@@ -48,7 +48,7 @@ nav i {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  column-gap: 1.5em;
+  column-gap: 1em;
   background-color: var(--surface);
   padding: 0 15px;
 }
