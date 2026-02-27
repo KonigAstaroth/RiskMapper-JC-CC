@@ -70,11 +70,6 @@ def main (request):
      }
      return render (request, 'main.html', context)
 
-def add (request):            
-     success = request.GET.get("success")
-     error = request.GET.get("error")
-     return render (request, "addUser.html", {"success": success, "error": error})
-
 def manageUsers(request):
      query = request.GET.get("search")
      privileges = request.GET.get('privileges')
@@ -85,7 +80,7 @@ def manageUsers(request):
           return redirect("main")
      success = request.GET.get("success")
      error = request.GET.get("error")
-     return render(request, 'manageUser.html', {"usuarios": usuarios, "success": success, "error": error})
+     return render(request, 'manageUser.html', {"usuarios": usuarios, "success": success, "error": error, 'priv': priv,})
 
 
 def loadFiles(request):
