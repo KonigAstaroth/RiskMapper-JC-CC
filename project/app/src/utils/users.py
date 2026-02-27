@@ -1,11 +1,12 @@
 from app.core.auth.firebase_config import db
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 def getUsers(query=None, role_filter = None):
      ref = db.collection("Usuarios")
 
      if role_filter and role_filter != 'All':
           if role_filter == "True":
-               query_ref = ref.where("privileges", "==", True)
+               query_ref = ref.where(filter=FieldFilter("privileges", "==", True))
           elif role_filter == "False":
                query_ref = ref.where("privileges", "==", False)
      else: 
