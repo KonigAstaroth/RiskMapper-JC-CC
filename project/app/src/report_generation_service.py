@@ -55,9 +55,15 @@ async def generateReport(request):
             startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
             endDate_inclusive = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) 
             endDate_DB = endDate_inclusive + timedelta(days=1)
+            delta = (endDate_inclusive - startDate).days + 1
+
+            prev_startDate = startDate - timedelta(days=delta)
+            prev_endDate = endDate_inclusive - timedelta(days=delta)
             
             str_startDate = startDate.strftime("%Y-%m-%d")
             str_endDate_API = endDate_inclusive.strftime("%Y-%m-%d")
+            str_prev_startDate = prev_startDate.strftime("%Y-%m-%d")
+            str_prev_endDate = prev_endDate.strftime("%Y-%m-%d")
             filters['startDate']=startDate
             filters['endDate']=endDate_DB
         else:
@@ -88,7 +94,7 @@ async def generateReport(request):
             if len(delitos_select)<= 10:
                 query_ref = query_ref.where(filter=FieldFilter("Categoria", "in", delitos_select))
             else:
-                error_message = "Demasiados delitos seleccionados para aplicar filtro 'in'"
+                error_message = "Error: Demasiados delitos seleccionados."
                 return redirect(f"/main?error={urllib.parse.quote(error_message)}")
             
         preview = await sync_to_async(lambda: list(query_ref.limit(1).stream()))()
@@ -101,7 +107,11 @@ async def generateReport(request):
         eventos_lista=[doc.to_dict() for doc in resultados]
         hour_txt = await sync_to_async(getRange)(eventos_lista, request)
 
-        AiText = await genAI(filtersAi, str_startDate,str_endDate_API, now, delitos_select, request, eventos_lista, unit_info)
+        AiText = await genAI(
+            filtersAi, str_startDate, str_endDate_API, 
+            now, delitos_select, request, eventos_lista, unit_info,
+            str_prev_startDate, str_prev_endDate
+        )
 
         if not preview:
             request.session['graphic'] = []

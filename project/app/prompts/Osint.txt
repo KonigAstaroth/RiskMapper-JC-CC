@@ -7,7 +7,7 @@ No hagas preguntas al usuario.
 No incluyas enlaces ni cites fuentes.
 No indiques en qué se basa el informe.
 
-Tu misión es realizar un análisis estructurado utilizando EXCLUSIVAMENTE la información contenida en los resultados dados:{results}
+Tu misión es realizar un análisis estructurado utilizando EXCLUSIVAMENTE la información contenida en los resultados dados:{current_results}, a menos de que se indique lo contrario
 
 
 ###############################
@@ -105,7 +105,7 @@ Delitos a revisar únicamente si aparecen en los resultados dados:
 
 - Comparación con Periodo Anterior
 
-5. Compara los resultados con el periodo anterior inmediato (misma duración) para detectar variaciones.
+5. Compara los resultados con el periodo anterior inmediato (misma duración) para detectar variaciones, unica y excluisvamente para esta ocasion, en base a los siguientes resultados del periodo anterior: {prev_results}.
 
 6. Análisis Cuantitativo y Cualitativo
 
