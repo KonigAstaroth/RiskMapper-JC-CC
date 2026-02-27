@@ -12,12 +12,17 @@ class loginRequiredMiddleware:
             return self.get_response(request)
         
         sessionCookie = request.COOKIES.get('session')
+        if not sessionCookie:
+            return redirect("login")
 
         if not any(request.path.startswith(url) for url in PUBLIC_URLS) and sessionCookie is None:
             try:
                 decoded = auth.verify_session_cookie(sessionCookie, check_revoked=True)
-                request.uid = decoded["uid"]  
+                request.uid = decoded["uid"]
+                return self.get_response(request)  
             except:
-                return redirect("login")
+                response = redirect('login')
+                response.delete_cookie('session')
+                return response
      
         return self.get_response(request)
