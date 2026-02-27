@@ -1,7 +1,17 @@
 from app.core.auth.firebase_config import db
 
-def getUsers(query=None):
-     docs = db.collection("Usuarios").stream()
+def getUsers(query=None, role_filter = None):
+     ref = db.collection("Usuarios")
+
+     if role_filter and role_filter != 'All':
+          if role_filter == "True":
+               query_ref = ref.where("privileges", "==", True)
+          elif role_filter == "False":
+               query_ref = ref.where("privileges", "==", False)
+     else: 
+          query_ref = ref 
+     
+     docs = query_ref.stream()
      listUsers=[]
 
      for doc in docs:

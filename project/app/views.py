@@ -72,8 +72,8 @@ def main (request):
 
 def manageUsers(request):
      query = request.GET.get("search")
-     privileges = request.GET.get('privileges')
-     usuarios = getUsers(query, privileges)
+     role_filter = request.GET.get("role_filter")
+     usuarios = getUsers(query, role_filter)
      priv = getPrivileges(request)
      
      if not priv:
