@@ -28,7 +28,7 @@ from app.src.utils import set_map_coords, download_template, download_events
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.login, name='login'),
-    path('login-process', login.login_process, name='login-process'),
+    path('login-process/', login.login_process, name='login-process'),
     path('forgotPassword/', views.forgotpass, name='pass'),
     path('forgotPassword-sendMail', forgotPassword.sendRecoverLink, name='send-recover-mail'),
     path('main/', views.main, name='main'),
