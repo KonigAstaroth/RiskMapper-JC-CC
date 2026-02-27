@@ -65,6 +65,7 @@
             
             
             <div class="icons-section">
+                <!-- Deprecated for now, unitl next update -->
                 <!-- <div class="notify-button">
                     <i class="bi bi-bell"></i>
                 </div> -->
@@ -75,10 +76,12 @@
                             <i class="bi bi-list"></i>
                         </a>
                         <ul class="dropdown-menu">
-                            <li>
-                                <a class="dropdown-item custom-item" href="{% url 'manageUsers' %}">Gestionar usuarios</a>
-                            </li>
-                            <li><a class="dropdown-item custom-item" href="{% url 'userSettings' %}">Opciones</a></li>
+                            {% if priv %}
+                                <li>
+                                    <a class="dropdown-item custom-item" href="{% url 'manageUsers' %}">Gestionar usuarios</a>
+                                </li>
+                            {% endif %}
+                            <li><a class="dropdown-item custom-item" href="{% url 'userSettings' %}">Opciones de usuario</a></li>
                             <li>
                                 <div class="dropdown-item-text custom-item">
                                     <div class="form-check form-switch">
