@@ -20,7 +20,8 @@ ICON_MAP = {
     "robo a pasajero a bordo de taxi": "robotaxi",
     "robo a transportista": "robotransportista",
     "hecho no delictivo": "nodelito",
-    "bajo impacto": "bajoimpacto"
+    "bajo impacto": "bajoimpacto",
+    "robo de motocicleta": "robomotocicleta"
 }
 
 
