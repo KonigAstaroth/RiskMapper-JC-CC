@@ -46,7 +46,7 @@ Configuracion de usuario
 
     <!-- Sidebar -->
     <aside class="settings-sidebar">
-        <a href="#" class="settings-nav-item">Reestablecer contraseña</a>
+        <a href="#" class="settings-nav-item" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Reestablecer contraseña</a>
     </aside>
 
     <!-- Contenido -->
@@ -204,6 +204,36 @@ Configuracion de usuario
             </form>
         </div>
     </div>
+</div>
+
+<!-- Modal para cambiar contrasena -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <form action="{% url 'changePasswordUser' %}" method="POST">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="changePasswordModalLabel">Reestablecer contraseña</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <label class="labels">Nueva contraseña</label>
+                        <input class="cbr-text-input" type="text" placeholder="Ingrese su contraseña" name="password">
+                    </div>
+                    <br>
+                    <div class="col">
+                        <label class="labels">Repita la nueva contraseña</label>
+                        <input class="cbr-text-input" type="text" placeholder="Ingrese de nuevo su contraseña" name="c_password">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </form>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
