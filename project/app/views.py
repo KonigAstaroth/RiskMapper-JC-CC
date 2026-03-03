@@ -1,8 +1,6 @@
 from django.shortcuts import render,redirect
 from django.conf import settings
 import json
-import matplotlib
-matplotlib.use('agg')
 
 # Imports needed for context & display important info
 from app.src.admin_service.admins import getPrivileges

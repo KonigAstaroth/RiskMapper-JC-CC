@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.patches as mpatches
 import io
 import base64
