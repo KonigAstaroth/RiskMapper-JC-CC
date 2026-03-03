@@ -194,5 +194,5 @@ def generateCalendar( year: int, month: int, eventos: list[tuple]) -> str:
      imagen_base64 = base64.b64encode(imagen_png).decode('utf-8')
      buffer.close()
      
-     plt.close()
+     plt.close(fig)
      return imagen_base64 
