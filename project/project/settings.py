@@ -9,32 +9,13 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
-from pathlib import Path
 from decouple import config
 
-#firebase 
-FIREBASE_API_KEY = config('FIREBASE_API_KEY')
 
-import firebase_admin
-from firebase_admin import credentials
 import os
 
-import json
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-#Produccion
-# firebase_json_str = os.getenv('FIREBASE_JSON')
-# firebase_json = json.loads(config('FIREBASE_JSON'))
-# firebase_json = json.loads(firebase_json_str) 
-# firebase_json['private_key'] = firebase_json['private_key'].replace('\\n', '\n')
-
-# cred = credentials.Certificate(firebase_json)
-
-
-#Pruebas en localhost
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
@@ -43,8 +24,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6*8u+zlsi%bl%er)f_d4#hc@(z=#b5e_&80)!s-q-0^$rhntc-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -130,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-mx'
 
 TIME_ZONE = 'America/Mexico_City'  
 
@@ -161,11 +140,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+SECRET_KEY = config('SECRET_KEY')
 RECAPTCHA_PUBLIC_KEY = '6Le8_DErAAAAADo-5P5aRsFEQUN_PY-ZK-VWNaFU'
 RECAPTCHA_PRIVATE_KEY = '6Le8_DErAAAAAK9GtI8lLVSRJdXfn0n5DSqcMjnY'
 RECAPTCHA_SECRET_KEY= '6Le8_DErAAAAAK9GtI8lLVSRJdXfn0n5DSqcMjnY'
-
+FIREBASE_API_KEY = config('FIREBASE_API_KEY')
+FIREBASE_JSON = config('FIREBASE_JSON')
 GOOGLE_MAPS_KEY = config('GOOGLE_MAPS_KEY')
 SENDER_PASSWORD = config('SENDER_PASSWORD')
 SENDER_EMAIL= config('SENDER_EMAIL')
