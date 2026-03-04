@@ -28,7 +28,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'https://cerberus-emkw.onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'cerberus-emkw.onrender.com']
 
 
 # Application definition
