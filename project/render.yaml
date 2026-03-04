@@ -4,7 +4,7 @@ services:
     runtime: python
     pythonVersion: 3.14
     buildCommand: pip install --only-binary :all: -r pip-requirements
-    startCommand: gunicorn myproject.wsgi
+    startCommand: gunicorn project.wsgi
     envVars:
       - key: PYTHON_VERSION
         value: 3.14
