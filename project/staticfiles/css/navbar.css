@@ -1,0 +1,127 @@
+nav {
+  height: 90px;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--bg);
+}
+
+nav i {
+  font-size: 1.875em;
+}
+
+.navbar-content {
+  width: 85vw;
+  display: flex;
+  justify-content: space-between;
+}
+
+.top-logo {
+  text-decoration: none;
+  color: #6E6E6E;
+  font-family: "Montserrat", sans-serif ;
+  font-size: 2em;
+  align-self: center;
+  font-weight: 700;
+}
+
+.buttons-section {
+  width: 60vw;
+  display: flex;
+  justify-content: space-around;
+}
+
+.icons-section {
+  width: 10vw;
+  display: flex;
+  justify-content: space-around;
+}
+
+.search-bar {
+  width: 30vw;
+  height: 5vh;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  column-gap: 1em;
+  background-color: var(--surface);
+  padding: 0 15px;
+}
+
+.search-bar i {
+  font-size: 1.5em;
+}
+.search-input {
+  width: 25vw;
+  height: 4vh;
+  border: none;
+  color: var(--muted);
+  background-color: var(--surface);
+}
+
+.search-input:focus-visible {
+  outline: none;
+}
+
+.nav-item{
+  list-style-type: none;
+}
+
+.dropdown-menu{
+  transform: translateX(-80%);
+  list-style-type: none;
+}
+
+ul.dropdown-menu.show{
+  width: 17em;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.custom-item, .logout-item {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between; 
+  font-family: "Lato", sans-serif !important;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 7%;
+  margin-top: 7%;
+  text-align: left;
+}
+
+.custom-item:hover {
+  color: var(--text);
+  background-color: var(--bg);
+}
+
+.logout-item:hover{
+  color: red;
+  background-color: var(--bg);
+}
+
+.custom-item .contenido {
+  display: flex;
+  align-items: center;
+}
+
+.form-switch {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.form-switch .form-check-input {
+  height: 2em;
+  width: 4em;
+}
+
+.form-check-label {
+  margin-bottom: 0;
+  color: var(--text);
+}

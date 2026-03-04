@@ -1,0 +1,106 @@
+
+/* contenedor principal */
+.addUsers {
+    margin: 3vh 3vw;
+    padding: 4vh 2vw;
+    background-color: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+/* header */
+.header-section {
+    margin-bottom: 4vh;
+}
+
+/* busqueda y filtros */
+.controls-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3vh;
+    gap: 1.5vw;
+}
+
+.search-filter-group {
+    display: flex;
+    gap: 1vw;
+    flex: 1;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    width: 25vw;
+}
+
+.search-box i {
+    position: absolute;
+    left: 0.8vw;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 1.6vh;
+}
+
+.search-box .form-control {
+    padding-left: 2.5vw;
+    height: 5vh;
+    border-radius: 8px;
+    border: 1px solid #DADDE1;
+    font-size: 1.6vh;
+    background-color: var(--surface);
+    color: var(--text);
+}
+
+.form-control::placeholder { color: var(--muted); }
+
+.search-box .form-control:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2vh rgba(24, 119, 242, 0.1);
+}
+
+.filter-dropdown .form-select {
+    height: 5vh;
+    padding: 0 1vw;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 1.6vh;
+    min-width: 12vw;
+    font-family: 'Lato', sans-serif;
+    color: var(--text);
+    background-color: var(--surface);
+}
+
+.filter-dropdown .form-select .option{
+    background-color: var(--surface);
+    font-family: 'Lato', sans-serif;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+/* botones supoeriores */
+.action-buttons {
+    display: flex;
+    gap: 1vw;
+}
+
+.action-buttons .btn {
+    padding: 1.2vh 1.5vw;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1.6vh;
+    display: flex;
+    align-items: center;
+    gap: 0.5vw;
+    white-space: nowrap;
+}
+
+/* contenedor tabla */
+.addUsers .row {
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--bs-table-border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
