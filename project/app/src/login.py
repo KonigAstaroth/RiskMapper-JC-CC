@@ -64,8 +64,8 @@ def login_process(request):
             decoded_claims = auth.verify_session_cookie(session_cookie)
             uid = decoded_claims["uid"]
             request.session['uid'] = uid
-            db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
-            
+            # db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
+            print(f"El usuario {uid} ha entrado correctamente")
             return response_redirect
         except Exception as e:
             print(e)
