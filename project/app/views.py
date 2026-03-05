@@ -37,17 +37,10 @@ def main (request):
           
           map_config = map_config_center(request)
 
-          try:
-               markers_json = markers()
-          except Exception as e:
-            print(f"Error en markers(): {e}")
-            markers_json = []
-
-          try:
-               unidades = getUnits(request)
-          except Exception as e:
-            print(f"Error en getUnits(): {e}")
-            unidades = []
+          markers_json = markers()
+          
+          unidades = getUnits(request)
+          
 
           #Filtrado de datos
           graphic = request.session.get('graphic')
@@ -78,8 +71,6 @@ def main (request):
      except Exception as e:
         import traceback
         error_completo = traceback.format_exc()
-        print(f"--- ERROR FATAL EN MAIN ---\n{error_completo}")
-        # En lugar de 500, te mostrará el error en el navegador para que lo veas ya
         return HttpResponse(f"Error detectado: {str(e)} <br><pre>{error_completo}</pre>", status=200)
 
 def manageUsers(request):
