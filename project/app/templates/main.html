@@ -229,13 +229,6 @@ Inicio
       {{ map_config_json|safe }}
   </script>
 
-  <script  
-    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&loading=async&callback=initMap&libraries=marker" 
-    async 
-    defer
-  >
-  </script>
-
   <script>
     const sidebar = document.querySelector(".report-sidebar")
     const sidebarTab = document.querySelector(".sidebar-tab")
@@ -382,5 +375,11 @@ Inicio
     }
 
     window.initMap = initMap;
+  </script>
+  <script  
+    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&loading=async&callback=initMap&libraries=marker" 
+    async 
+    defer
+  >
   </script>
 {% endblock %}
