@@ -23,6 +23,7 @@ async def generateReport(request):
     str_endDate_API = None
     str_prev_startDate = None
     str_prev_endDate = None
+    eventos_lista = []
 
     hour_txt = None
     map_config = None
@@ -112,14 +113,14 @@ async def generateReport(request):
                 error_message = "Error: Demasiados delitos seleccionados."
                 return redirect(f"/main?error={urllib.parse.quote(error_message)}")
             
-        query_ref = query_ref.limit(2000)
+        query_ref = query_ref.limit(500)
 
         eventos_por_mes = defaultdict(list)
         graficos_por_mes = defaultdict(list)
 
-        eventos_lista = await sync_to_async(
-            lambda: [doc.to_dict() for doc in query_ref.stream()]
-        )()
+        for doc in query_ref.stream():
+            evento = doc.to_dict()
+            eventos_lista.append(evento)
 
 
         if not eventos_lista:
