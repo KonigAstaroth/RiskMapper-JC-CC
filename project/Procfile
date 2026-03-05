@@ -1,1 +1,1 @@
-web: gunicorn project.wsgi --workers 2 --threads 2 --timeout 300 --max-requests 1000 --max-requests-jitter 200
+web: gunicorn project.asgi:application -k uvicorn.workers.UvicornWorker --workers 2 --threads 4 --timeout 300 --max-requests 1000 --max-requests-jitter 200 --worker-tmp-dir /dev/shm
