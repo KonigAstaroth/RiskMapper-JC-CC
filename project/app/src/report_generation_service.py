@@ -113,12 +113,12 @@ async def generateReport(request):
         eventos_por_mes = defaultdict(list)
         graficos_por_mes = defaultdict(list)
 
-        resultados = await sync_to_async(lambda: list(query_ref.stream()))()
+        eventos_lista = await sync_to_async(
+            lambda: [doc.to_dict() for doc in query_ref.stream()]
+        )()
 
-        eventos_lista=[doc.to_dict() for doc in resultados]
 
-
-        if not resultados:
+        if not eventos_lista:
             AiText = await genAI(
                 filtersAi, str_startDate, str_endDate_API, 
                 now, delitos_select, request, eventos_lista, unit_info,
