@@ -42,6 +42,9 @@ def login_process(request):
             return redirect(f"/?error={urllib.parse.quote(error_msg)}")
         
         id_token = loginToken(email, password)
+        if not id_token:
+            error_msg = "Error"
+            return redirect(f"/?error={urllib.parse.quote(error_msg)}")
 
         if remember == "checked":
                 expires_in = timedelta(days=14)
@@ -65,8 +68,8 @@ def login_process(request):
             
             return response_redirect
         except Exception as e:
-            messages.error(request, "Error al crear la cookie de sesión:", str(e))
-            return redirect('/')
+            error_msg = "La contraseña o el correo no coincide"
+            return redirect(f"/?error={urllib.parse.quote(error_msg)}")
         
 def updateLastLogin(request):
     sessionCookie = request.COOKIES.get('session')
