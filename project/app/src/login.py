@@ -68,6 +68,7 @@ def login_process(request):
             
             return response_redirect
         except Exception as e:
+            print(e)
             error_msg = "La contraseña o el correo no coincide"
             return redirect(f"/?error={urllib.parse.quote(error_msg)}")
         
