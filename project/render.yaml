@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: cerberus-yaml
+    runtime: python
+    pythonVersion: 3.12.3
+    buildCommand: pip install --only-binary :all: -r pip-requirements
+    startCommand: gunicorn project.wsgi
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
