@@ -31,16 +31,7 @@ def recoverPass (request, token):
      success = request.GET.get('success')
      return render(request, 'recoverPass.html', {'error': error, 'success':success})
 
-def main (request):
-     try:
-        
-        return HttpResponse(f"Si ves esto, el middleware funciona. Tu UID es: {getattr(request, 'uid', 'No hay UID')}")
-
-     except Exception as e:
-        # Esto nos dirá el error exacto en los logs de Render
-        print(f"ERROR REAL EN LA VISTA MAIN: {str(e)}")
-
-        
+def main (request):   
      priv = getPrivileges(request)
      idioma = request.GET.get("idioma", "es")
      request.session['lang'] = idioma
