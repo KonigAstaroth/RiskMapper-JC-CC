@@ -13,6 +13,9 @@ from app.src.utils.cache_events import markers
 from app.src.login import updateLastLogin
 from app.src.business_units_service import getUnits
 
+# Testing
+from app.core.auth.firebase_config import db
+
 def userSettings(request):
     units = getUnits(request)
     return render(request, 'userSettings.html', {'unidades': units})
@@ -31,7 +34,19 @@ def recoverPass (request, token):
      success = request.GET.get('success')
      return render(request, 'recoverPass.html', {'error': error, 'success':success})
 
-def main (request):   
+def main (request):
+     uid = getattr(request, 'uid', None)
+    
+    # 1. Prueba de Fuego: ¿Podemos leer de Firestore?
+     try:
+        user_ref = db.collection('Usuarios').document(uid).get()
+        if user_ref.exists:
+            user_data = user_ref.to_dict()
+        else:
+            user_data = {"error": "El documento no existe en Firestore"}
+     except Exception as e:
+        # Si falla aquí, es un tema de permisos del JSON o del objeto 'db'
+        return HttpResponse(f"Falla Firestore: {str(e)}", status=500)   
      priv = getPrivileges(request)
      idioma = request.GET.get("idioma", "es")
      request.session['lang'] = idioma
