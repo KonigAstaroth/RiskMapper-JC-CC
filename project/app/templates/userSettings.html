@@ -211,6 +211,7 @@ Configuracion de usuario
   <div class="modal-dialog">
     <div class="modal-content">
         <form action="{% url 'changePasswordUser' %}" method="POST">
+            {% csrf_token %}
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="changePasswordModalLabel">Reestablecer contraseña</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -219,21 +220,87 @@ Configuracion de usuario
                 <div class="row">
                     <div class="col">
                         <label class="labels">Nueva contraseña</label>
-                        <input class="cbr-text-input" type="text" placeholder="Ingrese su contraseña" name="password">
+                        <input 
+                            id="reset-password"
+                            class="cbr-text-input" 
+                            type="text" 
+                            placeholder="Ingrese su contraseña" 
+                            name="password" 
+                            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,30}$"
+                            required
+                        >
                     </div>
                     <br>
                     <div class="col">
                         <label class="labels">Repita la nueva contraseña</label>
-                        <input class="cbr-text-input" type="text" placeholder="Ingrese de nuevo su contraseña" name="c_password">
+                        <input 
+                            id="confirm-password"
+                            class="cbr-text-input" 
+                            type="text" 
+                            placeholder="Ingrese de nuevo su contraseña" 
+                            name="c_password" 
+                            required
+                        >
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col">
+                        <h6>La contraseña debe tener los siguientes elementos:</h6>
+                        <ul>
+                            <li id="mayus">Una mayúscula</li>
+                            <li id="number">Por lo menos un numero</li> 
+                            <li id="length">Contraseña de mínimo 8 a 30 caracteres máximo</li> 
+                            <li id="specialchar">Un carácter especial de la siguiente lista: 
+                                <ul>
+                                    <li>'^', '$', '*', '.', '[', ']', '{', '}', '(', ')', '?', '!', '@', '#', '%', '&', '/', '_', '~', '-'</li>
+                                </ul>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                <button id="submit-password" type="submit" class="btn btn-primary" disabled>Guardar cambios</button>
             </div>
         </form>
     </div>
   </div>
 </div>
+
+<script>
+    const submitPassword = document.getElementById('submit-password')
+    const resetPassword = document.getElementById('reset-password')
+    const confirmPassword = document.getElementById('confirm-password')
+
+    function validateElements() {
+        const passwordValue = resetPassword.value
+
+        if(/(?=.*[A-Z])/.test(passwordValue)) {
+            document.getElementById('mayus').className = "valid"
+        } else document.getElementById('mayus').className = "invalid"
+        
+        if(/(?=.*[\d])/.test(passwordValue)) {
+            document.getElementById('number').className = "valid"
+        } else document.getElementById('number').className = "invalid"
+
+        if(/[\s\S]{8,30}/.test(passwordValue)) {
+            document.getElementById('length').className = "valid"
+        } else document.getElementById('length').className = "invalid"
+
+        if(/(?=.*[@$!%*?&])/.test(passwordValue)) {
+            document.getElementById('specialchar').className = "valid"
+        } else document.getElementById('specialchar').className = "invalid"
+    }
+    resetPassword.addEventListener('input', () => validateElements())
+
+    confirmPassword.addEventListener("input", e => {
+        if(confirmPassword.value === resetPassword.value) {
+            submitPassword.disabled = false;
+        } else {
+            submitPassword.disabled = true;
+        }
+    })
+</script>
 
 {% endblock %}
