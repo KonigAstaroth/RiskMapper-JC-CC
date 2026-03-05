@@ -25,7 +25,6 @@ class loginRequiredMiddleware:
             request.uid = decoded["uid"]
             return self.get_response(request)  
         except Exception as e:
-            print(f"DEBUG MIDDLEWARE ERROR: {e}")
             response = redirect('login')
             response.delete_cookie('session')
             return response
