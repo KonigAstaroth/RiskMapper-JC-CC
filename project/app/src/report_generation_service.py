@@ -116,7 +116,6 @@ async def generateReport(request):
         resultados = await sync_to_async(lambda: list(query_ref.stream()))()
 
         eventos_lista=[doc.to_dict() for doc in resultados]
-        hour_txt = await sync_to_async(getRange)(eventos_lista, request)
 
 
         if not resultados:
@@ -136,6 +135,10 @@ async def generateReport(request):
             request.session['map_config'] = map_config
             request.session['now_str']  = now.strftime("%d-%m-%Y")
             return redirect("main")
+        try:
+            hour_txt = await sync_to_async(getRange)(eventos_lista, request)
+        except:
+             hour_txt = "No se encontraron eventos para graficar."
         
         AiText = await genAI(
             filtersAi, str_startDate, str_endDate_API, 
