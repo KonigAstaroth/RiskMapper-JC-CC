@@ -53,22 +53,23 @@ def login_process(request):
 
         try:
             session_cookie = auth.create_session_cookie(id_token, expires_in=expires_in)
-            response_redirect = redirect("main")
+            response_redirect = redirect('main')
             response_redirect.set_cookie(
                 key='session',
                 value=session_cookie,
                 max_age=expires_in.total_seconds(),
                 httponly=True,
-                secure=True  # Cambiar a True en producción con HTTPS
+                secure=True,  # Cambiar a True en producción con HTTPS
+                samesite='Lax'
             )
             decoded_claims = auth.verify_session_cookie(session_cookie)
             uid = decoded_claims["uid"]
-            request.session['uid'] = uid
-            # db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
-            print(f"El usuario {uid} ha entrado correctamente")
+            # request.session['uid'] = uid
+            db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
+            
             return response_redirect
         except Exception as e:
-            print(e)
+            print("ERROR AQUI: ",e)
             error_msg = "La contraseña o el correo no coincide"
             return redirect(f"/?error={urllib.parse.quote(error_msg)}")
         
