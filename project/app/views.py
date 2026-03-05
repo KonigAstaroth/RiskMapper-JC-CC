@@ -13,9 +13,6 @@ from app.src.utils.cache_events import markers
 from app.src.login import updateLastLogin
 from app.src.business_units_service import getUnits
 
-# Testing
-from app.core.auth.firebase_config import db
-
 def userSettings(request):
     units = getUnits(request)
     return render(request, 'userSettings.html', {'unidades': units})
@@ -34,55 +31,56 @@ def recoverPass (request, token):
      success = request.GET.get('success')
      return render(request, 'recoverPass.html', {'error': error, 'success':success})
 
-def main (request):
-     uid = getattr(request, 'uid', None)
-    
-    # 1. Prueba de Fuego: ¿Podemos leer de Firestore?
+def main (request):   
      try:
-        user_ref = db.collection('Usuarios').document(uid).get()
-        if user_ref.exists:
-            user_data = user_ref.to_dict()
-        else:
-            user_data = {"error": "El documento no existe en Firestore"}
+          priv = getPrivileges(request)
+          
+          map_config = map_config_center(request)
+
+          try:
+               markers_json = markers()
+          except Exception as e:
+            print(f"Error en markers(): {e}")
+            markers_json = []
+
+          try:
+               unidades = getUnits(request)
+          except Exception as e:
+            print(f"Error en getUnits(): {e}")
+            unidades = []
+
+          #Filtrado de datos
+          graphic = request.session.get('graphic')
+          calendars = request.session.get('calendarios', [])
+          hour_txt = request.session.get('hour_txt', None)
+          AiText = request.session.get('AiText', None)
+          lugar = request.session.get('lugar')
+          data_table = request.session.get('tabla_base64', None)
+                    
+          error = request.GET.get("error")
+
+          context = {
+               'priv': priv,
+               'google_maps_api_key': settings.GOOGLE_MAPS_KEY,
+               'markers': markers_json,
+               'graphic': graphic,
+               'calendarios': calendars,
+               'lugar': lugar,
+               'hour_txt': hour_txt,
+               'AiText': AiText,
+               'map_config_json': json.dumps(map_config),
+               'error': error,
+               'lista_delitos': lista_delitos,
+               'tabla_base64': data_table,
+               'unidades':unidades     
+          }
+          return render (request, 'main.html', context)
      except Exception as e:
-        # Si falla aquí, es un tema de permisos del JSON o del objeto 'db'
-        return HttpResponse(f"Falla Firestore: {str(e)}", status=500)   
-     priv = getPrivileges(request)
-     idioma = request.GET.get("idioma", "es")
-     request.session['lang'] = idioma
-     
-     map_config = map_config_center(request)
-
-     markers_json = markers()
-
-     unidades = getUnits(request)
-
-     #Filtrado de datos
-     graphic = request.session.get('graphic')
-     calendars = request.session.get('calendarios', [])
-     hour_txt = request.session.get('hour_txt', None)
-     AiText = request.session.get('AiText', None)
-     lugar = request.session.get('lugar')
-     data_table = request.session.get('tabla_base64', None)
-                 
-     error = request.GET.get("error")
-
-     context = {
-          'priv': priv,
-          'google_maps_api_key': settings.GOOGLE_MAPS_KEY,
-          'markers': markers_json,
-          'graphic': graphic,
-          'calendarios': calendars,
-          'lugar': lugar,
-          'hour_txt': hour_txt,
-          'AiText': AiText,
-          'map_config_json': json.dumps(map_config),
-          'error': error,
-          'lista_delitos': lista_delitos,
-          'tabla_base64': data_table,
-          'unidades':unidades     
-     }
-     return render (request, 'main.html', context)
+        import traceback
+        error_completo = traceback.format_exc()
+        print(f"--- ERROR FATAL EN MAIN ---\n{error_completo}")
+        # En lugar de 500, te mostrará el error en el navegador para que lo veas ya
+        return HttpResponse(f"Error detectado: {str(e)} <br><pre>{error_completo}</pre>", status=200)
 
 def manageUsers(request):
      query = request.GET.get("search")
