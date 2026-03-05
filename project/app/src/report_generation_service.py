@@ -28,6 +28,10 @@ async def generateReport(request):
     map_config = None
     unit_info = None
     AiText = ""
+
+    graphic = None
+    calendars = None
+    data_table = None
     
     if request.method == 'POST':
         filters = {}
@@ -147,7 +151,7 @@ async def generateReport(request):
         )
 
                         
-        data_table, graphic, calendars = await sync_to_async(reportGraphics)(eventos_lista, eventos_por_mes, graficos_por_mes)
+        # data_table, graphic, calendars = await sync_to_async(reportGraphics)(eventos_lista, eventos_por_mes, graficos_por_mes)
         
         request.session['graphic'] = graphic
         request.session['calendarios'] = calendars
