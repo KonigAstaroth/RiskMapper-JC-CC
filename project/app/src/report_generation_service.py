@@ -16,6 +16,19 @@ from asgiref.sync import sync_to_async
 
 
 async def generateReport(request):
+    direccion = ""
+    banner = []
+
+    str_startDate = None
+    str_endDate_API = None
+    str_prev_startDate = None
+    str_prev_endDate = None
+
+    hour_txt = None
+    map_config = None
+    unit_info = None
+    AiText = ""
+    
     if request.method == 'POST':
         filters = {}
         filtersAi = {}
@@ -72,11 +85,9 @@ async def generateReport(request):
         now = datetime.datetime.now(timezone.utc)
         
 
-        if not (('startDate' in filters and 'endDate' in filters) or any(k in filters for k in ['Municipio_hechos', 'Estado_hechos'])):
+        if not filters:
             return redirect("main")
             
-        
-
         ref = db.collection('Eventos')
         query_ref = ref
 
@@ -97,7 +108,7 @@ async def generateReport(request):
                 error_message = "Error: Demasiados delitos seleccionados."
                 return redirect(f"/main?error={urllib.parse.quote(error_message)}")
             
-        preview = await sync_to_async(lambda: list(query_ref.limit(1).stream()))()
+        query_ref = query_ref.limit(2000)
 
         eventos_por_mes = defaultdict(list)
         graficos_por_mes = defaultdict(list)
@@ -107,13 +118,14 @@ async def generateReport(request):
         eventos_lista=[doc.to_dict() for doc in resultados]
         hour_txt = await sync_to_async(getRange)(eventos_lista, request)
 
-        AiText = await genAI(
-            filtersAi, str_startDate, str_endDate_API, 
-            now, delitos_select, request, eventos_lista, unit_info,
-            str_prev_startDate, str_prev_endDate
-        )
 
-        if not preview:
+        if not resultados:
+            AiText = await genAI(
+                filtersAi, str_startDate, str_endDate_API, 
+                now, delitos_select, request, eventos_lista, unit_info,
+                str_prev_startDate, str_prev_endDate
+            )
+            
             request.session['graphic'] = []
             request.session['calendarios'] = []
             request.session['tabla_base64'] = None
@@ -125,6 +137,11 @@ async def generateReport(request):
             request.session['now_str']  = now.strftime("%d-%m-%Y")
             return redirect("main")
         
+        AiText = await genAI(
+            filtersAi, str_startDate, str_endDate_API, 
+            now, delitos_select, request, eventos_lista, unit_info,
+            str_prev_startDate, str_prev_endDate
+        )
 
                         
         data_table, graphic, calendars = await sync_to_async(reportGraphics)(eventos_lista, eventos_por_mes, graficos_por_mes)
