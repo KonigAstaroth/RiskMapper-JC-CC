@@ -24,7 +24,8 @@ class loginRequiredMiddleware:
             decoded = auth.verify_session_cookie(sessionCookie, check_revoked=True)
             request.uid = decoded["uid"]
             return self.get_response(request)  
-        except:
+        except Exception as e:
+            print(f"DEBUG MIDDLEWARE ERROR: {e}")
             response = redirect('login')
             response.delete_cookie('session')
             return response
