@@ -16,7 +16,7 @@ firebase_json_str = os.environ.get("FIREBASE_JSON")
 
 #Production
 firebase_json = json.loads(config('FIREBASE_JSON'))
-firebase_json = json.loads(firebase_json_str) 
+# firebase_json = json.loads(firebase_json_str) 
 firebase_json['private_key'] = firebase_json['private_key'].replace('\\n', '\n')
 cred = credentials.Certificate(firebase_json)
 

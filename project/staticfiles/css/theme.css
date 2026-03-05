@@ -1,0 +1,338 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+/* Gama de colores */
+:root {
+  --border: #e0e0e0;
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --text: #3c3c3c;
+  --muted: #4c4c4c;
+  --disabled: #d0d0d0;
+  --category: #dadada;
+  --accent: #0b58CC;
+  --accent-hover: #0049b6;
+  --sidebar: rgba(245,245,245,0.9);
+  --inputButton: #a1a1a1;
+  --hover: #e2e1e1;
+  --table-striped-color: #F3F3F3;
+  --table-striped-bg: #FFFFFF;
+  --table-striped-border: #A1A1A1;
+}
+
+body.dark-mode {
+  --border: #2e3238;
+  --bg: #171a1f;
+  --surface: #23262b;
+  --text: #ededed;
+  --muted: #b0b0b0;
+  --disabled: #393a3a;
+  --category: #dadada;
+  --accent: #0b58CC;
+  --accent-hover: #0049b6;
+  --sidebar: rgba(23,26,31,0.9);
+  --inputButton: #a1a1a1;
+  --hover: #23262b;
+  --table-striped-color: #181A1D;
+  --table-striped-bg: #23262B;
+  --table-striped-border: #2E3238;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* Botones */
+.cbr-button {
+  border-radius: 8px;
+  width: 10vw;
+  height: 5vh;
+  color: var(--text);
+  background-color: var(--surface);
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  text-decoration: none;
+  font-family: 'Lato';
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.cbr-accent-button {
+  border-radius: 8px;
+  width: 10vw;
+  height: 5vh;
+  color: #ededed;
+  background-color: var(--accent);
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  text-decoration: none;
+  font-family: 'Lato';
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+}
+
+.cbr-accent-button:hover{
+  background-color: var(--accent-hover);
+}
+
+.cbr-submit-button {
+  border-radius: 8px;
+  width: 10vw;
+  color: #ffffff;
+  height: 5vh;
+  background-color: var(--accent);
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  font-size: 1rem;
+  font-family: 'Lato';
+  font-weight: bold;
+}
+
+.cbr-submit-button:hover{
+  color: #ededed;
+  background-color: var(--accent-hover);
+}
+
+.cbr-button i {
+  font-size: 1.5em;
+}
+
+/* Inputs cortas y sencillas */
+.cbr-text-input {
+  border-radius: 8px;
+  border: 1px solid var(--inputButton);
+  height: 5vh;
+  width: 100%;
+  padding: 0 1rem;
+  transition: border-color 0.2s ease;
+  background-color: var(--surface);
+}
+
+/* Inputs largas (descripciones) */
+.cbr-textarea-input {
+  border-radius: 8px;
+  border: 1px solid var(--inputButton);
+  height: 100%;
+  width: 100%;
+  padding: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+/* Focus de los inputs */
+.cbr-text-input:focus,
+.cbr-textarea-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Botón default del header - usa cbr-button del theme */
+.cbr-button {
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cbr-button:hover {
+    background-color: var(--bg);
+    border-color: var(--inputButton);
+}
+
+/* Select - usa cbr-text-input del theme pero con ajustes para el dropdown */
+select.cbr-text-input {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+/* Inputs de texto y datetime - usan cbr-text-input del theme */
+input.cbr-text-input,
+select.cbr-text-input,
+textarea.cbr-textarea-input {
+    font-family: 'Lato', sans-serif;
+    color: var(--text);
+    background-color: var(--surface);
+    transition: border-color 0.2s ease;
+}
+
+input.cbr-text-input:disabled,
+select.cbr-text-input:disabled,
+textarea.cbr-textarea-input:disabled {
+  background-color: var(--disabled);
+}
+
+input.cbr-text-input::placeholder,
+textarea.cbr-textarea-input::placeholder {
+    color: var(--muted);
+}
+
+
+/* Sección de textos */
+
+h1 {
+  font-size: 2em;
+  font-family: 'Lato';
+  font-weight: 700;
+}
+
+h2 {
+  font-family: 'Lato';
+  font-size: 1.25em;
+  font-weight: 700;
+}
+
+.muted-text {
+  font-family: 'Lato', sans-serif;
+  font-size: 1em;
+  color: var(--muted);
+}
+
+label{
+  font-family: 'Lato', sans-serif;
+  color: var(--text);
+  font-weight: 400;
+  font-size: 1em;
+}
+
+/* Modales */
+.modal-content{
+  background-color: var(--surface);
+  color: var(--color);
+  font-family: 'Lato', sans-serif;
+}
+
+
+
+/* Seccion de tablas striped */
+
+.table-striped {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* encabezado */
+.table-striped thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: transparent;
+}
+
+.table-striped thead tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* lo que se ocupa para scrollear la tabla */
+.table-striped tbody {
+  display: block;
+  height: 450px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.table-striped tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* scrollbar */
+.table-striped tbody::-webkit-scrollbar {
+  width: 0.6vw;
+}
+
+.table-striped tbody::-webkit-scrollbar-track {
+  background: #F5F5F5;
+  border-radius: 8px;
+}
+
+.table-striped tbody::-webkit-scrollbar-thumb {
+  background: #D5D5D5;
+  border-radius: 8px;
+}
+
+.table-striped tbody::-webkit-scrollbar-thumb:hover {
+  background: #AAAAAA;
+}
+
+/* filas de colores */
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: var(--table-striped-color) !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(even) > * {
+  background-color: var(--table-striped-bg) !important;
+  border-bottom: 1px solid var(--table-striped-border);
+  border-top: 1px solid var(--table-striped-border);
+}
+
+
+/* encabezado de la tabla */
+.table-striped thead th {
+  padding: 2vh 1vw;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 1.05em;
+  border-bottom: 1px solid var(--bs-table-border-color);
+  text-align: left;
+  vertical-align: middle;
+  position: relative;
+  background-color: var(--table-striped-bg);
+}
+
+.table-striped thead th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.table-striped thead th i {
+  font-size: 1.1em;
+  margin-left: 0.3vw;
+  color: #999;
+}
+
+/* celdas */
+.table-striped tbody td {
+  padding: 2vh 1vw;
+  vertical-align: middle;
+  color: var(--text);
+  font-size: 1em;
+  border-bottom: 1px solid var(--bs-table-border-color);
+}
+
+/* con esto se supone que quito el borde inferior de la tabal */
+.table-striped tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-striped tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+
+.table-striped tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
+}
+
+.table-striped td,
+.table-striped th{
+  min-width: 10vh;
+  max-width: 20vw;
+}
+
+.table-striped tbody td.text-center {
+  text-align: center !important;
+}
