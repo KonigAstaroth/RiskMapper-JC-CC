@@ -74,7 +74,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'project.wsgi.application'
-ASGI_APPLICATION = 'project.asgi.application'
 
 
 # Database
@@ -110,6 +109,15 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
+import os
+from decouple import config
+CELERY_BROKER_URL = config('REDIS_URL')
+CELERY_RESULT_BACKEND = config('REDIS_URL')
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -126,8 +134,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-import os
-from decouple import config
 
 
 STATIC_URL = '/static/'
@@ -153,7 +159,6 @@ RECAPTCHA_PUBLIC_KEY = '6Le8_DErAAAAADo-5P5aRsFEQUN_PY-ZK-VWNaFU'
 RECAPTCHA_PRIVATE_KEY = '6Le8_DErAAAAAK9GtI8lLVSRJdXfn0n5DSqcMjnY'
 RECAPTCHA_SECRET_KEY= '6Le8_DErAAAAAK9GtI8lLVSRJdXfn0n5DSqcMjnY'
 FIREBASE_API_KEY = config('FIREBASE_API_KEY')
-FIREBASE_JSON = config('FIREBASE_JSON')
 GOOGLE_MAPS_KEY = config('GOOGLE_MAPS_KEY')
 SENDER_PASSWORD = config('SENDER_PASSWORD')
 SENDER_EMAIL= config('SENDER_EMAIL')

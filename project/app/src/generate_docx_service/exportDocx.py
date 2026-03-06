@@ -11,6 +11,7 @@ from datetime import timezone
 from io import BytesIO
 from app.src.generate_docx_service.parse_markdown_to_docx import markdown_to_docx
 from app.src.generate_docx_service.utils import add_horizontal_line, insertar_imagen
+from app.core.auth.firebase_config import db
 
 
 
@@ -141,10 +142,14 @@ def ProcessDocx(request):
      )
 
      fechaHora = datetime.datetime.now(timezone.utc)
+     task_id = request.session.get("task_id")
+
+     db.collection('Reportes').document(task_id).delete()
      
 
      response['Content-Disposition'] = f'attachment; filename =Analisis_de_eventos_{now_str}.docx'
      doc.save(response)
+     request.session.pop["task_id"]
      request.session.pop('graphic', None)
      request.session.pop('calendarios', None)
      request.session.pop('hour_txt', None)

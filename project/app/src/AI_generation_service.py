@@ -14,7 +14,7 @@ def loadOsintDate():
      with open (ruta, 'r', encoding='utf-8')as f:
           return f.read()
 
-async def genAI(filters, start, end, now, crimes_select, request, eventos_db, unit_info, prev_start, prev_end):
+async def genAI(filters, start, end, now, crimes_select, eventos_db, unit_info, prev_start, prev_end):
      try:
           client =AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
           municipio = filters.get('Municipio')
@@ -32,8 +32,6 @@ async def genAI(filters, start, end, now, crimes_select, request, eventos_db, un
           )
 
           lugar = ', '.join(f"{k}: {v}" for k,v in filters.items()) if filters else "No especificado"
-          request.session['place_str'] = lugar
-          
 
           content= template.format(
                start = start, end = end, lugar = lugar, now = now, current_results = current_results,
@@ -45,12 +43,15 @@ async def genAI(filters, start, end, now, crimes_select, request, eventos_db, un
                messages=[{'role': 'user', 'content': content}]
           )
 
-          
           text = completion.choices[0].message.content.strip()
-          request.session['AI_text_markdown'] = text
           
-          return cleanAnswer(text)
+          text_clean = cleanAnswer(text)
+
+          return {
+            "ai_text": text_clean,
+            "ai_markdown": text,
+            "lugar": lugar
+          }
      except Exception as e:
           error_message = "Hubo un error al generar el reporte"
-          print("Error: ", e)
           return redirect(f"/main?error={urllib.parse.quote(error_message)}")

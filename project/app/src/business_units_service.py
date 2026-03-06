@@ -93,12 +93,11 @@ def deleteUnit(request, id):
     })
     return redirect('userSettings')
 
-def getUnitSelected(request, id):
+def getUnitSelected(uid, id):
     unit_full = None
     if id == 'None':
         unit_full = "Ninguna unidad seleccionada"
     else:
-        uid = request.session.get('uid')
         user_ref = db.collection('Usuarios').document(uid).get()
 
         if user_ref.exists:

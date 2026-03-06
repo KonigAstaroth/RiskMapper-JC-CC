@@ -2,7 +2,7 @@ from django.utils import timezone as dj_timezone
 from collections import Counter
 import datetime
 
-def getRange(eventos, request):
+def getRange(eventos):
     horas = []
     eventos_por_hora = []
 
@@ -59,19 +59,12 @@ def getRange(eventos, request):
         ctr_categorias = Counter(categorias)
         categoria_critica, _ = ctr_categorias.most_common(1)[0]
     
-    lang = request.session.get('lang')
 
     if hora_critica is not None:
         if cantidad > 1:
-            if lang == 'en':
-                    hour_txt = f"Between {hora_critica}:00 and {hora_critica+1}:00 it was registered {cantidad} events. The most frequent incident in this interval was {categoria_critica}, making this time range a potential risk point mainly associated with this type of event."
-            elif lang == 'es':
-                    hour_txt = f"Entre las {hora_critica}:00 y las {hora_critica+1}:00 horas se registró {cantidad} eventos. El incidente más frecuente en este intervalo fue {categoria_critica}, por lo que este rango horario representa un posible punto crítico principalmente asociado a este tipo de evento."
+            hour_txt = f"Entre las {hora_critica}:00 y las {hora_critica+1}:00 horas se registró {cantidad} eventos. El incidente más frecuente en este intervalo fue {categoria_critica}, por lo que este rango horario representa un posible punto crítico principalmente asociado a este tipo de evento."
         elif cantidad == 1:
-            if lang == 'en':
-                    hour_txt = f"Between {hora_critica}:00 and {hora_critica+1}:00 it was registered {cantidad} event. The recorded incident corresponds to {categoria_critica}, indicating a potential isolated risk during this interval."
-            elif lang == 'es':
-                    hour_txt = f"Entre las {hora_critica}:00 y las {hora_critica+1}:00 horas se registró {cantidad} evento, lo que destaca este intervalo como un posible punto de riesgo. El incidente corresponde a {categoria_critica}, lo que indica un posible riesgo aislado en este intervalo."
+            hour_txt = f"Entre las {hora_critica}:00 y las {hora_critica+1}:00 horas se registró {cantidad} evento, lo que destaca este intervalo como un posible punto de riesgo. El incidente corresponde a {categoria_critica}, lo que indica un posible riesgo aislado en este intervalo."
     else:
         hour_txt = "No hay eventos para calcular el rango horario crítico."
     return hour_txt
