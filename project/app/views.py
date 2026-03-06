@@ -3,6 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from celery.result import AsyncResult
 from django.shortcuts import render,redirect
+from project.celery import app as celery_app
 
 
 # Imports needed for context & display important info
@@ -45,7 +46,7 @@ def main (request):
           unidades = getUnits(request)
 
           # Check if a report is in process
-          task_id = request.session.get("task_id")
+          task_id = request.session.get("task_id", app = celery_app)
 
           if task_id:
 
