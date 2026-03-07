@@ -336,3 +336,6 @@ label{
 .table-striped tbody td.text-center {
   text-align: center !important;
 }
+
+.invalid { color: red; }
+.valid { color: green; }
