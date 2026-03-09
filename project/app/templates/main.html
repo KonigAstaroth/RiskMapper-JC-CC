@@ -246,6 +246,7 @@ Inicio
 
     //Si se generó un reporte, iniciar modal de confirmación
     if(confirmationModal) { confirmationModal.show() }
+    let intervalId = setInterval(checkReportStatus, 3000);
 
     //Checkeo de celery
     function checkReportStatus(){
@@ -253,13 +254,15 @@ Inicio
         .then(response => response.json())
         .then(data => {
             if (data.status == 'finished'){
-                loadingModal.hide()
 
-                window.location.reload()
+                clearInterval(intervalId)
+                loadingModal.hide();
+
+                window.location.reload();
             }
-        })
+        });
     }
-    setInterval(checkReportStatus, 3000)
+    
   </script>
 
   <script>
