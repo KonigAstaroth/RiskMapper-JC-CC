@@ -46,11 +46,11 @@ def main (request):
           unidades = getUnits(request)
 
           # Check if a report is in process
-          task_id = request.session.get("task_id", app = celery_app)
+          task_id = request.session.get("task_id")
 
           if task_id:
 
-               task = AsyncResult(task_id)
+               task = AsyncResult(task_id, app = celery_app)
 
                if task.state == "SUCCESS":
 
