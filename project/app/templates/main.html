@@ -246,6 +246,20 @@ Inicio
 
     //Si se generó un reporte, iniciar modal de confirmación
     if(confirmationModal) { confirmationModal.show() }
+
+    //Checkeo de celery
+    function checkReportStatus(){
+        fetch ("{% url 'check_report_status' %}")
+        .then(response => response.json)
+        .then(data => {
+            if (data.status == 'finished'){
+                loadingModal.hide()
+
+                window.lcoation.reload()
+            }
+        })
+    }
+    setInterval(checkReportStatus, 3000)
   </script>
 
   <script>

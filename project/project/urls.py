@@ -52,7 +52,8 @@ urlpatterns = [
     path('deleteunit<str:id>/', business_units_service.deleteUnit, name='deleteUnit'),
     path('download-template/', download_template.downloadTemplate, name='download-template'),
     path('download-events-from-library/', download_events.downloadEvents, name='excel-events'),
-    path('change-password/',update_password_user.updateUserPassword, name='changePasswordUser')
+    path('change-password/',update_password_user.updateUserPassword, name='changePasswordUser'),
+    path('report-check-status/', report_generation_service.check_report_status, name='check_report_status')
     
 
     # Deprecated urls (for now)
