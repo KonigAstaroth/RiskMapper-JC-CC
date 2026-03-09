@@ -250,12 +250,12 @@ Inicio
     //Checkeo de celery
     function checkReportStatus(){
         fetch ("{% url 'check_report_status' %}")
-        .then(response => response.json)
+        .then(response => response.json())
         .then(data => {
             if (data.status == 'finished'){
                 loadingModal.hide()
 
-                window.lcoation.reload()
+                window.location.reload()
             }
         })
     }
