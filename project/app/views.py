@@ -89,7 +89,8 @@ def main (request):
                'error': error,
                'lista_delitos': lista_delitos,
                'tabla_base64': data_table,
-               'unidades':unidades     
+               'unidades':unidades, 
+               'generating_report' : request.session.get('generating_report', False)    
           }
           return render (request, 'main.html', context)
      except Exception as e:

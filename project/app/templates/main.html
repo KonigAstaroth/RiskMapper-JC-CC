@@ -233,6 +233,7 @@ Inicio
     const sidebar = document.querySelector(".report-sidebar")
     const sidebarTab = document.querySelector(".sidebar-tab")
     const generateButton = document.getElementById("buscar")
+    const reportGenerating = "{{ report_generating|yesno:'true,false' }}" === "true";
 
     //Modal de confirmación y de carga para la generación del reporte
     const loadingModal = new bootstrap.Modal('#cbr-loading-modal')
@@ -246,7 +247,12 @@ Inicio
 
     //Si se generó un reporte, iniciar modal de confirmación
     if(confirmationModal) { confirmationModal.show() }
-    let intervalId = setInterval(checkReportStatus, 3000);
+    let intervalId = null;
+
+    if (reportGenerating){
+        loadingModal.show();
+        intervalId = setInterval(checkReportStatus, 3000);
+    }
 
     //Checkeo de celery
     function checkReportStatus(){
@@ -255,7 +261,7 @@ Inicio
         .then(data => {
             if (data.status == 'finished'){
 
-                clearInterval(intervalId)
+                clearInterval(intervalId);
                 loadingModal.hide();
 
                 window.location.reload();
