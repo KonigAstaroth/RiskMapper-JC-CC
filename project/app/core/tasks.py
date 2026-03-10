@@ -1,4 +1,3 @@
-import uuid
 from celery import shared_task
 from app.src.report_generation import process_report
 from app.core.auth.firebase_config import db
@@ -7,7 +6,7 @@ from app.core.auth.firebase_config import db
 def generate_report_task(self,data,uid):
     result = process_report(data,uid)
 
-    report_id = str(uuid.uuid4())
+    report_id = self.request.id
 
     db.collection("Reportes").document(report_id).set(result)
 
