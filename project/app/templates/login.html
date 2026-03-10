@@ -15,22 +15,20 @@
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body>
-    {% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-danger" style="width: 50%; text-align: center ; z-index: 999; position: fixed; top: 0;left: 25%;" id="error-alert">
-            {{ message }}
-            <script>
-                setTimeout(function() {
-                    var alertBox = document.getElementById("error-alert");
-                    if (alertBox) {
-                        alertBox.style.transition = "opacity 0.75s";
-                        alertBox.style.opacity = "0";
-                        setTimeout(() => alertBox.remove(), 500); 
-                    }
-                }, 3000);
-            </script>
-        </div>
-    {% endfor %}
+{% if error %}
+  <div class="alert alert-danger" style="width: 50%; text-align: center ; z-index: 999; position: fixed; top: 0; left: 25%;" id="error-alert" role="alert">
+      {{ error }}
+      <script>
+          setTimeout(function() {
+              var alertBox = document.getElementById("error-alert");
+              if (alertBox) {
+                  alertBox.style.transition = "opacity 0.75s";
+                  alertBox.style.opacity = "0";
+                  setTimeout(() => alertBox.remove(), 500); 
+              }
+          }, 3000); 
+      </script>
+  </div>
 {% endif %}
     <div class="container">
       <div>

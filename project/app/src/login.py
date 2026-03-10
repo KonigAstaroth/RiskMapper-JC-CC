@@ -2,12 +2,10 @@ import datetime
 from app.core.auth.firebase_config import FIREBASE_AUTH_URL
 from app.core.auth.check_captcha_answered import checkCaptcha
 import requests
-# from app.core.auth.check_login_errors import login_errors
 from django.shortcuts import redirect
 import urllib.parse
 from datetime import timedelta, timezone
 from app.core.auth.firebase_config import db, auth
-from django.contrib import messages
 
 def loginToken(email, password):
     login = {"email": email, "password": password, "returnSecureToken": True}
@@ -69,7 +67,6 @@ def login_process(request):
             
             return response_redirect
         except Exception as e:
-            print("ERROR AQUI: ",e)
             error_msg = "La contraseña o el correo no coincide"
             return redirect(f"/?error={urllib.parse.quote(error_msg)}")
         

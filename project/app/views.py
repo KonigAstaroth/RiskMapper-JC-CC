@@ -23,7 +23,8 @@ def userSettings(request):
 
 def login(request):
      updateLastLogin(request)
-     return render(request, 'login.html')
+     error = request.GET.get("error")
+     return render(request, 'login.html', {'error': error})
 
 def forgotpass (request):             
     error = request.GET.get("error")

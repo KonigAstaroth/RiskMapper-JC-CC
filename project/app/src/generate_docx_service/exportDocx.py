@@ -139,9 +139,7 @@ def ProcessDocx(request):
           db.collection('Reportes').document(task_id).delete()
           task_id = request.session.get("task_id")
 
-     
-
-     response['Content-Disposition'] = f'attachment; filename =Analisis_de_eventos_{now_str}.docx'
+     response['Content-Disposition'] = f'attachment; filename=Analisis_de_eventos_{now_str}.docx'
      doc.save(response)
      request.session.pop("task_id", None)
      request.session.pop('graphic', None)
