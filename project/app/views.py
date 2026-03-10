@@ -45,7 +45,7 @@ def main (request):
           # Check if a report is in process
           task_id = request.session.get("task_id")
 
-          graphic, calendars, hour_txt, AiText, lugar, data_table = getDataDBMain(task_id)
+          graphic, calendars, hour_txt, AiText, lugar, data_table = getDataDBMain(task_id, request)
                     
           error = request.GET.get("error")
 
