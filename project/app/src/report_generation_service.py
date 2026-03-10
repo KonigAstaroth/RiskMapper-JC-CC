@@ -43,16 +43,6 @@ def check_report_status(request):
 
         if report_ref.exists:
 
-            data = report_ref.to_dict()
-
-            request.session['graphic'] = data.get("graphic")
-            request.session['calendarios'] = data.get("calendars", [])
-            request.session['hour_txt'] = data.get("hour_txt")
-            request.session['AiText'] = data.get("AiText")
-            request.session['lugar'] = data.get("lugar")
-            request.session['tabla_base64'] = data.get("tabla_base64")
-
-
             return JsonResponse({"status": "finished"})
 
     return JsonResponse({"status": "processing"})

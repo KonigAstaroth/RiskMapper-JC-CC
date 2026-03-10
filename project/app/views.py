@@ -1,20 +1,16 @@
 import json
 from django.conf import settings
 from django.http import HttpResponse
-from celery.result import AsyncResult
 from django.shortcuts import render,redirect
-from project.celery import app as celery_app
-
-
 # Imports needed for context & display important info
 from app.src.utils.users import getUsers
 from app.src.login import updateLastLogin
-from app.core.auth.firebase_config import db
 from app.src.utils.cache_events import markers
 from app.src.business_units_service import getUnits
 from app.src.admin_service.admins import getPrivileges
 from app.src.library_service import searchEvent, buildFilters
 from app.src.utils.map_config_helper import map_config_center
+from app.src.get_database_report_data import getDataDBMain
 from app.src.utils.report_generation_utils.lists import lista_delitos
 
 def userSettings(request):
@@ -49,31 +45,7 @@ def main (request):
           # Check if a report is in process
           task_id = request.session.get("task_id")
 
-          if task_id:
-
-               task = AsyncResult(task_id, app = celery_app)
-
-               if task.state == "SUCCESS":
-
-                    report_id = task.result
-
-                    report_ref = db.collection("Reportes").document(report_id).get()
-
-                    if report_ref.exists:
-
-                         data = report_ref.to_dict()
-
-                         if data.get("map_config"):
-                              map_config = data.get("map_config")
-          
-
-          # Show data
-          graphic = request.session.get('graphic')
-          calendars = request.session.get('calendarios', [])
-          hour_txt = request.session.get('hour_txt', None)
-          AiText = request.session.get('AiText', None)
-          lugar = request.session.get('lugar')
-          data_table = request.session.get('tabla_base64', None)
+          graphic, calendars, hour_txt, AiText, lugar, data_table = getDataDBMain(task_id)
                     
           error = request.GET.get("error")
 

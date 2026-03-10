@@ -1,29 +1,22 @@
 import base64
-from docx.shared import Inches, Pt
+from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.shared import Inches, Pt, RGBColor
+from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_PARAGRAPH_ALIGNMENT ,WD_LINE_SPACING
-from docx.enum.style import WD_STYLE_TYPE
 from django.http import HttpResponse
 from docx import Document
 import datetime
 from datetime import timezone
-from io import BytesIO
 from app.src.generate_docx_service.parse_markdown_to_docx import markdown_to_docx
 from app.src.generate_docx_service.utils import add_horizontal_line, insertar_imagen
 from app.core.auth.firebase_config import db
-
+from app.src.get_database_report_data import getDataDBWord
 
 
 def ProcessDocx(request):
-     graphic = request.session.get('graphic')
-     calendarios = request.session.get('calendarios', [])
-     horas = request.session.get('hour_txt')
-     now_str = request.session.get('now_str')
-     place_str = request.session.get('place_str')
-     text_markdown = request.session.get('AI_text_markdown')
-     tabla_img = request.session.get('tabla_base64')
      task_id = request.session.get("task_id")
+
+     AiMarkdown, graphic, calendarios, horas, now_str,  place_str, tabla_img = getDataDBWord(task_id)
 
      doc = Document()
 
@@ -83,22 +76,23 @@ def ProcessDocx(request):
      
 
      doc.add_page_break()
-     if text_markdown:
-        markdown_to_docx(text_markdown, doc)
+     if AiMarkdown:
+        markdown_to_docx(AiMarkdown, doc)
      doc.add_page_break()
 
-     for calendario in calendarios:
-          img_base64 = calendario.get('img')
-          if img_base64:
-               try:
-                    doc.add_heading('Gráfico de distribución por fecha:', level= 2)
-                    doc.add_paragraph("")
-                    insertar_imagen(img_base64, 3, doc)
-               except:
-                    doc.add_paragraph('Error al cargar calendario')
+     if calendarios:
+          for calendario in calendarios or []:
+               img_base64 = calendario.get('img')
+               if img_base64:
+                    try:
+                         doc.add_heading('Gráfico de distribución por fecha:', level= 2)
+                         doc.add_paragraph("")
+                         insertar_imagen(img_base64, 3, doc)
+                    except:
+                         doc.add_paragraph('Error al cargar calendario')
 
      if graphic:
-        for g in graphic:
+        for g in graphic or []:
             img = g.get('img')
             if img:
                 try:
@@ -142,14 +136,5 @@ def ProcessDocx(request):
      response['Content-Disposition'] = f'attachment; filename=Analisis_de_eventos_{now_str}.docx'
      doc.save(response)
      request.session.pop("task_id", None)
-     request.session.pop('graphic', None)
-     request.session.pop('calendarios', None)
-     request.session.pop('hour_txt', None)
-     request.session.pop('AiText', None)
-     request.session.pop('AI_text_markdown', None)
-     request.session.pop('ready_to_export', None)
-     request.session.pop('tabla_base64', None)
-     request.session.pop('now_str', None)
-     request.session.pop('place_str', None)
 
      return response
