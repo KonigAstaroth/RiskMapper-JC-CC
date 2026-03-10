@@ -23,6 +23,7 @@ def ProcessDocx(request):
      place_str = request.session.get('place_str')
      text_markdown = request.session.get('AI_text_markdown')
      tabla_img = request.session.get('tabla_base64')
+     task_id = request.session.get("task_id")
 
      doc = Document()
 
@@ -137,7 +138,6 @@ def ProcessDocx(request):
      fechaHora = datetime.datetime.now(timezone.utc)
      if task_id:
           db.collection('Reportes').document(task_id).delete()
-          task_id = request.session.get("task_id")
 
      response['Content-Disposition'] = f'attachment; filename=Analisis_de_eventos_{now_str}.docx'
      doc.save(response)
