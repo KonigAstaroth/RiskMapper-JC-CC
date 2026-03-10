@@ -237,7 +237,7 @@ Inicio
     const sidebar = document.querySelector(".report-sidebar")
     const sidebarTab = document.querySelector(".sidebar-tab")
     const generateButton = document.getElementById("buscar")
-    const reportGenerating = JSON.parse('report_generating').textContent
+    const reportGenerating = JSON.parse(document.getElementById('report_generating').textContent);
 
     //Modal de confirmación y de carga para la generación del reporte
     const loadingModal = new bootstrap.Modal('#cbr-loading-modal')
