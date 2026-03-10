@@ -229,9 +229,7 @@ Inicio
       {{ map_config_json|safe }}
   </script>
 
-  <script id="report_generating" type="application/json">
-      {{ report_generating|json_script:"report-generating" }}
-  </script>
+  {{ report_generating|json_script:"report-generating" }}
 
   <script>
     const sidebar = document.querySelector(".report-sidebar")
@@ -253,6 +251,7 @@ Inicio
     if(confirmationModal) { confirmationModal.show() }
     let intervalId = null;
 
+    console.log(reportGenerating)
     if (reportGenerating){
         loadingModal.show();
         intervalId = setInterval(checkReportStatus, 3000);
@@ -264,7 +263,6 @@ Inicio
         .then(response => response.json())
         .then(data => {
             if (data.status == 'finished'){
-
                 clearInterval(intervalId);
                 loadingModal.hide();
 
