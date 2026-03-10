@@ -19,7 +19,6 @@ def ProcessDocx(request):
      graphic = request.session.get('graphic')
      calendarios = request.session.get('calendarios', [])
      horas = request.session.get('hour_txt')
-     lang = request.session.get('lang')
      now_str = request.session.get('now_str')
      place_str = request.session.get('place_str')
      text_markdown = request.session.get('AI_text_markdown')
@@ -91,11 +90,8 @@ def ProcessDocx(request):
           img_base64 = calendario.get('img')
           if img_base64:
                try:
-                    if lang == 'en':
-                         doc.add_heading('Distribution graphic by date:', level= 2)
-                    elif lang == 'es':
-                         doc.add_heading('Gráfico de distribución por fecha:', level= 2)
-                         doc.add_paragraph("")
+                    doc.add_heading('Gráfico de distribución por fecha:', level= 2)
+                    doc.add_paragraph("")
                     insertar_imagen(img_base64, 3, doc)
                except:
                     doc.add_paragraph('Error al cargar calendario')
@@ -105,7 +101,7 @@ def ProcessDocx(request):
             img = g.get('img')
             if img:
                 try:
-                    titulo = 'Distribution graphic by time:' if lang == 'en' else 'Gráfico de distribución horaria:'
+                    titulo = 'Gráfico de distribución horaria:'
                     doc.add_heading(titulo, level=2)
                     doc.add_paragraph("")
                     insertar_imagen(img, 3, doc)
@@ -118,7 +114,7 @@ def ProcessDocx(request):
                 tabla_img = tabla_img.decode('utf-8')
 
             tabla_img = tabla_img.strip().replace('\n', '')
-            titulo = 'Data table:' if lang == 'en' else 'Tabla de datos:'
+            titulo = 'Tabla de datos:'
 
             doc.add_heading(titulo, level=2)
             doc.add_paragraph("")
@@ -128,10 +124,7 @@ def ProcessDocx(request):
             doc.add_paragraph('Error en la tabla de datos')
      if horas:
           try:
-               if lang == 'en':
-                    doc.add_heading('Critic time range:', level= 2)
-               elif lang == 'es':
-                    doc.add_heading('Rango horario crítico:', level= 2)
+               doc.add_heading('Rango horario crítico:', level= 2)
                doc.add_paragraph( horas)
           except:
                doc.add_paragraph("No hay rango horario crítico")
@@ -142,14 +135,15 @@ def ProcessDocx(request):
      )
 
      fechaHora = datetime.datetime.now(timezone.utc)
-     task_id = request.session.get("task_id")
+     if task_id:
+          db.collection('Reportes').document(task_id).delete()
+          task_id = request.session.get("task_id")
 
-     db.collection('Reportes').document(task_id).delete()
      
 
      response['Content-Disposition'] = f'attachment; filename =Analisis_de_eventos_{now_str}.docx'
      doc.save(response)
-     request.session.pop["task_id"]
+     request.session.pop("task_id", None)
      request.session.pop('graphic', None)
      request.session.pop('calendarios', None)
      request.session.pop('hour_txt', None)
