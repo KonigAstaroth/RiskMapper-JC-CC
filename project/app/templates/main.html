@@ -229,13 +229,13 @@ Inicio
       {{ map_config_json|safe }}
   </script>
 
-  {{ report_generating|json_script:"report-generating" }}
+  {{ generating_report|json_script:"generating_report" }}
 
   <script>
     const sidebar = document.querySelector(".report-sidebar")
     const sidebarTab = document.querySelector(".sidebar-tab")
     const generateButton = document.getElementById("buscar")
-    const reportGenerating = JSON.parse(document.getElementById('report_generating').textContent);
+    const reportGenerating = JSON.parse(document.getElementById('generating_report').textContent);
 
     //Modal de confirmación y de carga para la generación del reporte
     const loadingModal = new bootstrap.Modal('#cbr-loading-modal')
