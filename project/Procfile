@@ -1,2 +1,2 @@
-web: gunicorn project.wsgi:application --workers 2 --threads 2 --timeout 300 --max-requests 1000 --max-requests-jitter 200
+web: gunicorn project.wsgi:application --workers 4 --threads 2 --timeout 300 --max-requests 1000 --max-requests-jitter 200
 worker: celery -A project worker --loglevel=info --concurrency=1
