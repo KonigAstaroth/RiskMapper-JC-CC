@@ -1,4 +1,5 @@
 import datetime
+from celery import shared_task
 from django.shortcuts import redirect
 import urllib.parse
 from app.src.utils.resolve_icons import resolveIcons
@@ -8,6 +9,7 @@ from app.src.utils.parse_timestamp import parseTimestamp
 import pandas as pd
 from app.src.utils.parse_excel_datetime import resolveDate, resolveTime, combineDateTime
 from app.src.utils.bulk_load_helpers import location_check, sanitize_text, is_valid_float
+import io
 
 
 def loadFilesService(request):
@@ -15,7 +17,13 @@ def loadFilesService(request):
         if 'archivo' in request.FILES:
             excel_file = request.FILES['archivo']
             # Procesar el archivo según sea necesario
-            return bulkLoad(request, excel_file)
+            file_bytes = excel_file.read()
+
+            task = bulk_load_task.delay( file_bytes)
+            request.session["bulk_task_id"] = task.id
+            request.session["loading_bulk"] = True
+
+            return redirect('loadFiles')
         else:
             # Manejo de carga manual
             return handleManualLoad(request)
@@ -86,14 +94,16 @@ def handleManualLoad(request):
     else:
         error_message = "Faltan datos por agregar"
         return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
+    
 
+@shared_task(bind=True, autoretry_for=(Exception,), retry_backoff=True, retry_kwargs={'max_retries': 3})
+def bulk_load_task(self, file_bytes):
 
-def bulkLoad(request, excel_file):
+    file_stream = io.BytesIO(file_bytes)
     try:
-        df = pd.read_excel(excel_file, engine='openpyxl', keep_default_na=False)
+        df = pd.read_excel(file_stream, engine='openpyxl', keep_default_na=False)
     except:
-        error_message = "Error al leer el archivo Excel"
-        return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
+        return {"status": "error", "message": "Error al leer el archivo Excel"}
 
     if "FechaHecho" in df.columns:
         df['FechaHecho'] = df['FechaHecho'].apply(resolveDate)
@@ -110,6 +120,8 @@ def bulkLoad(request, excel_file):
     location_data=['latitud', 'longitud', 'Estado_hechos', 'Municipio_hechos', 'ColoniaHechos', 'Calle_hechos' ]
 
     has_street2 = 'Calle_hechos2' in df.columns
+    batch = db.batch()
+    count = 0
 
     for event in data:
         try:
@@ -128,10 +140,17 @@ def bulkLoad(request, excel_file):
             event['icono'] = resolveIcons(event.get('Categoria'))
             event['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
             event['Categoria'] = event.get('Categoria', '').upper()
-            db.collection('Eventos').add(event)
+
+            ref = db.collection('Eventos').document()
+            batch.set(ref, event)
+            count +=1
+
+            if count % 400 == 0:
+                batch.commit()
+                batch = db.batch()
         except:
-            error_message = "Error al subir evento"
-            return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
-    success_message = "La carga de datos ha sido exitosa"
-    return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
+            continue
+    batch.commit()
+
+    return {"status": "success", "inserted": count}
 

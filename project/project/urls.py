@@ -18,7 +18,7 @@ from json import load
 from django.contrib import admin
 from django.urls import path
 from app import views
-from app.src import login, forgotPassword, logout, report_generation_service, library_service, load_files_service, business_units_service
+from app.src import login, forgotPassword, logout, report_generation_service, library_service, load_files_service, business_units_service, status_check
 from app.src.admin_service import admins
 from app.src.generate_docx_service import exportDocx
 from app.src.utils import set_map_coords, download_template, download_events, update_password_user
@@ -53,7 +53,8 @@ urlpatterns = [
     path('download-template/', download_template.downloadTemplate, name='download-template'),
     path('download-events-from-library/', download_events.downloadEvents, name='excel-events'),
     path('change-password/',update_password_user.updateUserPassword, name='changePasswordUser'),
-    path('report-check-status/', report_generation_service.check_report_status, name='check_report_status')
+    path('report-check-status/', status_check.check_report_status, name='check_report_status'),
+    path('bulk-load-check-status/', status_check.check_bulk_status, name='check_bulk_status')
     
 
     # Deprecated urls (for now)

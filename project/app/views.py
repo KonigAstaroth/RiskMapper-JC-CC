@@ -88,7 +88,11 @@ def loadFiles(request):
 
     success = request.GET.get("success")
     error = request.GET.get("error")
-    return render(request, "loadFiles.html", {"error": error, 'success': success, 'priv': priv,})
+    context = {
+         "error": error, 'success': success, 'priv': priv,
+         "bulk_load": request.session.get("loading_bulk", False)
+    }
+    return render(request, "loadFiles.html", context)
 
 def library(request):
     priv = getPrivileges(request)

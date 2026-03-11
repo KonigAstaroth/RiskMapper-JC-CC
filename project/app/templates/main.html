@@ -251,7 +251,6 @@ Inicio
     if(confirmationModal) { confirmationModal.show() }
     let intervalId = null;
 
-    console.log(reportGenerating)
     if (reportGenerating){
         loadingModal.show();
         intervalId = setInterval(checkReportStatus, 3000);
