@@ -16,7 +16,7 @@
     z-index: 2;
     box-sizing: border-box;
     height: calc(100vh - (90px));
-    width: 25vw;
+    width: 30vw;
     background-color: var(--sidebar);
     position: absolute;
     border-right: 1px solid var(--border);
@@ -24,7 +24,7 @@
     transition: left 0.5s ease;
 }
 .hidden {
-    left: -25vw;
+    left: -30vw;
 }
 
 .sidebar-tab {
@@ -52,6 +52,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    width: fit-content;
 }
 
 .date-inputs {
@@ -85,6 +86,10 @@
     max-height: 300px; 
     overflow-y: auto;
     padding: 0.5rem 0 0.5rem 0.5rem;
+}
+
+.dropdown-menu p {
+    color: var(--text);
 }
 
 .submit-section {
