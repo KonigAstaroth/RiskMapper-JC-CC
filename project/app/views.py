@@ -14,8 +14,9 @@ from app.src.get_database_report_data import getDataDBMain
 from app.src.utils.report_generation_utils.lists import lista_delitos
 
 def userSettings(request):
+    priv = getPrivileges(request)
     units = getUnits(request)
-    return render(request, 'userSettings.html', {'unidades': units})
+    return render(request, 'userSettings.html', {'unidades': units, 'priv': priv})
 
 def login(request):
      updateLastLogin(request)
