@@ -47,7 +47,7 @@ body {
 /* Botones */
 .cbr-button {
   border-radius: 8px;
-  width: 10vw;
+  min-width: 10vw;
   height: 5vh;
   color: var(--text);
   background-color: var(--surface);
@@ -58,6 +58,7 @@ body {
   font-family: 'Lato';
   font-size: 1rem;
   font-weight: bold;
+  padding: .5em;
 }
 
 .cbr-accent-button {

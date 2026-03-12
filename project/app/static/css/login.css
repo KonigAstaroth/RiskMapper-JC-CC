@@ -7,14 +7,15 @@
 }
 
 .form-card{
-    margin: auto;
-    width: 28vw;
-    height: 60vh;
-    background-color: var(--surface);
-    border: 1px solid var(--border);
-    box-sizing: border-box;
-    border-radius: 20px;
-    padding: 2rem;
+  margin: auto;
+  width: 28vw;
+  min-height: 60vh;
+  height: auto;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-sizing: border-box;
+  border-radius: 20px;
+  padding: 2rem;
 }
 
 .forgot-card{
@@ -61,7 +62,8 @@
 .remember-and-forgot {
   margin-top: 1rem;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  margin-bottom: 3vh;
 }
 
 .submit {
