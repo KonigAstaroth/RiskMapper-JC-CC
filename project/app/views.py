@@ -91,7 +91,7 @@ def loadFiles(request):
     error = request.GET.get("error")
     context = {
          "error": error, 'success': success, 'priv': priv,
-         "bulk_load": request.session.get("loading_bulk", False)
+         "loading_bulk": request.session.get("loading_bulk", False)
     }
     return render(request, "loadFiles.html", context)
 
