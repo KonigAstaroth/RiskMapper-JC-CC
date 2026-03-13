@@ -33,8 +33,7 @@ def recoverPass (request, token):
      success = request.GET.get('success')
      return render(request, 'recoverPass.html', {'error': error, 'success':success})
 
-def main (request):
-     print(request.session.get('uid'))   
+def main (request):  
      try:
           priv = getPrivileges(request)
           
