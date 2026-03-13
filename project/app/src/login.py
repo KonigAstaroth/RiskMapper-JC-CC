@@ -62,7 +62,7 @@ def login_process(request):
             )
             decoded_claims = auth.verify_session_cookie(session_cookie)
             uid = decoded_claims["uid"]
-            # request.session['uid'] = uid
+            request.session['uid'] = uid
             db.collection('Usuarios').document(uid).update({'lastAccess': datetime.datetime.now(timezone.utc)})
             
             return response_redirect
