@@ -38,8 +38,8 @@ def handleManualLoad(request):
         "estado": request.POST.get("estado"),
         "lat": request.POST.get("lat"),
         "lng": request.POST.get("lng"),
-        "delito": request.POST.get("crime"),
-        "categoria": request.POST.get("categ", "").upper(),
+        "delito": request.POST.get("delito"),
+        "categoria": request.POST.get("categoria", "").upper(),
         "descripcion": request.POST.get("descripcion") or "",
         "fecha": request.POST.get("FechaHoraHecho"),
         "icono": resolveIcons(request.POST.get("icons")),
@@ -54,7 +54,7 @@ def handleManualLoad(request):
         data.get('municipio'),
     ))
 
-
+    print('Esto es None? ',data.get('fecha'))
     if has_coords:
         data['lat'] = float(data['lat'])
         data['lng'] = float(data['lng'])
@@ -64,35 +64,38 @@ def handleManualLoad(request):
     data["municipio"] = sanitize_text(data["municipio"])
     data["estado"] = sanitize_text(data["estado"])
 
-    if (has_address or has_coords) and all([data.get('fecha'), data.get('delito'), data.get('icono'), data.get('categoria')]):
+    try:
+        if (has_address or has_coords) and all([data.get('fecha'), data.get('delito'), data.get('icono'), data.get('categoria')]):
 
-        data = resolveManualGeo(data)
+            data = resolveManualGeo(data)
 
-        data['FechaHoraHecho'] = parseTimestamp(data.pop('fecha'))
+            data['FechaHoraHecho'] = parseTimestamp(data.get('fecha'))
 
-
-        try:
-            db.collection('Eventos').add({
-                "Calle_hechos": data["calle"],
-                "ColoniaHechos": data["colonia"],
-                "Estado_hechos": data["estado"],
-                "Municipio_hechos": data["municipio"],
-                "Delito": data["delito"],
-                "FechaHoraHecho": data['FechaHoraHecho'],
-                "icono": data["icono"],
-                "Categoria": data["categoria"],
-                "latitud": data["lat"],
-                "longitud": data["lng"],
-                'updatedAt': datetime.datetime.now(datetime.timezone.utc),
-                'Descripcion': data["descripcion"],
-            })
-            success_message = "Datos agregados exitosamente"
-            return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
-        except:
-            error_message = "Error al subir datos"
+            try:
+                db.collection('Eventos').add({
+                    "Calle_hechos": data["calle"],
+                    "ColoniaHechos": data["colonia"],
+                    "Estado_hechos": data["estado"],
+                    "Municipio_hechos": data["municipio"],
+                    "Delito": data["delito"],
+                    "FechaHoraHecho": data['FechaHoraHecho'],
+                    "icono": data["icono"],
+                    "Categoria": data["categoria"],
+                    "latitud": data["lat"],
+                    "longitud": data["lng"],
+                    'updatedAt': datetime.datetime.now(datetime.timezone.utc),
+                    'Descripcion': data["descripcion"],
+                })
+                success_message = "Datos agregados exitosamente"
+                return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
+            except:
+                error_message = "Error al subir datos"
+                return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
+        else:
+            error_message = "Faltan datos por agregar"
             return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
-    else:
-        error_message = "Faltan datos por agregar"
+    except:
+        error_message = "Error al subir datos"
         return redirect(f"/loadFiles?error={urllib.parse.quote(error_message)}")
     
 

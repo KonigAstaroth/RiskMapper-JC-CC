@@ -44,6 +44,7 @@ def resolveManualGeo(data):
         location = geolocator.geocode(direccion)
         data['lat'] = location.latitude
         data['lng'] = location.longitude
+        return data
 
 def resolveBulkGeo(event, has_adress2 = False):
     if not (check_valid_value(event.get('latitud')) and check_valid_value(event.get('longitud'))):

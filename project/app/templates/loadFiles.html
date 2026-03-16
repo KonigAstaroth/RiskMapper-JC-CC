@@ -72,17 +72,17 @@ Carga de datos
                     <div class="row">
                         <div class="col-md-3">
                             <label>Delito</label>
-                            <input type="text" class="cbr-text-input" placeholder="Escriba un tipo de delito">
+                            <input type="text" class="cbr-text-input" placeholder="Escriba un tipo de delito" name="delito">
                         </div>
 
                         <div class="col-md-3">
                             <label >Fecha y hora</label>
-                            <input type="datetime-local" class="cbr-text-input">
+                            <input type="datetime-local" class="cbr-text-input" name="FechaHoraHecho">
                         </div>
 
                         <div class="col-md-3">
                             <label >Categoría del delito</label>
-                            <select class="cbr-text-input">
+                            <select class="cbr-text-input" name="categoria">
                                 <option selected>Selecciona una categoria de delito</option>
                                 <option value="amenazas" class="options">Amenazas</option>
                                 <option value="extorsión" class="options">Extorsión</option>
@@ -112,8 +112,8 @@ Carga de datos
                         </div>
 
                         <div class="col-md-3">
-                            <label >Icono</label>
-                            <select class="cbr-text-input">
+                            <label>Icono</label>
+                            <select class="cbr-text-input" name="icons">
                                 <option selected>Selecciona un icono</option>
                                 <option value="default" class="options">Icono por defecto</option>
                                 <option value="amenazas" class="options">Amenazas</option>
@@ -147,8 +147,8 @@ Carga de datos
 
                     <div class="row">
                         <div class="col-12">
-                            <label >Descripcion del delito (opcional)</label>
-                            <textarea class="cbr-textarea-input" rows="3" placeholder="Agregue una descripción detallada"></textarea>
+                            <label>Descripcion del delito (opcional)</label>
+                            <textarea class="cbr-textarea-input" rows="3" placeholder="Agregue una descripción detallada" name="descripcion"></textarea>
                         </div>
                     </div>
                 </div>
@@ -160,23 +160,24 @@ Carga de datos
                     <div class="row">
                         <div class="col-md-3">
                             <label >Calle</label>
-                            <input type="text" class="cbr-text-input" placeholder="Calle">
+                            <input type="text" class="cbr-text-input" placeholder="Calle" name="calle">
                         </div>
 
                         <div class="col-md-3">
                             <label >Colonia</label>
-                            <input type="text" class="cbr-text-input" placeholder="Colonia">
-                        </div>
-
-                        <div class="col-md-3">
-                            <label >Estado</label>
-                            <input type="text" class="cbr-text-input" placeholder="Estado">
+                            <input type="text" class="cbr-text-input" placeholder="Colonia" name="colonia">
                         </div>
 
                         <div class="col-md-3">
                             <label >Municipio</label>
-                            <input type="text" class="cbr-text-input" placeholder="Municipio">
+                            <input type="text" class="cbr-text-input" placeholder="Municipio" name="municipio">
                         </div>
+
+                        <div class="col-md-3">
+                            <label >Estado</label>
+                            <input type="text" class="cbr-text-input" placeholder="Estado" name="estado">
+                        </div>
+
                     </div>
                 </div>
 
@@ -187,12 +188,12 @@ Carga de datos
                     <div class="row">
                         <div class="col-md-6">
                             <label >Latitud</label>
-                            <input type="text" class="cbr-text-input" placeholder="Latitud">
+                            <input type="text" class="cbr-text-input" placeholder="Latitud" name="lat">
                         </div>
 
                         <div class="col-md-6">
                             <label >Longitud</label>
-                            <input type="text" class="cbr-text-input" placeholder="Longitud">
+                            <input type="text" class="cbr-text-input" placeholder="Longitud" name="lng">
                         </div>
                     </div>
                 </div>
