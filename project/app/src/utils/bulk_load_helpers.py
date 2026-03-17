@@ -1,4 +1,5 @@
 import pandas as pd
+import unicodedata
 import math
 import re
 
@@ -51,3 +52,10 @@ def  is_valid_float(number):
           return True
      except:
           return False
+     
+def normalize_text(texto):
+    if not texto:
+        return ""
+    texto = unicodedata.normalize('NFD', texto)
+    texto = ''.join(c for c in texto if unicodedata.category(c) != 'Mn')
+    return texto.lower().strip()

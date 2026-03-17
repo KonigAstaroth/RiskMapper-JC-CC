@@ -1,13 +1,14 @@
 from django.shortcuts import redirect
 from app.core.tasks import generate_report_task
+from app.src.utils.bulk_load_helpers import sanitize_text
 
 def generateReport(request):
     uid = request.session.get("uid")
     if request.method == "POST":
 
         data = {
-            "municipio": request.POST.get('municipio'),
-            "estado": request.POST.get('estado'),
+            "municipio": sanitize_text(request.POST.get('municipio')),
+            "estado": sanitize_text(request.POST.get('estado')),
             "startDate": request.POST.get('startDate'),
             "endDate": request.POST.get('endDate'),
             "delitos": request.POST.getlist('delitos'),

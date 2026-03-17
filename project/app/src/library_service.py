@@ -1,5 +1,5 @@
 import datetime
-
+from app.src.utils.bulk_load_helpers import normalize_text
 from django.shortcuts import redirect
 from app.core.auth.firebase_config import db
 from django.utils import timezone as dj_timezone
@@ -109,32 +109,32 @@ def searchEvent(filters):
     ref = db.collection('Eventos')
         
     if filters:
-          query_ref = ref
+        query_ref = ref
 
-          startDate_str = filters.get('startDate')
-          endDate_str = filters.get('endDate')
+        startDate_str = filters.get('startDate')
+        endDate_str = filters.get('endDate')
+        direccion = filters.get('direccion')
+        categoria = filters.get('Categoria')
 
-          
-          if startDate_str and endDate_str:
-               startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
-               endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
-               query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '>=', startDate))
-               query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '<=', endDate))
+        
+        if startDate_str and endDate_str:
+            startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
+            endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
+            query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '>=', startDate))
+            query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '<=', endDate))
 
-          
-          filters_sin_fechas = {k: v for k, v in filters.items() if k not in ['startDate', 'endDate']}
+        if categoria:
+            query_ref = query_ref.where(filter=FieldFilter('Categoria', '==', filters['Categoria']))
 
-          
-          for campo, valor in filters_sin_fechas.items():
-               if isinstance(valor, str):
-                    valor = valor.strip()
-               query_ref = query_ref.where(filter=FieldFilter(campo, '==', valor))
-
-          resultados = query_ref.stream()
-          for doc in resultados:
-               data = doc.to_dict()
-               data['id'] = doc.id
-               eventos.append(data)
+        resultados = query_ref.stream()
+        for doc in resultados:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            if direccion:
+                direccionDB = data.get('direccion_full', '')
+                if direccion not in direccionDB:
+                    continue
+            eventos.append(data)
     return eventos
 
 
@@ -144,41 +144,10 @@ def buildFilters(request):
     startDate_str = request.POST.get('startDate')
     endDate_str = request.POST.get('endDate')
     direccion = request.POST.get('direccion', '')
-    search = request.POST.get('searchBy')
     categoria = request.POST.get('categoria')
 
-    partes_direccion = [parte.strip() for parte in direccion.split(',') if parte.strip()]
-
-    if search == "full":
-        calle = partes_direccion[0] if len(partes_direccion) > 0 else None
-        colonia = partes_direccion[1] if len(partes_direccion) > 1 else None
-        municipio = partes_direccion[2] if len(partes_direccion) > 2 else None
-        estado = partes_direccion[3] if len(partes_direccion) > 3 else None
-
-        if calle:
-            filters['Calle_hechos'] = calle
-        if colonia:
-            filters['ColoniaHechos'] = colonia
-        if municipio:
-            filters['Municipio_hechos'] = municipio
-        if estado:
-            filters['Estado_hechos'] = estado
-    elif search == "estado":
-        estado = partes_direccion[0] if len(partes_direccion) > 0 else None
-        if estado:
-            filters['Estado_hechos'] = estado
-    elif search == "municipio":
-        municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
-        if municipio:
-            filters['Municipio_hechos'] = municipio
-    elif search == "estadoMunicipio":
-        municipio = partes_direccion[0] if len(partes_direccion) > 0 else None
-        estado = partes_direccion[1] if len(partes_direccion) > 1 else None
-        if municipio:
-            filters['Municipio_hechos'] = municipio.strip()
-        if estado:
-            filters['Estado_hechos'] = estado.strip()
-
+    if direccion:
+        filters['direccion'] = normalize_text(direccion)
     
     if startDate_str and endDate_str:
         filters['startDate'] = startDate_str

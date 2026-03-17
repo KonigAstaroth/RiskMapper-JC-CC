@@ -8,7 +8,7 @@ from app.core.auth.firebase_config import db
 from app.src.utils.parse_timestamp import parseTimestamp
 import pandas as pd
 from app.src.utils.parse_excel_datetime import resolveDate, resolveTime, combineDateTime
-from app.src.utils.bulk_load_helpers import location_check, sanitize_text, is_valid_float
+from app.src.utils.bulk_load_helpers import location_check, normalize_text, sanitize_text, is_valid_float
 import io
 
 
@@ -54,7 +54,6 @@ def handleManualLoad(request):
         data.get('municipio'),
     ))
 
-    print('Esto es None? ',data.get('fecha'))
     if has_coords:
         data['lat'] = float(data['lat'])
         data['lng'] = float(data['lng'])
@@ -64,12 +63,21 @@ def handleManualLoad(request):
     data["municipio"] = sanitize_text(data["municipio"])
     data["estado"] = sanitize_text(data["estado"])
 
+    calle = data["calle"] 
+    colonia = data["colonia"] 
+    municipio = data["municipio"] 
+    estado = data["estado"] 
+
     try:
         if (has_address or has_coords) and all([data.get('fecha'), data.get('delito'), data.get('icono'), data.get('categoria')]):
 
             data = resolveManualGeo(data)
 
             data['FechaHoraHecho'] = parseTimestamp(data.get('fecha'))
+
+            partes = [calle, colonia, municipio, estado]
+            direccion = " ".join(p for p in partes if p)
+            direccion = normalize_text(direccion)
 
             try:
                 db.collection('Eventos').add({
@@ -85,6 +93,7 @@ def handleManualLoad(request):
                     "longitud": data["lng"],
                     'updatedAt': datetime.datetime.now(datetime.timezone.utc),
                     'Descripcion': data["descripcion"],
+                    'direccion_full': direccion
                 })
                 success_message = "Datos agregados exitosamente"
                 return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
@@ -133,9 +142,21 @@ def bulk_load_task(self, file_bytes):
             event['ColoniaHechos'] = sanitize_text(event.get('ColoniaHechos'))
             event['Calle_hechos'] = sanitize_text(event.get('Calle_hechos'))
 
+            estado = event['Estado_hechos']
+            municipio = event['Municipio_hechos'] 
+            colonia = event['ColoniaHechos'] 
+            calle = event['Calle_hechos']
+
 
             if has_street2:
                 event['Calle_hechos2'] = sanitize_text(event.get('Calle_hechos2'))
+                calle2 = event['Calle_hechos2']
+                partes = [calle, calle2, colonia, municipio, estado]
+            else:
+                partes = [calle, colonia, municipio, estado]
+
+            direccion = " ".join(p for p in partes if p)
+            direccion = normalize_text(direccion)
 
             if not location_check(event, location_data):
                 resolveBulkGeo(event, has_street2)
@@ -143,6 +164,7 @@ def bulk_load_task(self, file_bytes):
             event['icono'] = resolveIcons(event.get('Categoria'))
             event['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
             event['Categoria'] = event.get('Categoria', '').upper()
+            event['direccion_full'] = direccion
 
             ref = db.collection('Eventos').document()
             batch.set(ref, event)
