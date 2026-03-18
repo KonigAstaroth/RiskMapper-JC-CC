@@ -151,11 +151,11 @@ Formato obligatorio de salida (un solo párrafo, sin viñetas, en forma de prosa
 
 *Si la unidad de negocio seleccionada es diferente a "Ninguna unidad seleccionada"*:
 
-- Analiza las implicaciones estratégicas exclusivamente en función de los incidentes documentados y su posible impacto operativo, logístico, reputacional o de seguridad sobre la unidad de negocio seleccionada.
+- Analiza las posibles implicaciones de seguridad que afecten a la unidad de negocio exclusivamente en función de los incidentes documentados y su posible impacto operativo, logístico, reputacional o de seguridad sobre la unidad de negocio seleccionada.
 
-- Vincula los patrones delictivos identificados con riesgos específicos para dicha unidad.
+- Vincula los patrones delictivos identificados con riesgos específicos para dicha unidad de negocio
 
-- No agregues recomendaciones generales que no estén directamente relacionadas con los hechos documentados.
+- No agregues recomendaciones generales que no estén directamente relacionadas con los hechos documentados para dicha unidad de negocio.
 
 - No infieras vulnerabilidades no descritas en los resultados dados.
 
