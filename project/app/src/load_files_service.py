@@ -173,7 +173,8 @@ def bulk_load_task(self, file_bytes):
             if count % 400 == 0:
                 batch.commit()
                 batch = db.batch()
-        except:
+        except Exception as e:
+            print(e)
             continue
     batch.commit()
 
