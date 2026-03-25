@@ -56,6 +56,7 @@ def  is_valid_float(number):
 def normalize_text(texto):
     if not texto:
         return ""
+    texto = texto.replace(",", "")
     texto = unicodedata.normalize('NFD', texto)
     texto = ''.join(c for c in texto if unicodedata.category(c) != 'Mn')
     return texto.lower().strip()

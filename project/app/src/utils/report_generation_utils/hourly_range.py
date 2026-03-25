@@ -38,7 +38,7 @@ def getRange(eventos):
         hora = fecha_local.hour
         horas.append(hora)
     
-    eventos_por_hora.append((hora, evento))
+        eventos_por_hora.append((hora, evento))
 
     if not horas:
         return None
