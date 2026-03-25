@@ -139,7 +139,6 @@ Inicio
             <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Reporte generado</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div>
@@ -150,7 +149,7 @@ Inicio
             <div class="modal-footer">
                 <form method="POST" action="{% url 'export' %}">
                     {% csrf_token %}
-                    <button class="cbr-button" type="submit" class="send">
+                    <button class="cbr-button" type="submit" class="send" onclick="closeReportModal()">
                         <i class="bi bi-download"></i>
                         Descargar analisis
                     </button>
@@ -166,8 +165,7 @@ Inicio
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
             <div class="modal-header">
-                <h2 class="analisis">ANALISIS DE PATRONES  </h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h2 class="analisis">ANÁLISIS DE PATRONES  </h2>
             </div>
             <div class="modal-body">
                 <div class="carta">
@@ -268,6 +266,10 @@ Inicio
                 window.location.reload();
             }
         });
+    }
+
+    function closeReportModal(){
+        confirmationModal.close()
     }
     
   </script>
