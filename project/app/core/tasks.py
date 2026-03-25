@@ -1,3 +1,5 @@
+import datetime
+from datetime import timedelta
 from celery import shared_task
 from app.src.report_generation import process_report
 from app.core.auth.firebase_config import db
@@ -7,6 +9,8 @@ def generate_report_task(self,data,uid):
     result = process_report(data,uid)
 
     report_id = self.request.id
+
+    result['expiresAt']  = datetime.datetime.now(datetime.timezone.utc) + timedelta(days=1)
 
     db.collection("Reportes").document(report_id).set(result)
 
