@@ -10,6 +10,7 @@ CACHE_KEY_LAST_UPDATE = 'firebase_markers_last_update'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
 cred = credentials.Certificate(cred_path)
+cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred)
 
 # os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')  
