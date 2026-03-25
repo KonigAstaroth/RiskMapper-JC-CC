@@ -67,4 +67,5 @@ def resolveBulkGeo(event, has_adress2 = False):
         if ubi:
             event['latitud'] = ubi.latitude
             event['longitud'] = ubi.longitude
+    return event
         

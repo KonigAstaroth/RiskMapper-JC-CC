@@ -159,7 +159,7 @@ def bulk_load_task(self, file_bytes):
             direccion = normalize_text(direccion)
 
             if not location_check(event, location_data):
-                resolveBulkGeo(event, has_street2)
+                event = resolveBulkGeo(event, has_street2)
 
             event['icono'] = resolveIcons(event.get('Categoria'))
             event['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
