@@ -5,10 +5,8 @@ import firebase_admin
 import datetime
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  
-
-cred_path = "C:\\Users\\roboe\\OneDrive\\Documentos\\GitHub\\RiskMapper-JC-CC\\project\\project\\riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json"
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
 cred = credentials.Certificate(cred_path)
 
 firebase_admin.initialize_app(cred)

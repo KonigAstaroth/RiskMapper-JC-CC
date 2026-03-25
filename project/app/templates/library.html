@@ -96,7 +96,7 @@ Bibloteca de datos
                 {% if eventos %}
                     {% for evento in eventos %}
                         <tr>
-                            <td>{{ evento.Delito }}</td>
+                            <td>{{ evento.Delito|truncatechars:35 }}</td>
                             <td>{{ evento.Calle_hechos}}</td>
                             <td>{{ evento.ColoniaHechos}}</td>
                             <td>{{ evento.Municipio_hechos}}</td>

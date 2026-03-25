@@ -118,7 +118,7 @@ def searchEvent(filters):
 
         
         if startDate_str and endDate_str:
-            startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc)
+            startDate = datetime.datetime.strptime(startDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
             endDate = datetime.datetime.strptime(endDate_str, "%Y-%m-%d").replace(tzinfo=timezone.utc) + timedelta(days=1)
             query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '>=', startDate))
             query_ref = query_ref.where(filter=FieldFilter("FechaHoraHecho", '<=', endDate))
@@ -155,5 +155,7 @@ def buildFilters(request):
 
     if categoria:
         filters['Categoria'] = categoria
+
+    request.session['filters_library'] = filters
 
     return filters

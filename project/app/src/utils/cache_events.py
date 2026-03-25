@@ -33,7 +33,7 @@ def markers():
         return v
 
     if query_has_update:
-        data = ref.limit(2000).get() or []
+        data = ref.get() or []
         list_markers = []
         max_update = last_update
 

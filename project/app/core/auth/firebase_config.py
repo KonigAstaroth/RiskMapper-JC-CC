@@ -10,13 +10,13 @@ FIREBASE_API_KEY= config('FIREBASE_API_KEY', default=None)
 
 
 # DEBUGGING
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
-# cred = credentials.Certificate(cred_path)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+cred_path = os.path.join(BASE_DIR, 'riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json')
+cred = credentials.Certificate(cred_path)
 
 #Production
-cred_path = '/etc/secrets/riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json'
-cred = credentials.Certificate(cred_path)
+# cred_path = '/etc/secrets/riskmapper-jc-cc-firebase-adminsdk-fbsvc-a6ee255385.json'
+# cred = credentials.Certificate(cred_path)
 
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
