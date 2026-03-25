@@ -13,7 +13,7 @@ def check_valid_value(valor):
      return str(valor).strip().upper() not in ['NA', 'N/A', '', 'NONE']
 
 def location_check(evento, campos):
-     return all(evento.get(campo.lower()) not in ['', None, 'n/a', 'na'] for campo in campos)
+     return all(evento.get(campo) not in ['', None, 'NA', 'N/a', 'n/a', 'N/A', 'na'] for campo in campos)
 
 def getEstadoMunicipio(location):
      municipio = estado = None
@@ -28,11 +28,11 @@ def getEstadoMunicipio(location):
 
 def build_address(evento, has_street2=False):
      partes = [
-        evento.get('Calle_hechos', ''),
-        evento.get('Calle_hechos2','') if has_street2 else '',
-        evento.get('ColoniaHechos',''),
-        evento.get('Municipio_hechos',''),
-        evento.get('Estado_hechos','')
+        evento.get('Calle_hechos'),
+        evento.get('Calle_hechos2') if has_street2 else '',
+        evento.get('ColoniaHechos'),
+        evento.get('Municipio_hechos'),
+        evento.get('Estado_hechos')
      ]
      
      return ', '.join(p for p in partes if check_valid_value(p))
