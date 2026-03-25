@@ -96,14 +96,16 @@ def loadFiles(request):
     return render(request, "loadFiles.html", context)
 
 def library(request):
-    priv = getPrivileges(request)
-    eventos =[]
-    if request.method == 'POST':
+     priv = getPrivileges(request)
+     eventos = [] 
+     if request.method == 'POST':
           filters = buildFilters(request)
           eventos = searchEvent(filters)
-          request.session['filters_library'] = filters
 
-    return render(request, 'library.html', {
+     if request.session.get('filters_library'):
+          eventos = searchEvent(request.session.get('filters_library'))
+
+     return render(request, 'library.html', {
         'eventos': eventos,
         'priv': priv
-    })
+     })
