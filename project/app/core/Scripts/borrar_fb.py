@@ -21,12 +21,13 @@ db = firestore.client()
 
 # 3. Configura los parámetros del filtro        
 
-inicio_dia = datetime(2026, 2, 14, 0, 0, 0, tzinfo=timezone.utc)
-fin_dia = datetime(2026, 2, 14, 23, 59, 59, 999999, tzinfo=timezone.utc)
+inicio_dia = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+fin_dia = datetime(2026, 3, 6, 23, 59, 59, 999999, tzinfo=timezone.utc)
 
 docs = db.collection('Eventos') \
-         .where('updatedAt', '>=', inicio_dia) \
-         .where('updatedAt', '<=', fin_dia) \
+         .where('FechaHoraHecho', '>=', inicio_dia) \
+         .where('FechaHoraHecho', '<=', fin_dia) \
+         .where('Estado_hechos', '==', 'Tamaulipas') \
          .get()
 
 print(f"Se van a borrar {len(docs)} documentos subidos hoy:")
