@@ -28,7 +28,8 @@ async def genAI(filters, start, end, now, crimes_select, eventos_db, unit_info, 
                current_search_task, 
                ensu_task, 
                template_task,
-               prev_search_task
+               prev_search_task,
+               return_exceptions=True 
           )
 
           lugar = ', '.join(f"{k}: {v}" for k,v in filters.items()) if filters else "No especificado"
@@ -53,5 +54,6 @@ async def genAI(filters, start, end, now, crimes_select, eventos_db, unit_info, 
             "lugar": lugar
           }
      except Exception as e:
+          print("Error en:", str(e))
           error_message = "Hubo un error al generar el reporte"
           return redirect(f"/main?error={urllib.parse.quote(error_message)}")
