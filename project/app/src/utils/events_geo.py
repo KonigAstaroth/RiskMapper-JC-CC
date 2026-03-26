@@ -1,6 +1,6 @@
 from geopy.geocoders import GoogleV3
 from django.conf import settings
-from app.src.utils.bulk_load_helpers import location_check, check_valid_value, getEstadoMunicipio, build_address
+from app.src.utils.bulk_load_helpers import check_valid_value, getEstadoMunicipio, build_address
 
 geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
 
@@ -47,25 +47,30 @@ def resolveManualGeo(data):
         return data
 
 def resolveBulkGeo(event, has_adress2 = False):
-    if not (check_valid_value(event.get('latitud')) and check_valid_value(event.get('longitud'))):
-        return
-    lat = event['latitud']
-    lng = event['longitud']
 
-    if not check_valid_value(event.get('Estado_hechos')) or not check_valid_value(event.get('Municipio_hechos')):
-        location = geolocator.reverse((lat,lng))
-        municipio, estado = getEstadoMunicipio(location)
+    has_coords = check_valid_value(event.get('latitud')) and check_valid_value(event.get('longitud'))
 
-        if municipio:
-            event['Municipio_hechos'] = municipio
-        if estado:
-            event['Estado_hechos'] = estado
-    if check_valid_value(event.get('Estado_hechos')) and check_valid_value(event.get('Municipio_hechos')):
+    # Has coordinates
+    if has_coords:
+        # If doesn't have state or city
+        if not check_valid_value(event.get('Estado_hechos')) or not check_valid_value(event.get('Municipio_hechos')):
+            lat = event['latitud']
+            lng = event['longitud']
+            location = geolocator.reverse((lat,lng))
+            municipio, estado = getEstadoMunicipio(location)
+
+            if municipio:
+                event['Municipio_hechos'] = municipio
+            if estado:
+                event['Estado_hechos'] = estado
+    # It doesn't have coords but city and state
+    else:
         address= build_address(event, has_adress2)
         ubi = geolocator.geocode(address)
 
         if ubi:
             event['latitud'] = ubi.latitude
             event['longitud'] = ubi.longitude
+
     return event
         
