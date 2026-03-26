@@ -91,17 +91,17 @@ def ProcessDocx(request):
                     except:
                          doc.add_paragraph('Error al cargar calendario')
 
-     if graphic:
-        for g in graphic or []:
-            img = g.get('img')
-            if img:
-                try:
-                    titulo = 'Gráfico de distribución horaria:'
-                    doc.add_heading(titulo, level=2)
-                    doc.add_paragraph("")
-                    insertar_imagen(img, 3, doc)
-                except:
-                    doc.add_paragraph('Error al agregar gráfico')
+               if graphic:
+                    for g in graphic or []:
+                         img = g.get('img')
+                         if img:
+                              try:
+                                   titulo = 'Gráfico de distribución horaria:'
+                                   doc.add_heading(titulo, level=2)
+                                   doc.add_paragraph("")
+                                   insertar_imagen(img, 3, doc)
+                              except:
+                                   doc.add_paragraph('Error al agregar gráfico')
 
      if tabla_img:
         try:
