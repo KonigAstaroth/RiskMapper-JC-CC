@@ -23,8 +23,6 @@ INPUTS RECIBIDOS
 
 - Unidad de negocio seleccionada: {unit_info}
 
-Si {start} y {end} son None, toma automáticamente un periodo de 6 meses hacia atrás desde {now}.
-
 Solo considera incidentes dentro del periodo indicado y que correspondan geográficamente a {lugar}.
 
 Si un delito no aparece en los resultados dados, omítelo sin indicar ausencia de información.
