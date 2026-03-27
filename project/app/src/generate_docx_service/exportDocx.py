@@ -80,8 +80,8 @@ def ProcessDocx(request):
         markdown_to_docx(AiMarkdown, doc)
      doc.add_page_break()
 
-     if calendarios:
-          for calendario in calendarios or []:
+     if calendarios and graphic:
+          for calendario, g in zip(calendarios, graphic):
                img_base64 = calendario.get('img')
                if img_base64:
                     try:
@@ -90,18 +90,15 @@ def ProcessDocx(request):
                          insertar_imagen(img_base64, 3, doc)
                     except:
                          doc.add_paragraph('Error al cargar calendario')
-
-               if graphic:
-                    for g in graphic or []:
-                         img = g.get('img')
-                         if img:
-                              try:
-                                   titulo = 'Gráfico de distribución horaria:'
-                                   doc.add_heading(titulo, level=2)
-                                   doc.add_paragraph("")
-                                   insertar_imagen(img, 3, doc)
-                              except:
-                                   doc.add_paragraph('Error al agregar gráfico')
+               img = g.get('img')
+               if img:
+                    try:
+                         titulo = 'Gráfico de distribución horaria:'
+                         doc.add_heading(titulo, level=2)
+                         doc.add_paragraph("")
+                         insertar_imagen(img, 3, doc)
+                    except:
+                         doc.add_paragraph('Error al agregar gráfico')
 
      if tabla_img:
         try:
