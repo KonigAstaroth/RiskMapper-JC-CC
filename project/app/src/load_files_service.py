@@ -134,12 +134,11 @@ def bulk_load_task(self, file_bytes):
             )
 
             # Now in datetime
-            df.loc[~mask_num, 'FechaHecho]'] = pd.to_datetime(
+            df.loc[~mask_num, 'FechaHecho'] = pd.to_datetime(
                 df.loc[~mask_num, 'FechaHecho'],
                 errors='coerce',
                 dayfirst=True
             )
-            df['FechaHecho'] = pd.to_datetime(df['FechaHecho'],errors='coerce',dayfirst=True)
         else:
             df['FechaHecho'] = pd.NaT
 
@@ -154,7 +153,7 @@ def bulk_load_task(self, file_bytes):
 
         # Cleanup
         df['FechaHoraHecho'] = df['FechaHoraHecho'].apply(
-            lambda x: x.to_pydatetime() if pd.notnull(x) else None
+            lambda x: x.to_pydatetime().astimezone(datetime.timezone.utc) if pd.notnull(x) else None
         )
     except Exception as e:
         print(str(e))
