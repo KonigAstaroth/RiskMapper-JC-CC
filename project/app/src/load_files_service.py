@@ -145,7 +145,8 @@ def bulk_load_task(self, file_bytes):
         df['FechaHoraHecho'] = df['FechaHoraHecho'].apply(
             lambda x: x.to_pydatetime() if pd.notnull(x) else None
         )
-    except:
+    except Exception as e:
+        print(str(e))
         return {"status": "error", "message": "Error al convertir las fechas en el archivo"} 
 
     df.drop(columns=["FechaHecho", "HoraHecho"], inplace=True, errors='ignore')
