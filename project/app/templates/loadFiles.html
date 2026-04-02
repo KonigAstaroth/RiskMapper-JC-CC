@@ -232,12 +232,6 @@ Carga de datos
         const loadingBulk = JSON.parse(document.getElementById('loading_bulk').textContent);
         let intervalId = null;
 
-        if(loadingBulk == '' || loadingBulk == 'False' || loadingBulk === null){
-            loadingBulk = false;
-        }else{
-            loadingBulk = true;
-        }
-
         if(loadingBulk){
             loadingModal.show()
             intervalId = setInterval(checkBulkStatus, 1500)
@@ -252,7 +246,7 @@ Carga de datos
                     loadingModal.hide();
                     showSuccessAlert("Carga completada. Eventos insertados: " + data.inserted);
                 }
-                if(data.status == 'error'){
+                else if(data.status == 'error'){
                     clearInterval(intervalId);
                     loadingModal.hide();
                     showErrorAlert(data.message);
