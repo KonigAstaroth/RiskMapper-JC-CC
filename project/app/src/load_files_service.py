@@ -135,7 +135,7 @@ def bulk_load_task(self, file_bytes):
 
             # Now in datetime
             df.loc[~mask_num, 'FechaHecho]'] = pd.to_datetime(
-                df.loc[~mask_num, 'FechaHecho]'],
+                df.loc[~mask_num, 'FechaHecho'],
                 errors='coerce',
                 dayfirst=True
             )
