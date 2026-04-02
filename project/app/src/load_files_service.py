@@ -121,13 +121,16 @@ def bulk_load_task(self, file_bytes):
         if "FechaHecho" in df.columns:
 
             # Numerical dates in excel
-            mask = pd.to_numeric(df['FechaHecho'], errors='coerce').notnull()
-            df.loc[mask, 'FechaHecho'] = pd.to_datetime(
-                df.loc[mask, 'FechaHecho'],
-                errors='coerce',
-                origin='1899-12-30',
-                unit='D'
-            )
+            generics = pd.to_numeric(df['FechaHecho'], errors='coerce')
+            mask_num = generics.notnull()
+
+            if mask_num.any():
+                df.loc[mask_num, 'FechaHecho'] = pd.to_datetime(
+                    df.loc[mask_num, 'FechaHecho'],
+                    errors='coerce',
+                    origin='1899-12-30',
+                    unit='D'
+                )
 
             # Now in datetime
             df['FechaHecho'] = pd.to_datetime(df['FechaHecho'],errors='coerce',dayfirst=True)
