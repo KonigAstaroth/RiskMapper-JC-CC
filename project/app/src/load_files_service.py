@@ -123,16 +123,22 @@ def bulk_load_task(self, file_bytes):
             # Numerical dates in excel
             generics = pd.to_numeric(df['FechaHecho'], errors='coerce')
             mask_num = generics.notnull()
+            df['FechaHecho'] = pd.NaT
 
-            if mask_num.any():
-                df.loc[mask_num, 'FechaHecho'] = pd.to_datetime(
-                    df.loc[mask_num, 'FechaHecho'],
-                    errors='coerce',
-                    origin='1899-12-30',
-                    unit='D'
-                )
+            
+            df.loc[mask_num, 'FechaHecho'] = pd.to_datetime(
+                generics[mask_num],
+                origin='1899-12-30',
+                unit='D',
+                errors='coerce',
+            )
 
             # Now in datetime
+            df.loc[~mask_num, 'FechaHecho]'] = pd.tp_datetime(
+                df.loc[~mask_num, 'FechaHecho]'],
+                errors='coerce',
+                dayfirst=True
+            )
             df['FechaHecho'] = pd.to_datetime(df['FechaHecho'],errors='coerce',dayfirst=True)
         else:
             df['FechaHecho'] = pd.NaT
