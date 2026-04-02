@@ -1,6 +1,7 @@
 from geopy.geocoders import GoogleV3
 from django.conf import settings
-from app.src.utils.bulk_load_helpers import check_valid_value, getEstadoMunicipio, build_address
+from google_crc32c import exc
+from app.src.utils.bulk_load_helpers import check_valid_value, getEstadoMunicipio, build_address, getCalleColonia, sanitize_text
 
 geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
 
@@ -23,15 +24,15 @@ def resolveManualGeo(data):
             for comp in componentes:
                 types = comp['types']
                 if 'route' in types :
-                    street_name = comp['long_name']
+                    street_name = sanitize_text(comp['long_name'])
                 elif 'street_number' in types:
                     street_number = comp['long_name']
                 elif 'sublocality' in types or 'sublocality_level_1' in types:
-                    data['colonia'] = comp['long_name']
+                    data['colonia'] = sanitize_text(comp['long_name'])
                 elif 'locality' in types:
-                    data['municipio'] = comp['long_name']
+                    data['municipio'] = sanitize_text(comp['long_name'])
                 elif 'administrative_area_level_1' in types:
-                    data['estado'] = comp['long_name']
+                    data['estado'] = sanitize_text(comp['long_name'])
 
                 if street_name and street_number:
                     data['calle'] = f"{street_name} {street_number}"
@@ -49,28 +50,53 @@ def resolveManualGeo(data):
 def resolveBulkGeo(event, has_adress2 = False):
 
     has_coords = check_valid_value(event.get('latitud')) and check_valid_value(event.get('longitud'))
+    has_city = check_valid_value(event.get('Municipio_hechos'))
+    has_state = check_valid_value(event.get('Estado_hechos'))
+
+    street = event.get('Calle_hechos')
+    sublocality = event.get('ColoniaHechos')
+
+    has_address = check_valid_value(street) and  check_valid_value(sublocality)
 
     # Has coordinates
     if has_coords:
-        # If doesn't have state or city
-        if not check_valid_value(event.get('Estado_hechos')) or not check_valid_value(event.get('Municipio_hechos')):
-            lat = event['latitud']
-            lng = event['longitud']
-            location = geolocator.reverse((lat,lng))
-            municipio, estado = getEstadoMunicipio(location)
+        # If doesn't have state and city
+        lat = event['latitud']
+        lng = event['longitud']
 
-            if municipio:
-                event['Municipio_hechos'] = municipio
-            if estado:
-                event['Estado_hechos'] = estado
+        location = None
+        try:
+            location = geolocator.reverse((lat,lng))
+        except: 
+            location = None
+
+        if location:
+            if not has_city or not has_state:
+                municipio, estado = getEstadoMunicipio(location)
+
+                if municipio:
+                    event['Municipio_hechos'] = municipio
+                if estado:
+                    event['Estado_hechos'] = estado
+
+            # If it doesn't have street or sublocality
+            if not has_address:
+                calle, colonia = getCalleColonia(location)  
+
+                if calle:
+                    event['Calle_hechos'] = calle
+                if colonia:
+                    event['ColoniaHechos'] = colonia    
     # It doesn't have coords but city and state
     else:
         address= build_address(event, has_adress2)
         ubi = geolocator.geocode(address)
-
-        if ubi:
-            event['latitud'] = ubi.latitude
-            event['longitud'] = ubi.longitude
+        try:
+            if ubi:
+                event['latitud'] = ubi.latitude
+                event['longitud'] = ubi.longitude
+        except Exception:
+            pass
 
     return event
         

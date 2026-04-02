@@ -117,15 +117,18 @@ def bulk_load_task(self, file_bytes):
     except:
         return {"status": "error", "message": "Error al leer el archivo Excel"}
 
-    if "FechaHecho" in df.columns:
-        df['FechaHecho'] = df['FechaHecho'].apply(resolveDate)
-    if "HoraHecho" in df.columns:
-        df["HoraHecho"] = df["HoraHecho"].apply(resolveTime)
+    try:
+        if "FechaHecho" in df.columns:
+            df['FechaHecho'] = df['FechaHecho'].apply(resolveDate)
+        if "HoraHecho" in df.columns:
+            df["HoraHecho"] = df["HoraHecho"].apply(resolveTime)
 
-    df["FechaHoraHecho"] = df.apply(
-        lambda row: combineDateTime(row.get("FechaHecho"), row.get("HoraHecho")),
-        axis=1
-    )
+        df["FechaHoraHecho"] = df.apply(
+            lambda row: combineDateTime(row.get("FechaHecho"), row.get("HoraHecho")),
+            axis=1
+        )
+    except:
+        return {"status": "error", "message": "Error al convertir las fechas en el archivo"} 
 
     df.drop(columns=["FechaHecho", "HoraHecho"], inplace=True, errors='ignore')
     data = df.where(pd.notnull(df), None).to_dict(orient='records')
@@ -135,48 +138,55 @@ def bulk_load_task(self, file_bytes):
     batch = db.batch()
     count = 0
 
-    for event in data:
-        try:
-            event['Estado_hechos'] = sanitize_text(event.get('Estado_hechos'))
-            event['Municipio_hechos'] = sanitize_text(event.get('Municipio_hechos'))
-            event['ColoniaHechos'] = sanitize_text(event.get('ColoniaHechos'))
-            event['Calle_hechos'] = sanitize_text(event.get('Calle_hechos'))
+    try:
+        for event in data:
+            try:
+                # Completes missing data in address and coords
+                if not location_check(event, location_data):
+                    event = resolveBulkGeo(event, has_street2)
 
-            estado = event['Estado_hechos']
-            municipio = event['Municipio_hechos'] 
-            colonia = event['ColoniaHechos'] 
-            calle = event['Calle_hechos']
+                # Get address data
+                event['Estado_hechos'] = sanitize_text(event.get('Estado_hechos'))
+                event['Municipio_hechos'] = sanitize_text(event.get('Municipio_hechos'))
+                event['ColoniaHechos'] = sanitize_text(event.get('ColoniaHechos'))
+                event['Calle_hechos'] = sanitize_text(event.get('Calle_hechos'))
 
+                estado = event['Estado_hechos']
+                municipio = event['Municipio_hechos'] 
+                colonia = event['ColoniaHechos'] 
+                calle = event['Calle_hechos']
 
-            if has_street2:
-                event['Calle_hechos2'] = sanitize_text(event.get('Calle_hechos2'))
-                calle2 = event['Calle_hechos2']
-                partes = [calle, calle2, colonia, municipio, estado]
-            else:
-                partes = [calle, colonia, municipio, estado]
+                # Completes data from 
+                if has_street2:
+                    event['Calle_hechos2'] = sanitize_text(event.get('Calle_hechos2'))
+                    calle2 = event['Calle_hechos2']
+                    partes = [calle, calle2, colonia, municipio, estado]
+                else:
+                    partes = [calle, colonia, municipio, estado]
 
-            direccion = " ".join(p for p in partes if p)
-            direccion = normalize_text(direccion)
+                direccion = " ".join(p for p in partes if p)
+                direccion = normalize_text(direccion)
 
-            if not location_check(event, location_data):
-                event = resolveBulkGeo(event, has_street2)
+                event['icono'] = resolveIcons(event.get('Categoria'))
+                event['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
+                event['Categoria'] = event.get('Categoria', '').upper()
+                event['direccion_full'] = direccion
 
-            event['icono'] = resolveIcons(event.get('Categoria'))
-            event['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
-            event['Categoria'] = event.get('Categoria', '').upper()
-            event['direccion_full'] = direccion
+                # Batch commit in database
+                ref = db.collection('Eventos').document()
+                batch.set(ref, event)
+                count +=1
+                
 
-            ref = db.collection('Eventos').document()
-            batch.set(ref, event)
-            count +=1
+                if count % 400 == 0:
+                    batch.commit()
+                    batch = db.batch()
+            except Exception as e:
+                print(e)
+                continue
+        batch.commit()
 
-            if count % 400 == 0:
-                batch.commit()
-                batch = db.batch()
-        except Exception as e:
-            print(e)
-            continue
-    batch.commit()
-
-    return {"status": "success", "inserted": count}
+        return {"status": "success", "inserted": count}
+    except:
+      return {"status": "error", "message": "Error en la carga de datos"}  
 

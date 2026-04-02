@@ -240,7 +240,7 @@ Carga de datos
 
         if(loadingBulk){
             loadingModal.show()
-            let intervalId = setInterval(checkBulkStatus, 1500)
+            intervalId = setInterval(checkBulkStatus, 1500)
         }
 
         function checkBulkStatus(){
@@ -250,8 +250,12 @@ Carga de datos
                 if (data.status == 'finished'){
                     clearInterval(intervalId);
                     loadingModal.hide();
-                    window.location.reload();
                     showSuccessAlert("Carga completada. Eventos insertados: " + data.inserted);
+                }
+                if(data.status == 'error'){
+                    clearInterval(intervalId);
+                    loadingModal.hide();
+                    showErrorAlert(data.message);
                 }
             });
         }
@@ -261,6 +265,34 @@ Carga de datos
             const alertBox = document.createElement("div");
 
             alertBox.className = "alert alert-success";
+            alertBox.id = "success-alert";
+
+            alertBox.style.width = "50%";
+            alertBox.style.textAlign = "center";
+            alertBox.style.zIndex = "999";
+            alertBox.style.position = "fixed";
+            alertBox.style.top = "0";
+            alertBox.style.left = "25%";
+
+            alertBox.innerText = message;
+
+            document.body.appendChild(alertBox);
+
+            setTimeout(function(){
+
+                alertBox.style.transition = "opacity 0.75s";
+                alertBox.style.opacity = "0";
+
+                setTimeout(() => alertBox.remove(), 500);
+
+            }, 3000);
+        }
+
+        function showErrorAlert(message){
+
+            const alertBox = document.createElement("div");
+
+            alertBox.className = "alert alert-danger";
             alertBox.id = "success-alert";
 
             alertBox.style.width = "50%";

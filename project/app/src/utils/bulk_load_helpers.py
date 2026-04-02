@@ -26,6 +26,24 @@ def getEstadoMunicipio(location):
                     estado = comp['long_name']
      return municipio, estado
 
+def getCalleColonia(location):
+     if location and location.raw:
+          componentes = location.raw.get('address_components', [])
+          for comp in componentes:
+               types = comp['types']
+               if 'route' in types :
+                    street_name = comp['long_name']
+               elif 'street_number' in types:
+                    street_number = comp['long_name']
+               elif 'sublocality' in types or 'sublocality_level_1' in types:
+                    colonia = comp['long_name']
+
+               if street_name and street_number:
+                    calle = f"{street_name} {street_number}"
+               else:
+                    calle = street_name  
+     return calle, colonia
+
 def build_address(evento, has_street2=False):
      partes = [
         evento.get('Calle_hechos'),
