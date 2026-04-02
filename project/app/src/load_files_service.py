@@ -119,16 +119,18 @@ def bulk_load_task(self, file_bytes):
 
     try:
         if "FechaHecho" in df.columns:
-            df['FechaHecho'] = pd.to_datetime(df['FechaHecho'],errors='coerce',dayfirst=True)
 
-            # Excel numbers
-            mask = df['FechaHecho'].isna()
+            # Numerical dates in excel
+            mask = pd.to_numeric(df['FechaHecho'], errors='coerce').notnull()
             df.loc[mask, 'FechaHecho'] = pd.to_datetime(
                 df.loc[mask, 'FechaHecho'],
                 errors='coerce',
                 origin='1899-12-30',
                 unit='D'
             )
+
+            # Now in datetime
+            df['FechaHecho'] = pd.to_datetime(df['FechaHecho'],errors='coerce',dayfirst=True)
         else:
             df['FechaHecho'] = pd.NaT
 
