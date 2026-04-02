@@ -36,6 +36,19 @@ def resolveTime(h):
     return None
 
 def combineDateTime(fecha, hora):
+    if not fecha:
+        return None
+
+    # Convert date if is timestamp 
+    if isinstance(fecha, pd.Timestamp):
+        fecha = fecha.to_pydatetime()
+
+    # Convert time if is Timestamp or datetime
+    if isinstance(hora, pd.Timestamp):
+        hora = hora.to_pydatetime().time()
+    elif isinstance(hora, datetime.datetime):
+        hora = hora.time()
+
     if isinstance(fecha, datetime.datetime) and isinstance(hora, datetime.time):
         return datetime.datetime.combine(fecha.date(), hora)
     return None
