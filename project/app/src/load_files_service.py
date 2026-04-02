@@ -119,13 +119,31 @@ def bulk_load_task(self, file_bytes):
 
     try:
         if "FechaHecho" in df.columns:
-            df['FechaHecho'] = df['FechaHecho'].apply(resolveDate)
-        if "HoraHecho" in df.columns:
-            df["HoraHecho"] = df["HoraHecho"].apply(resolveTime)
+            df['FechaHecho'] = pd.to_datetime(df['FechaHecho'],errors='coerce',dayfirst=True)
 
-        df["FechaHoraHecho"] = df.apply(
-            lambda row: combineDateTime(row.get("FechaHecho"), row.get("HoraHecho")),
-            axis=1
+            # Excel numbers
+            mask = df['FechaHecho'].isna()
+            df.loc[mask, 'FechaHecho'] = pd.to_datetime(
+                df.loc[mask, 'FechaHecho'],
+                errors='coerce',
+                origin='1899-12-30',
+                unit='D'
+            )
+        else:
+            df['FechaHecho'] = pd.NaT
+
+        
+        if "HoraHecho" in df.columns:
+            df['HoraHecho'] = pd.to_datetime(df['HoraHecho'],errors='coerce')
+        else:
+           df['HoraHecho'] = pd.NaT 
+
+        # Combine date and time
+        df['FechaHoraHecho'] = df['FechaHecho'] + (df['HoraHecho'] - df['HoraHecho'].dt.normalize())
+
+        # Cleanup
+        df['FechaHoraHecho'] = df['FechaHoraHecho'].apply(
+            lambda x: x.to_pydatetime() if pd.notnull(x) else None
         )
     except:
         return {"status": "error", "message": "Error al convertir las fechas en el archivo"} 
