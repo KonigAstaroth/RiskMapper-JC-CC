@@ -119,42 +119,12 @@ def bulk_load_task(self, file_bytes):
 
     try:
         if "FechaHecho" in df.columns:
+            df['FechaHecho'] = df['FechaHecho'].apply(resolveDate)
 
-            # Numerical dates in excel
-            generics = pd.to_numeric(df['FechaHecho'], errors='coerce')
-            mask_num = generics.notnull()
-            df['FechaHecho'] = pd.NaT
-
-            
-            df.loc[mask_num, 'FechaHecho'] = pd.to_datetime(
-                generics[mask_num],
-                origin='1899-12-30',
-                unit='D',
-                errors='coerce',
-            )
-
-            # Now in datetime
-            df.loc[~mask_num, 'FechaHecho'] = pd.to_datetime(
-                df.loc[~mask_num, 'FechaHecho'],
-                errors='coerce',
-                dayfirst=True
-            )
-        else:
-            df['FechaHecho'] = pd.NaT
-
-        
         if "HoraHecho" in df.columns:
-            df['HoraHecho'] = pd.to_datetime(df['HoraHecho'],errors='coerce')
-        else:
-           df['HoraHecho'] = pd.NaT 
+            df["HoraHecho"] = df["HoraHecho"].apply(resolveTime)
 
-        # Combine date and time
-        df['FechaHoraHecho'] = df['FechaHecho'] + (df['HoraHecho'] - df['HoraHecho'].dt.normalize())
-
-        # Cleanup
-        df['FechaHoraHecho'] = df['FechaHoraHecho'].apply(
-            lambda x: x.to_pydatetime().astimezone(datetime.timezone.utc) if pd.notnull(x) else None
-        )
+        df["FechaHoraHecho"] = df.apply( lambda row: combineDateTime(row.get("FechaHecho"), row.get("HoraHecho")), axis=1 )
     except Exception as e:
         print(str(e))
         return {"status": "error", "message": "Error al convertir las fechas en el archivo"} 
