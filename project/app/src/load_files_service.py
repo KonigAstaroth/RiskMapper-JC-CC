@@ -118,14 +118,36 @@ def bulk_load_task(self, file_bytes):
         return {"status": "error", "message": "Error al leer el archivo Excel"}
 
     if "FechaHecho" in df.columns:
-        df['FechaHecho'] = df['FechaHecho'].apply(resolveDate)
-    if "HoraHecho" in df.columns:
-        df["HoraHecho"] = df["HoraHecho"].apply(resolveTime)
+        df['FechaHecho'] = pd.to_datetime(
+            df['FechaHecho'],
+            errors='coerce',
+            dayfirst=True
+        )
 
-    df["FechaHoraHecho"] = df.apply(
-        lambda row: combineDateTime(row.get("FechaHecho"), row.get("HoraHecho")),
-        axis=1
-    )
+        # Excel numbers
+        mask = df['FechaHecho'].isna()
+        df.loc[mask, 'FechaHecho'] = pd.to_datetime(
+            df.loc[mask, 'FechaHecho'],
+            errors='coerce',
+            origin='1899-12-30',
+            unit='D'
+        )
+    else:
+        df['FechaHecho'] = pd.NaT
+
+    if "HoraHecho" in df.columns:
+        df['HoraHecho'] = pd.to_datetime(
+            df['HoraHecho'],
+            errors='coerce'
+        )
+    else:
+        df['HoraHecho'] = pd.NaT
+
+    # Combine dates
+    df['FechaHoraHecho'] = df['FechaHecho'] + (df['HoraHecho'] - df['HoraHecho'].dt.normalize())
+
+    # Clean Nat if is None
+    df['FechaHoraHecho'] = df['FechaHoraHecho'].apply(lambda x: x.to_pydatetime() if pd.notnull(x) else None)
 
     df.drop(columns=["FechaHecho", "HoraHecho"], inplace=True, errors='ignore')
     data = df.where(pd.notnull(df), None).to_dict(orient='records')
