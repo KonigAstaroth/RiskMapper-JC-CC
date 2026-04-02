@@ -1,6 +1,5 @@
 from geopy.geocoders import GoogleV3
 from django.conf import settings
-from google_crc32c import exc
 from app.src.utils.bulk_load_helpers import check_valid_value, getEstadoMunicipio, build_address, getCalleColonia, sanitize_text
 
 geolocator = GoogleV3(api_key=settings.GOOGLE_MAPS_KEY)
