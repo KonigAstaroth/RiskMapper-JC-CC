@@ -155,8 +155,8 @@ Bibloteca de datos
 {% endfor %}
 
 {% for evento in eventos %}
-<div class="modal fade modal-xl" id="editEventModal_{{ evento.id }}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+<div class="modal fade" id="editEventModal_{{ evento.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <form method="POST" action="{% url 'edit_event' evento.id %}">
                 {% csrf_token %}
@@ -168,11 +168,11 @@ Bibloteca de datos
                     <div class="row" style="margin-top: 2%;">
                         <div class="col">
                             <label class="form-label">Calle</label>
-                            <input type="text" class="form-control" name="calle" value="{{ evento.Calle_hechos }}">
+                            <input type="text" class="cbr-text-input" name="calle" value="{{ evento.Calle_hechos }}">
                         </div>
                         <div class="col">
                             <label class="form-label">Colonia</label>
-                            <input type="text" class="form-control" name="colonia" value="{{ evento.ColoniaHechos }}">
+                            <input type="text" class="cbr-text-input" name="colonia" value="{{ evento.ColoniaHechos }}">
                         </div>
 
                     </div>
@@ -180,11 +180,11 @@ Bibloteca de datos
                     <div class="row" style="margin-top: 2%;">
                         <div class="col">
                             <label class="form-label">Municipio</label>
-                            <input type="text" class="form-control" name="municipio" value="{{ evento.Municipio_hechos }}">
+                            <input type="text" class="cbr-text-input" name="municipio" value="{{ evento.Municipio_hechos }}">
                         </div>
                         <div class="col">
                             <label class="form-label">Estado</label>
-                            <input type="text" class="form-control" name="estado" value="{{ evento.Estado_hechos }}">
+                            <input type="text" class="cbr-text-input" name="estado" value="{{ evento.Estado_hechos }}">
                         </div>
 
                     </div>
@@ -192,7 +192,7 @@ Bibloteca de datos
                     <div class="row" style="margin-top: 2%;">
                         <div class="col">
                             <label class="form-label">Categoría</label>
-                            <select class="form-select" name="categoria">
+                            <select class="cbr-text-input" name="categoria">
                                 <option selected class="options">{{ evento.Categoria }}</option>
                                 <option value="AMENAZAS" class="options">Amenazas</option>
                                 <option value="ROBO A NEGOCIO" class="options">Robo a negocio</option>
@@ -222,7 +222,7 @@ Bibloteca de datos
 
                         <div class="col">
                             <label class="form-label">Seleccione un icono</label>
-                            <select class="form-select" name="icons">
+                            <select class="cbr-text-input" name="icons">
                                 <!----->
                                 <option selected class="options">{{ evento.icono }}</option>
                                 <option value="amenazas" class="options">Amenazas</option>
@@ -257,11 +257,11 @@ Bibloteca de datos
                     <div style="margin-top: 2%;" class="row">
                         <div class="col">
                             <label class="form-label">Delito</label>
-                            <input type="text" class="form-control" name="delito" value="{{ evento.Delito }}">
+                            <input type="text" class="cbr-text-input" name="delito" value="{{ evento.Delito }}">
                         </div>
                         <div class="col">
                              <label class="form-label">Fecha y hora</label>
-                            <input type="datetime-local" class="form-control" name="FechaHoraHecho" value="{{ evento.FechaHoraHecho|date:'Y-m-d\\TH:i' }}">
+                            <input type="datetime-local" class="cbr-text-input" name="FechaHoraHecho" value="{{ evento.FechaHoraHecho|date:'Y-m-d\\TH:i' }}">
                         </div>
                         
                     </div>
@@ -269,22 +269,11 @@ Bibloteca de datos
                     <div class="col" style="margin-top: 2%;">
 
                         <label class="form-label">Descripción</label>
-                        <textarea id= "descripcion" name="descripcion" class="form-control" style="resize: none;" maxlength="700" oninput="contarCaracteres()">{{ evento.Descripcion }} </textarea>
-                        <small class="form-text text-muted" id="contador"></small>
+                        <textarea id= "descripcion_{{ evento.id }}" name="descripcion" class="cbr-textarea-input" style="resize: none;" maxlength="700" data-id="{{ evento.id }}">{{ evento.Descripcion }} </textarea>
+                        <small class="form-text text-muted" id="contador_{{ evento.id }}"></small>
                     </div>
 
-                    <script>
-                        function contarCaracteres(){
-                            var textarea = document.getElementById('descripcion')
-                            var contador = document.getElementById('contador')
-
-                            contador.textContent = textarea.value.length + "/ 700 caracteres" ;
-                        }
-
-                        document.addEventListener("DOMContentLoaded", function(){
-                            contarCaracteres();
-                        });
-                    </script>
+                </div>    
                     
                 
                 <div class="modal-footer">
@@ -295,5 +284,18 @@ Bibloteca de datos
     </div>
 </div>
 {% endfor %}
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function(){
+        document.querySelectorAll("textarea[id^='descripcion_']").forEach(el => {
+            el.addEventListener("input", function(){
+                var id = el.dataset.id
+                var contador = document.getElementById('contador_' + id)
+                contador.textContent = el.value.length + "/ 700 caracteres";
+            });
+        });
+    });
+</script>
 
 {% endblock %}
