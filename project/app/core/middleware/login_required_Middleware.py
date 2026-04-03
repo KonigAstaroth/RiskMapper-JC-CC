@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
 from app.core.auth.firebase_config import auth
 
-PUBLIC_URLS = ["/", "/logout/", '/login-process/']
+PUBLIC_URLS = ["/", "/logout/", '/login-process/', '/forgotPassword/', '/forgotPassword-sendMail/', '/recoverPass/']
 
 class loginRequiredMiddleware:
     def __init__(self, get_response):
