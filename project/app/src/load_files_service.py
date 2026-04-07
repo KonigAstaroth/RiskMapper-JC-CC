@@ -14,7 +14,7 @@ import io
 
 def loadFilesService(request):
     if request.method == 'POST':
-        if 'archivo' in request.FILES:
+        if 'archivo' in request.FILES and request.FILES['archivo'].name != '':
             excel_file = request.FILES['archivo']
             # Procesar el archivo según sea necesario
             file_bytes = excel_file.read()

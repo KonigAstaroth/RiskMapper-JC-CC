@@ -54,12 +54,12 @@ Carga de datos
                 <div class="file-input-section">
                     <a href="{% url 'download-template' %}">Descargar template</a>
                     <p id="file-name"></p>
-                    <button class="cbr-button" type="button">
-                        <label for="file">
-                            <i class="bi bi-upload me-3"></i>Cargar archivo
-                        </label>
-                        <input type="file" id="file" name="archivo" style="display: none;" accept=".xlsx">
-                    </button>
+                    
+                    <label for="file" class="cbr-button">
+                        <i class="bi bi-upload me-3"></i>Cargar archivo
+                    </label>
+                    <input type="file" id="file" name="archivo" style="display: none;" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                    
                 </div>
             </div>
 
