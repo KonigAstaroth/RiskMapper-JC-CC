@@ -23,7 +23,8 @@ crimes_list_api = [
     'Hecho no delictivo',
     'Robo a pasajero a bordo de taxi con violencia',
     'Robo a transportista',
-    'Robo de motocicleta'
+    'Robo de motocicleta',
+    'Organizaciones crimen organizado'
 ]
 
 lista_delitos= [
@@ -50,7 +51,8 @@ lista_delitos= [
     {'valor': 'ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA', 'nombre': 'Robo en taxi'},
     {'valor': 'SECUESTRO', 'nombre': 'Secuestro'},
     {'valor': 'TRATA DE PERSONAS', 'nombre': 'Trata de personas'},
-    {'valor': 'VIOLACIÓN', 'nombre': 'Violación'}
+    {'valor': 'VIOLACIÓN', 'nombre': 'Violación'},
+    {'valor': 'ORGANIZACIONES CRIMEN ORGANIZADO', 'nombre': 'Organizaciones crimen organizado'}
 ]
 
 color_delitos = [
@@ -77,5 +79,6 @@ color_delitos = [
     {'valor': 'HECHO NO DELICTIVO', 'nombre': 'Hecho no delictivo', 'color': '#D3D3D3'},
     {'valor': 'ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA', 'nombre': 'Robo en taxi', 'color': '#40E0D0'},
     {'valor': 'ROBO A TRANSPORTISTA', 'nombre': 'Robo a transportista', 'color': '#0000FF'},
-    {'valor': 'ROBO DE MOTOCICLETA', 'nombre': 'Robo de motocicleta', 'color': '#FF8C00'}
+    {'valor': 'ROBO DE MOTOCICLETA', 'nombre': 'Robo de motocicleta', 'color': '#FF8C00'},
+    {'valor': 'ORGANIZACIONES CRIMEN ORGANIZADO', 'color': '#2F4F4F'}
 ]

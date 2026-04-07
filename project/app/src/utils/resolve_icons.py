@@ -21,7 +21,8 @@ ICON_MAP = {
     "robo a transportista": "robotransportista",
     "hecho no delictivo": "nodelito",
     "bajo impacto": "bajoimpacto",
-    "robo de motocicleta": "robomotocicleta"
+    "robo de motocicleta": "robomotocicleta",
+    "organizaciones crimen organizado": "crimenorganizado"
 }
 
 
