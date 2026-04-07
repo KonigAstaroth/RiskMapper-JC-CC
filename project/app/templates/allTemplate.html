@@ -79,6 +79,9 @@
                                     </div>
                                 </div>
                             </li>
+                            <li>
+                                <a href="#" class="dropdown-item custom-item" data-bs-toggle="modal" data-bs-target="#supportModal">Soporte</a>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item logout-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
                         </ul>
@@ -87,6 +90,64 @@
             </div>
         </div>
     </nav>
+
+    <div class="modal fade modal-xl" id="supportModal" tabindex="-1" aria-labelledby="supportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <label for="">Describe el problema:</label>
+                        <textarea name="" id="" class="cbr-textarea-input"></textarea>
+                        <br>
+
+                        <label for="">¿Qué estabas haciendo?</label>
+                        <textarea name="" id="" class="cbr-textarea-input"></textarea>
+                        <br>
+
+                        <label for="">¿Qué esperabas que pasara?</label>
+                        <textarea name="" id="" class="cbr-textarea-input"></textarea>
+                        <br>
+
+                        <label for="">¿Qué pasó realmente?</label>
+                        <textarea name="" id="" class="cbr-textarea-input"></textarea>
+                        <br>
+
+                        <label for="">¿Con qué frecuencia ocurre?</label>
+                        <div>
+                            <input type="radio" id="always" value="Siempre" name="frequency">
+                            <label for="always">Siempre</label>
+                        </div>
+
+                        <div>
+                            <input type="radio" id="sometimes" value="A veces" name="frequency">
+                            <label for="always">A veces</label>
+                        </div>
+                        
+                        <div>
+                            <input type="radio" id="once" value="Una vez" name="frequency">
+                            <label for="always">Una vez</label>
+                        </div>
+                        <br>
+
+                        <label for="file">Evidencia</label>
+                        <div>
+                            <input type="file" accept="image/png, image/jpeg" id="file">
+                        </div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     
 

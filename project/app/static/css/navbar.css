@@ -81,6 +81,7 @@ ul.dropdown-menu.show{
   width: 17em;
   background-color: var(--surface);
   border: 1px solid var(--border);
+  overflow-y: hidden;
 }
 
 .custom-item, .logout-item {
