@@ -80,5 +80,5 @@ color_delitos = [
     {'valor': 'ROBO A PASAJERO A BORDO DE TAXI CON VIOLENCIA', 'nombre': 'Robo en taxi', 'color': '#40E0D0'},
     {'valor': 'ROBO A TRANSPORTISTA', 'nombre': 'Robo a transportista', 'color': '#0000FF'},
     {'valor': 'ROBO DE MOTOCICLETA', 'nombre': 'Robo de motocicleta', 'color': '#FF8C00'},
-    {'valor': 'ORGANIZACIONES CRIMEN ORGANIZADO', 'color': '#2F4F4F'}
+    {'valor': 'ORGANIZACIONES CRIMEN ORGANIZADO', 'color': '#2F4F4F', 'nombre': 'Organizaciones crimen organizado'}
 ]
