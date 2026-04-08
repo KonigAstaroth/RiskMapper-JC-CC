@@ -54,10 +54,10 @@ Carga de datos
                 <div class="file-input-section">
                     <a href="{% url 'download-template' %}">Descargar template</a>
                     <p id="file-name"></p>
-                
-                    <label class="cbr-button">
+                    <input type="file" name="archivo" accept=".xlsx" style="display: none;" id="file">
+                    <label class="cbr-button" for="file">
                         <i class="bi bi-upload me-3"></i>Cargar archivo
-                        <input type="file" id= "file" name="archivo" style="display: none;">
+                        
                     </label>
                 
                     
@@ -316,14 +316,19 @@ Carga de datos
 </script>
 
 <script>
+    console.log("SCRIPT CARGADO");
     const inputArchivo = document.getElementById('file');
     const nombreArchivo = document.getElementById('file-name');
     //Si el input de archivo cambia, el formulario manual se reinicia y se desactiva
-    inputArchivo.addEventListener('change', function () {
-        if (this.files.length > 0) {
-            nombreArchivo.textContent = 'Archivo seleccionado: ' + this.files[0].name;
-        } else {
-            nombreArchivo.textContent = '';
+    inputArchivo.addEventListener('change', function (e) {
+        alert("SI FUNCIONA");
+        if(e.target && e.target.id == 'file'){
+
+            if (e.target.files.length > 0) {
+                nombreArchivo.textContent = 'Archivo seleccionado: ' + e.target.files[0].name;
+            } else {
+                nombreArchivo.textContent = '';
+            }
         }
     });
 </script>
