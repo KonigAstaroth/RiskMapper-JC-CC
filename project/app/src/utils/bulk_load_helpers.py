@@ -27,6 +27,10 @@ def getEstadoMunicipio(location):
      return municipio, estado
 
 def getCalleColonia(location):
+     street_name = None
+     street_number = None
+     colonia = None
+     calle = None
      if location and location.raw:
           componentes = location.raw.get('address_components', [])
           for comp in componentes:
