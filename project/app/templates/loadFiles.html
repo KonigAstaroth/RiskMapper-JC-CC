@@ -54,12 +54,12 @@ Carga de datos
                 <div class="file-input-section">
                     <a href="{% url 'download-template' %}">Descargar template</a>
                     <p id="file-name"></p>
-                <button class="cbr-button" type="button">
-                    <label for="file">
+                
+                    <label for="file" class="cbr-button">
                         <i class="bi bi-upload me-3"></i>Cargar archivo
                     </label>
                     <input type="file" id="file" name="archivo" style="display: none;">
-                </button>
+                
                     
                 </div>
             </div>
@@ -228,9 +228,9 @@ Carga de datos
     {{ loading_bulk|json_script:"loading_bulk" }}
 
     <script>
-        const uploadBtn = document.getElementById('uploadFilesBtn');
+        
         const loadingModal = new bootstrap.Modal('#cbr-loading-modal');
-        // uploadBtn.addEventListener('click', () => loadingModal.show());
+        
         const loadingBulk = JSON.parse(document.getElementById('loading_bulk').textContent);
         let intervalId = null;
 
