@@ -57,7 +57,7 @@ Carga de datos
                 
                     <label class="cbr-button">
                         <i class="bi bi-upload me-3"></i>Cargar archivo
-                        <input type="file" name="archivo" style="display: none;">
+                        <input type="file" id= "file" name="archivo" style="display: none;">
                     </label>
                 
                     
@@ -225,7 +225,7 @@ Carga de datos
         </div>
     </div>
 </div>
-<!-- 
+
 {{ loading_bulk|json_script:"loading_bulk" }}
 
 <script>
@@ -313,13 +313,9 @@ Carga de datos
         }, 3000);
     }
 
-</script> -->
+</script>
 
 <script>
-    document.querySelector("form").addEventListener("submit", function () {
-        const fileInput = document.getElementById("file");
-        console.log("FILES FRONT:", fileInput.files);
-    });
     const inputArchivo = document.getElementById('file');
     const nombreArchivo = document.getElementById('file-name');
     //Si el input de archivo cambia, el formulario manual se reinicia y se desactiva
