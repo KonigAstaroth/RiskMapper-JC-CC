@@ -12,6 +12,10 @@ def check_report_status(request):
 
     task = AsyncResult(task_id)
 
+    if task.state == "FAILURE":
+        request.session['generating_report'] = False
+        return JsonResponse({"status": "error"})
+
     if task.state == "SUCCESS":
         request.session['generating_report'] = False
 
@@ -34,6 +38,10 @@ def check_bulk_status(request):
         return JsonResponse({"status": "no_task"})
 
     task = AsyncResult(task_id)
+
+    if task.state == "FAILURE":
+        request.session["loading_bulk"] = False
+        return JsonResponse({"status": "error"})
 
     if task.state == "SUCCESS":
 
