@@ -316,6 +316,10 @@ Carga de datos
 </script> -->
 
 <script>
+    document.querySelector("form").addEventListener("submit", function () {
+        const fileInput = document.getElementById("file");
+        console.log("FILES FRONT:", fileInput.files);
+    });
     const inputArchivo = document.getElementById('file');
     const nombreArchivo = document.getElementById('file-name');
     //Si el input de archivo cambia, el formulario manual se reinicia y se desactiva
