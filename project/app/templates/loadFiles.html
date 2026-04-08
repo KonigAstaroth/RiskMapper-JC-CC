@@ -45,7 +45,7 @@ Carga de datos
 
 <div class="carga-container">
     <div class="carga-card">
-        <form method="POST" action="{% url 'loadFilesService' %}" enctype="multipart/form-data">
+        <form method="POST" action="{% url 'loadFilesService' %}" enctype="multipart/form-data" id="temp_form">
             {% csrf_token %}
             <div class="carga-header">
                 <h1>Carga de archivos</h1> 
@@ -55,10 +55,12 @@ Carga de datos
                     <a href="{% url 'download-template' %}">Descargar template</a>
                     <p id="file-name"></p>
                     
-                    <!-- <label class="cbr-button" id="btn-file" type="button">
-                        <i class="bi bi-upload me-3"></i>Cargar archivo -->
-                        <input type="file" name="archivo" accept=".xlsx" id="file">
-                    <!-- </label> -->
+                    <div class="cbr-button">
+                        <label for="files">
+                            <i class="bi bi-upload me-3"></i>Cargar archivo
+                        </label>
+                        <input type="file" id="files" name="archivo" style="display: none;" accept=".xlsx, .xls">
+                    </div>
                 
                     
                 </div>
@@ -321,11 +323,13 @@ Carga de datos
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const inputArchivo = document.getElementById('file');
+        const inputArchivo = document.getElementById('files');
         const nombreArchivo = document.getElementById('file-name');
 
         //Si el input de archivo cambia, el formulario manual se reinicia y se desactiva
         inputArchivo.addEventListener('change', function () {
+            const form = new FormData(document.getElementById('temp_form'));
+            console.log(form.get('archivo'));
             if (this.files.length > 0) {
                 nombreArchivo.textContent = 'Archivo seleccionado: ' + this.files[0].name;
             } else {
