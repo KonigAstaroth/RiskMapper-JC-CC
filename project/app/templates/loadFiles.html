@@ -55,10 +55,9 @@ Carga de datos
                     <a href="{% url 'download-template' %}">Descargar template</a>
                     <p id="file-name"></p>
                     <input type="file" name="archivo" accept=".xlsx" style="display: none;" id="file">
-                    <label class="cbr-button" for="file">
+                    <button class="cbr-button" id="btn-file" type="button">
                         <i class="bi bi-upload me-3"></i>Cargar archivo
-                        
-                    </label>
+                    </button>
                 
                     
                 </div>
@@ -316,20 +315,23 @@ Carga de datos
 </script>
 
 <script>
-    console.log("SCRIPT CARGADO");
-    const inputArchivo = document.getElementById('file');
-    const nombreArchivo = document.getElementById('file-name');
-    //Si el input de archivo cambia, el formulario manual se reinicia y se desactiva
-    inputArchivo.addEventListener('change', function (e) {
-        alert("SI FUNCIONA");
-        if(e.target && e.target.id == 'file'){
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputArchivo = document.getElementById('file');
+        const nombreArchivo = document.getElementById('file-name');
+        const btnFile = document.getElementById('btn-file')
 
-            if (e.target.files.length > 0) {
-                nombreArchivo.textContent = 'Archivo seleccionado: ' + e.target.files[0].name;
+        btnFile.addEventListener('click', () =>{
+            inputArchivo.click();
+        });
+        //Si el input de archivo cambia, el formulario manual se reinicia y se desactiva
+        inputArchivo.addEventListener('change', function () {
+            if (this.files.length > 0) {
+                nombreArchivo.textContent = 'Archivo seleccionado: ' + this.files[0].name;
             } else {
                 nombreArchivo.textContent = '';
             }
-        }
+            
+        });
     });
 </script>
 
