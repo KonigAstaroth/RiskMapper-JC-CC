@@ -60,7 +60,7 @@ def getRange(eventos):
     if categorias:
         ctr_categorias = Counter(categorias)
         categoria_critica, _ = ctr_categorias.most_common(1)[0]
-    print(f"Delitos con la misma categoria en la misma hora critica: {delitos}")
+    print(f"Delitos con la misma categoria en la misma hora critica (deben de ser los mismos): {delitos}")
 
     if hora_critica is not None:
         if cantidad > 1:
