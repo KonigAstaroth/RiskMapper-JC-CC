@@ -87,8 +87,7 @@ def process_report(data, uid):
     if not filters:
         return redirect("main")
         
-    ref = db.collection('Eventos')
-    query_ref = ref
+    query_ref = db.collection('Eventos')
 
     if filters:
         for campo, valor in filters.items():
@@ -107,7 +106,6 @@ def process_report(data, uid):
             error_message = "Error: Demasiados delitos seleccionados."
             return redirect(f"/main?error={urllib.parse.quote(error_message)}")
         
-    query_ref = query_ref.limit(500)
 
     eventos_por_mes = defaultdict(list)
     graficos_por_mes = defaultdict(list)
