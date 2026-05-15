@@ -1,27 +1,22 @@
 from app.core.auth.firebase_config import db
 
 def getDataDBMain(task_id, request):
-    graphic = calendars = hour_txt = AiText = lugar = data_table = None
+    lugar = None
     if not task_id:
-        return graphic, calendars, hour_txt, AiText, lugar, data_table
+        return lugar
 
     report_ref = db.collection("Reportes").document(task_id).get()
 
     if not report_ref.exists:
-        return graphic, calendars, hour_txt, AiText, lugar, data_table
+        return lugar
     
     data = report_ref.to_dict()
 
     request.session['map_config'] = data.get("map_config")
 
-    graphic = data.get('graphic', [])
-    calendars = data.get('calendars', [])
-    hour_txt = data.get('hour_txt')
-    AiText = data.get('AiText')
     lugar = data.get('lugar')
-    data_table = data.get('tabla_base64')
 
-    return graphic, calendars, hour_txt, AiText, lugar, data_table
+    return lugar
 
 
 def getDataDBWord(task_id):

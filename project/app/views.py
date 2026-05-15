@@ -46,7 +46,7 @@ def main (request):
           # Check if a report is in process
           task_id = request.session.get("task_id")
 
-          graphic, calendars, hour_txt, AiText, lugar, data_table = getDataDBMain(task_id, request)
+          lugar= getDataDBMain(task_id, request)
                     
           error = request.GET.get("error")
 
@@ -54,15 +54,10 @@ def main (request):
                'priv': priv,
                'google_maps_api_key': settings.GOOGLE_MAPS_KEY,
                'markers': markers_json,
-               'graphic': graphic,
-               'calendarios': calendars,
                'lugar': lugar,
-               'hour_txt': hour_txt,
-               'AiText': AiText,
                'map_config_json': json.dumps(map_config),
                'error': error,
                'lista_delitos': lista_delitos,
-               'tabla_base64': data_table,
                'unidades':unidades, 
                'generating_report' : request.session.get('generating_report', False)    
           }
