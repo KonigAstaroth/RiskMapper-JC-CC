@@ -94,7 +94,8 @@ def handleManualLoad(request):
                     "longitud": data["lng"],
                     'updatedAt': datetime.datetime.now(datetime.timezone.utc),
                     'Descripcion': data["descripcion"],
-                    'direccion_full': direccion
+                    'direccion_full': direccion,
+                    'expiresAt': data['FechaHoraHecho'] + datetime.timedelta(days=365)
                 })
                 success_message = "Datos agregados exitosamente"
                 return redirect(f"/loadFiles?success={urllib.parse.quote(success_message)}")
@@ -171,6 +172,10 @@ def bulk_load_task(self, file_bytes):
                 event['updatedAt'] = datetime.datetime.now(datetime.timezone.utc)
                 event['Categoria'] = event.get('Categoria', '').upper()
                 event['direccion_full'] = direccion
+
+                event_date = event.get('FechaHoraHecho')
+                if event_date:
+                    event['expiresAt'] = event_date + datetime.timedelta(days=365)
 
                 # Batch commit in database
                 ref = db.collection('Eventos').document()
