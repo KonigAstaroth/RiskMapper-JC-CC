@@ -106,8 +106,6 @@ def process_report(data, uid):
         else:
             error_message = "Error: Demasiados delitos seleccionados."
             return redirect(f"/main?error={urllib.parse.quote(error_message)}")
-        
-    query_ref = query_ref.limit(500)
 
     eventos_por_mes = defaultdict(list)
     graficos_por_mes = defaultdict(list)
@@ -137,5 +135,5 @@ def process_report(data, uid):
     return {
         "graphic": graphic, "calendars": calendars, "tabla_base64": data_table,
         "hour_txt": hour_txt, "AiText": AiData["ai_text"], "AiMarkdown": AiData["ai_markdown"],
-        "lugar": lugar, "map_config": map_config, "now_str": now.strftime("%d-%m-%Y"), "eventos_count": len(eventos_lista)
+        "lugar": lugar, "map_config": map_config, "now_str": now.strftime("%d-%m-%Y"), "eventos_count": len(eventos_lista), "expiresAt": now + timedelta(days=1)
     }
