@@ -72,14 +72,12 @@ nav i {
   list-style-type: none;
 }
 
-.dropdown-menu{
+.navbar-dropdown .dropdown-menu{
   transform: translateX(-80%);
   list-style-type: none;
-  overflow-y: hidden !important;
-  max-height: 320px;
 }
 
-ul.dropdown-menu.show{
+.navbar-dropdown ul.dropdown-menu.show{
   width: 17em;
   background-color: var(--surface);
   border: 1px solid var(--border);
