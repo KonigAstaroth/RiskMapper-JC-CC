@@ -330,8 +330,12 @@ label{
 
 .table-striped td,
 .table-striped th{
-  min-width: 10vh;
+  min-width: 10vw;
   max-width: 20vw;
+}
+
+td:nth-child(2), th:nth-child(2) {
+  width: 600px;
 }
 
 .table-striped tbody td.text-center {
