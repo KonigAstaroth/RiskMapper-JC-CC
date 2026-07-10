@@ -30,12 +30,7 @@ def getRange(eventos):
         else:
             continue
 
-        if fecha_dt.tzinfo is not None:
-            fecha_local = dj_timezone.localtime(fecha_dt)
-        else:
-            fecha_local = fecha_dt  
-
-        hora = fecha_local.hour
+        hora = fecha_dt.hour
         horas.append(hora)
     
         eventos_por_hora.append((hora, evento))
