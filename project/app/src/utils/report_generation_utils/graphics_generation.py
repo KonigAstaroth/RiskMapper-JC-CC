@@ -5,7 +5,6 @@ from collections import defaultdict
 import datetime
 from app.src.utils.report_generation_utils.parse_timestamp_num import time_to_num
 from app.src.utils.report_generation_utils.lists import color_delitos
-from django.utils import timezone as dj_timezone
 import numpy as np
 
 
@@ -54,13 +53,12 @@ def reportGraphics(eventos_lista, eventos_por_mes, graficos_por_mes):
 
 
         if date_obj:
-            hora_local = dj_timezone.localtime(date_obj)
-            hora_str = hora_local.strftime('%H:%M:%S').strip()
+            hora_str = date_obj.strftime('%H:%M:%S').strip()
             hora_str = ''.join(c for c in hora_str if c.isdigit() or c == ':')
             segundos = time_to_num(hora_str)
             if segundos is not None:
                     angulo = (segundos/86400) * 2 * np.pi
-                    dia = hora_local.day
+                    dia = date_obj.day
                     graficos_por_mes[(year, month)].append((angulo, dia, categorie))
 
     for (year, month), day in eventos_por_mes.items():
