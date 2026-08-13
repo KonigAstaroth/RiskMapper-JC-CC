@@ -24,7 +24,7 @@ def process_report(data, uid):
     str_prev_endDate = None
     eventos_lista = []
 
-    hour_txt = None
+    hour_txt = []
     map_config = None
     unit_info = None
 
@@ -120,11 +120,11 @@ def process_report(data, uid):
         try:
             hour_txt = getRange(eventos_lista)
         except:
-            hour_txt = "No se encontraron eventos para graficar."
+            hour_txt.append("No se encontraron eventos para determinar el rango de horario.")
 
         data_table, graphic, calendars = reportGraphics(eventos_lista, eventos_por_mes, graficos_por_mes)
     else:
-       hour_txt = "No se encontraron eventos para graficar."  
+       hour_txt = "No se encontraron eventos para determinar el rango de horario."  
     
     AiData = asyncio.run(genAI(
         filtersAi, str_startDate, str_endDate_API, 

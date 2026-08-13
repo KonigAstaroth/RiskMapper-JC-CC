@@ -117,9 +117,12 @@ def ProcessDocx(request):
      if horas:
           try:
                doc.add_heading('Rango horario crítico:', level= 2)
-               doc.add_paragraph( horas)
+
+               for text in horas:
+                    doc.add_paragraph(text)
+                    doc.add_paragraph("")
           except:
-               doc.add_paragraph("No hay rango horario crítico")
+               doc.add_paragraph("No se encontraron eventos para determinar el rango horario crítico")
      
 
      response = HttpResponse(
